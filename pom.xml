@@ -153,6 +153,16 @@
             <artifactId>postgresql</artifactId>
             <version>42.5.4</version>
         </dependency>
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.43.2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-community-dialects</artifactId>
+            <version>6.1.7.Final</version> <!-- 사용 중인 Hibernate 버전에 맞춰 조정 -->
+        </dependency>
     </dependencies>
 
     <build>
