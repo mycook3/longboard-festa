@@ -23,11 +23,9 @@ public class Judge extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Comment("심사위원 번호")
-    @Column(name = "judge_number", nullable = false, unique = true)
+    @Column(name = "judge_number", nullable = false)
     private Integer judgeNumber;
 
-    @Comment("이름")
     @Column(name = "name", nullable = false, length = 64)
     private String name;
 

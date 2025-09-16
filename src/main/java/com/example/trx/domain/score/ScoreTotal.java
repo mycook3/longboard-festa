@@ -36,16 +36,12 @@ public class ScoreTotal extends BaseTimeEntity {
             foreignKey = @ForeignKey(name = "fk_score_judge"))
     private Judge judge;
 
-    @Comment("총점")
     @Column(name = "total", nullable = false, precision = 8, scale = 2)
     private BigDecimal total;
 
-    // 세부사항 JSON (PostgreSQL jsonb)
-    @Comment("세부사항(JSON): criteria/penalties/raw/computed/rule_ver 등")
     @Column(name = "breakdown_json", columnDefinition = "jsonb")
     private String breakdownJson;
 
-    // 운영용(선택)
     @Column(name = "is_locked", nullable = false)
     private boolean locked = false;
 
