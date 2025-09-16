@@ -1,15 +1,23 @@
-package com.example.trx.domain;
+package com.example.trx.domain.user;
 
-import com.example.trx.domain.user.Division;
-import com.example.trx.domain.user.Gender;
-import com.example.trx.domain.user.UserStatus;
+import com.example.trx.domain.run.Run;
 import com.example.trx.support.util.BaseTimeEntity;
 import jakarta.persistence.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.Comment;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Entity
 public class Participant extends BaseTimeEntity {
 
     @Id
@@ -68,7 +76,4 @@ public class Participant extends BaseTimeEntity {
     @OneToMany(mappedBy = "participant", cascade = CascadeType.ALL, orphanRemoval = false)
     @Builder.Default
     private List<Run> runs = new ArrayList<>();
-
-    public Participant() {
-    }
 }
