@@ -27,6 +27,9 @@ public class Participant extends BaseTimeEntity {
     @Column(name = "name_kr", nullable = false, length = 64)
     private String nameKr;
 
+    @Column(name = "name_eng", nullable = false, length = 64)
+    private String nameEng;
+
     @Column(name = "bib_number")
     private Integer bibNumber;
 
