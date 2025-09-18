@@ -1,11 +1,9 @@
 package com.example.trx.domain.event;
 
 import com.example.trx.domain.judge.Judge;
-import com.example.trx.domain.user.DisciplineCode;
 import com.example.trx.domain.user.Participant;
 import java.util.ArrayList;
 import java.util.List;
-import org.springdoc.core.models.ParameterId;
 
 //종목 정보
 public abstract class ContestEvent {
