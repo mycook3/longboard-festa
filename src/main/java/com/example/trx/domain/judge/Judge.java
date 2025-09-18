@@ -1,7 +1,7 @@
 package com.example.trx.domain.judge;
 
 import com.example.trx.domain.event.ContestEvent;
-import com.example.trx.domain.score.ScoreSheet;
+import com.example.trx.domain.score.ScoreTotal;
 import com.example.trx.support.util.BaseTimeEntity;
 import jakarta.persistence.*;
 import java.util.*;
@@ -37,5 +37,5 @@ public class Judge extends BaseTimeEntity {
     // 관계: Judge 1 : N ScoreTotal
     @OneToMany(mappedBy = "judge", cascade = CascadeType.ALL, orphanRemoval = false)
     @Builder.Default
-    private List<ScoreSheet> scores = new ArrayList<>();
+    private List<ScoreTotal> scores = new ArrayList<>();
 }
