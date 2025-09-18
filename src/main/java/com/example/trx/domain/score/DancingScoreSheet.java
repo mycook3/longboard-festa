@@ -2,7 +2,7 @@ package com.example.trx.domain.score;
 
 import java.math.BigDecimal;
 
-public class DancingScoreSheet extends ScoreSheet{
+public class DancingScoreSheet extends ScoreSheet {
 
   private Integer flow;
   private Integer speedControl;
