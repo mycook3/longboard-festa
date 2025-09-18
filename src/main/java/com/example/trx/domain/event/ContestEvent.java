@@ -2,6 +2,7 @@ package com.example.trx.domain.event;
 
 import com.example.trx.domain.judge.Judge;
 import com.example.trx.domain.user.Participant;
+import com.example.trx.domain.user.Participation;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -10,13 +11,10 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.OneToMany;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 
 //종목 정보
@@ -30,49 +28,50 @@ public abstract class ContestEvent {
   private Long id;
 
   @Enumerated(EnumType.STRING)
-  private Level level;
-
-  @Enumerated(EnumType.STRING)
-  private Round round;
+  private Division division;
 
   @Enumerated(EnumType.STRING)
   private DisciplineCode disciplineCode;
+
+  @Enumerated(EnumType.STRING)
+  private Round round;
 
   @OneToMany(mappedBy = "contestEvent", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   private List<Judge> judges;
 
   @OneToMany(mappedBy = "contestEvent", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  private List<Participant> participants;
+  private List<Participation> participations;
 
-  public ContestEvent(Level level, DisciplineCode disciplineCode) {
-    this.level = level;
+  public ContestEvent(Division division, DisciplineCode disciplineCode) {
+    this.division = division;
     this.disciplineCode = disciplineCode;
     this.round = Round.PRELIMINARY;
-    participants = new ArrayList<>();
+    participations = new ArrayList<>();
   }
 
+  //TODO
   public void addParticipant(Participant participant) {
-    participants.add(participant);
+
   }
 
   public void proceedRoundAndDropParticipants() {
     Round nextRound = round.proceed();
     Integer limit = nextRound.getLimit();
 
-    List<Participant> top = participants.stream()
+    List<Participation> top = participations.stream()
         .sorted(
-            //TODO total 점수 기반 정렬 로직
+            //TODO
         )
         .limit(limit)
         .toList();
 
-    participants.forEach(participant -> {
+    participations.forEach(participant -> {
       if (!top.contains(participant)) {
         //TODO 탈락자 정보 기입(라운드)
       }
     });
 
     this.round = nextRound;
-    participants.removeIf(participant -> !top.contains(participant));
+    participations.removeIf(participant -> !top.contains(participant));
   }
 }

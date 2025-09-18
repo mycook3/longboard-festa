@@ -2,8 +2,8 @@ package com.example.trx.domain.event;
 
 public class Slalom extends ContestEvent{
 
-  public Slalom(Level level) {
-    super(level, DisciplineCode.SLALOM);
+  public Slalom(Division division) {
+    super(division, DisciplineCode.SLALOM);
   }
 
 }
