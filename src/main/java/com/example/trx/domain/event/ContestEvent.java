@@ -1,6 +1,7 @@
 package com.example.trx.domain.event;
 
 import com.example.trx.domain.judge.Judge;
+import com.example.trx.domain.user.DisciplineCode;
 import com.example.trx.domain.user.Participant;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,12 +12,14 @@ public abstract class ContestEvent {
 
   private Level level;
   private Round round;
+  private DisciplineCode disciplineCode;
 
   private List<Judge> judges;
   private List<Participant> participants;
 
-  public ContestEvent(Level level) {
+  public ContestEvent(Level level, DisciplineCode disciplineCode) {
     this.level = level;
+    this.disciplineCode = disciplineCode;
     this.round = Round.PRELIMINARY;
     participants = new ArrayList<>();
   }
