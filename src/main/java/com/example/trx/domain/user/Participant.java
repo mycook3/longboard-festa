@@ -1,5 +1,7 @@
 package com.example.trx.domain.user;
 
+import com.example.trx.domain.event.ContestEvent;
+import com.example.trx.domain.event.Division;
 import com.example.trx.domain.run.Run;
 import com.example.trx.support.util.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -10,7 +12,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Comment;
 
 @Getter
 @Setter
@@ -61,6 +62,10 @@ public class Participant extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 16)
     private UserStatus userStatus = UserStatus.WAITING;
+
+    //다대다 관계
+    @OneToMany(mappedBy = "participant", cascade = CascadeType.ALL)
+    private List<Participation> participations = new ArrayList<>();
 
     // 관계: Participant 1 : N Run
     @OneToMany(mappedBy = "participant", cascade = CascadeType.ALL, orphanRemoval = false)

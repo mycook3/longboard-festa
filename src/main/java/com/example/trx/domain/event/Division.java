@@ -1,4 +1,4 @@
-package com.example.trx.domain.user;
+package com.example.trx.domain.event;
 
 public enum Division {
     CHALLENGER,   // 챌린저
