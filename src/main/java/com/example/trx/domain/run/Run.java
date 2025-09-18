@@ -1,7 +1,7 @@
 package com.example.trx.domain.run;
 
 import com.example.trx.domain.score.ScoreTotal;
-import com.example.trx.domain.user.DisciplineCode;
+import com.example.trx.domain.event.DisciplineCode;
 import com.example.trx.domain.user.Participant;
 import com.example.trx.domain.user.UserStatus;
 import com.example.trx.support.util.BaseTimeEntity;
