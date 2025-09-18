@@ -11,7 +11,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.OneToMany;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,8 +19,7 @@ import lombok.RequiredArgsConstructor;
 //종목 정보
 @Entity
 @RequiredArgsConstructor
-@MappedSuperclass
-public abstract class ContestEvent {
+public class ContestEvent {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

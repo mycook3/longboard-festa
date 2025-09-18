@@ -18,7 +18,7 @@ import lombok.Setter;
 @Builder
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public abstract class ScoreSheet extends BaseTimeEntity {
+public abstract class ScoreTotal extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
