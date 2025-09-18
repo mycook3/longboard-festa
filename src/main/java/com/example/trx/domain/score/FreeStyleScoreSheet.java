@@ -1,6 +1,5 @@
 package com.example.trx.domain.score;
 
-import com.example.trx.domain.event.ContestEvent;
 import java.math.BigDecimal;
 
 public class FreeStyleScoreSheet extends ScoreSheet {

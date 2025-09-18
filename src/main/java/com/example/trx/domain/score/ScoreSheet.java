@@ -1,13 +1,53 @@
 package com.example.trx.domain.score;
 
 import com.example.trx.domain.judge.Judge;
-import com.example.trx.domain.user.Participant;
+import com.example.trx.domain.run.Run;
+import com.example.trx.support.util.BaseTimeEntity;
+import jakarta.persistence.*;
 import java.math.BigDecimal;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-public abstract class ScoreSheet {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Entity
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+public abstract class ScoreSheet extends BaseTimeEntity {
 
-  private Participant participant;
-  private Judge judge;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  public abstract BigDecimal getTotal();
+    // 무엇에 대한 점수인가? -> Run
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "run_id", nullable = false,
+            foreignKey = @ForeignKey(name = "fk_score_run"))
+    private Run run;
+
+    // 누가 매겼는가? -> Judge
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "judge_id", nullable = false,
+            foreignKey = @ForeignKey(name = "fk_score_judge"))
+    private Judge judge;
+
+    @Column(name = "total", nullable = false, precision = 8, scale = 2)
+    private BigDecimal total;
+
+    @Column(name = "breakdown_json", columnDefinition = "jsonb")
+    private String breakdownJson;
+
+    @Column(name = "is_locked", nullable = false)
+    private boolean locked = false;
+
+    @Column(name = "edited_by", length = 64)
+    private String editedBy;
+
+    @Column(name = "edit_reason", length = 255)
+    private String editReason;
 }

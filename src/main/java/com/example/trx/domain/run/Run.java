@@ -1,6 +1,6 @@
 package com.example.trx.domain.run;
 
-import com.example.trx.domain.score.ScoreTotal;
+import com.example.trx.domain.score.ScoreSheet;
 import com.example.trx.domain.event.DisciplineCode;
 import com.example.trx.domain.user.Participant;
 import com.example.trx.domain.user.UserStatus;
@@ -13,6 +13,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * 각 참가자들의 퍼포먼스 1회
+ */
 @Getter
 @Setter
 @NoArgsConstructor
@@ -47,10 +50,10 @@ public class Run extends BaseTimeEntity {
     // 관계: Run 1 : N ScoreTotal
     @OneToMany(mappedBy = "run", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<ScoreTotal> scores = new ArrayList<>();
+    private List<ScoreSheet> scores = new ArrayList<>();
 
     // 편의 메서드
-    public void addScore(ScoreTotal score) {
+    public void addScore(ScoreSheet score) {
         scores.add(score);
         score.setRun(this);
     }
