@@ -20,6 +20,10 @@ public enum Round {
     this.limit = i;
   }
 
+  public Integer getLimit() {
+    return this.limit;
+  }
+
   public Round proceed() throws IllegalStateException {
     return switch (this) {
       case PRELIMINARY -> ROUND_32;
