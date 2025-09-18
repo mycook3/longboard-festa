@@ -1,12 +1,9 @@
-package com.example.trx.domain.judge;
+package com.example.trx.domain.score;
 
 import com.example.trx.domain.event.ContestEvent;
-import com.example.trx.domain.user.Participant;
 import java.math.BigDecimal;
 
 public class FreeStyleScoreSheet extends ScoreSheet {
-
-  private ContestEvent contestEvent;
 
   private Integer difficulty;
   private Integer representation;

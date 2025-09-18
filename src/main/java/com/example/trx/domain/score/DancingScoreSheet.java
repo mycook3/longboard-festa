@@ -1,4 +1,4 @@
-package com.example.trx.domain.judge;
+package com.example.trx.domain.score;
 
 import java.math.BigDecimal;
 
@@ -9,7 +9,6 @@ public class DancingScoreSheet extends ScoreSheet{
   private Integer difficulty;
   private Integer style;
   private Integer creativity;
-
 
   @Override
   public BigDecimal getTotal() {
