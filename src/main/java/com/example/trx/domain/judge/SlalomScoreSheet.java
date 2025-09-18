@@ -2,8 +2,9 @@ package com.example.trx.domain.judge;
 
 import com.example.trx.domain.event.ContestEvent;
 import com.example.trx.domain.user.Participant;
+import java.math.BigDecimal;
 
-public class SlalomScoreSheet {
+public class SlalomScoreSheet extends ScoreSheet {
 
   private Participant participant;
   private Judge judge;
@@ -13,7 +14,8 @@ public class SlalomScoreSheet {
   private Integer touch;
   private Integer score;//정성점수
 
-  public Double getTotalScore() {
-    return 100 - (touch * 0.5) + score;
+  @Override
+  public BigDecimal getTotal() {
+    return new BigDecimal(100 - (touch * 0.5) + score);
   }
 }
