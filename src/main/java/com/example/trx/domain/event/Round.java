@@ -1,18 +1,14 @@
 package com.example.trx.domain.event;
 
-import com.example.trx.domain.user.Participant;
-import java.util.ArrayList;
-import java.util.List;
-
 //종목별 라운드 진행 상황
 public enum Round {
   PRELIMINARY(1000),//32강 선발
-  ROUND_32(32),
-  ROUND_16(16),
-  ROUND_8(8),
-  SEMI_FINAL(4),
-  FINAL(2),
-  WIN(1);
+  ROUND_32(32),//32강
+  ROUND_16(16),//16강
+  ROUND_8(8),//8강
+  SEMI_FINAL(4),//준결승
+  FINAL(2),//결승
+  WIN(1);//우승
 
   private Integer limit;
 

@@ -3,6 +3,7 @@ package com.example.trx.domain.event;
 import com.example.trx.domain.judge.Judge;
 import com.example.trx.domain.user.Participant;
 import com.example.trx.domain.user.Participation;
+import com.example.trx.domain.user.ParticipationStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -47,29 +48,24 @@ public class ContestEvent {
     participations = new ArrayList<>();
   }
 
-  //TODO
-  public void addParticipant(Participant participant) {
-
-  }
-
   public void proceedRoundAndDropParticipants() {
     Round nextRound = round.proceed();
     Integer limit = nextRound.getLimit();
 
     List<Participation> top = participations.stream()
+        .filter(p -> ParticipationStatus.ACTIVE.equals(p.getStatus()))
         .sorted(
             //TODO
         )
         .limit(limit)
         .toList();
 
-    participations.forEach(participant -> {
-      if (!top.contains(participant)) {
-        //TODO 탈락자 정보 기입(라운드)
+    participations.forEach( participation -> {
+      if (!top.contains(participation)) {
+        participation.drop();
       }
     });
 
-    this.round = nextRound;
-    participations.removeIf(participant -> !top.contains(participant));
+    this.round = nextRound;//라운드 진행
   }
 }
