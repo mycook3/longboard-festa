@@ -1,5 +1,6 @@
 package com.example.trx.domain.run;
 
+import com.example.trx.domain.event.Round;
 import com.example.trx.domain.score.ScoreTotal;
 import com.example.trx.domain.event.DisciplineCode;
 import com.example.trx.domain.user.Participant;
@@ -40,8 +41,9 @@ public class Run extends BaseTimeEntity {
     private DisciplineCode disciplineCode;
 
     // 라운드 번호 (예: 1=예선, 2=결선)
-    @Column(name = "round_no", nullable = false)
-    private Integer roundNo;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "round", nullable = false)
+    private Round roundNo;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 16)
