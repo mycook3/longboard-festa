@@ -43,7 +43,7 @@ public class Run extends BaseTimeEntity {
     // 라운드 번호 (예: 1=예선, 2=결선)
     @Enumerated(EnumType.STRING)
     @Column(name = "round", nullable = false)
-    private Round roundNo;
+    private Round round;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 16)
