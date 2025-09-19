@@ -15,7 +15,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Participation {
+public class Participation {//초기 등록 현황을 기록
 
   @Id
   @GeneratedValue
