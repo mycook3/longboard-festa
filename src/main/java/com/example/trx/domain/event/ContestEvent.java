@@ -52,6 +52,7 @@ public class ContestEvent {
   @OneToMany(mappedBy = "contestEvent", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   private List<Judge> judges = new ArrayList<>();
 
+  // 해당 종목에서 심사된 모든 시도
   @OneToMany(mappedBy = "contestEvent", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   private List<Run> runs = new ArrayList<>();
 
@@ -65,7 +66,7 @@ public class ContestEvent {
     Integer limit = nextRound.getLimit();
 
     //다음 라운드로 넘어갈 사람들만 추리기
-    //TODO 동점자 처리는?
+    //TODO 동점자 처리 의논 필요
     List<Run> top = runs.stream().filter(run -> round.equals(run.getRound()))
         .sorted(
            Comparator.comparing((Run run) -> {

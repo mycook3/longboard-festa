@@ -19,6 +19,13 @@ import lombok.Setter;
 @Entity
 public class ScoreTotal extends BaseTimeEntity {
 
+    public ScoreTotal(Run run, Judge judge, BigDecimal total, String breakdownJson) {
+      this.judge = judge;
+      this.run = run;
+      this.total = total;
+      this.breakdownJson = breakdownJson;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
