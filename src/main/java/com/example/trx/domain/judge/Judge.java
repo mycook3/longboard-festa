@@ -41,8 +41,8 @@ public class Judge extends BaseTimeEntity {
     private List<ScoreTotal> scores = new ArrayList<>();
 
     // 채점
-    public void submitScore(Run run, BigDecimal score, String breakDownJson) {
-      ScoreTotal submitted = new ScoreTotal(run, this, score, breakDownJson);
+    public void submitScore(BigDecimal score, String breakDownJson) {
+      ScoreTotal submitted = new ScoreTotal(this.contestEvent.getCurrentRun(), this, score, breakDownJson);
       scores.add(submitted);
     }
 }
