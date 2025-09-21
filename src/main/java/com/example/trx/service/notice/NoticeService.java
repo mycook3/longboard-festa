@@ -4,6 +4,7 @@ import com.example.trx.apis.notice.dto.NoticeCreateRequest;
 import com.example.trx.apis.notice.dto.NoticeResponse;
 import com.example.trx.domain.notice.Notice;
 import com.example.trx.domain.notice.NoticeImportance;
+import com.example.trx.domain.notice.exception.InvalidNoticeScheduleException;
 import com.example.trx.repository.notice.NoticeRepository;
 import java.time.OffsetDateTime;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +22,14 @@ public class NoticeService {
         NoticeImportance importance = request.getImportance() != null
             ? request.getImportance()
             : NoticeImportance.NORMAL;
+        OffsetDateTime now = OffsetDateTime.now();
         OffsetDateTime applyAt = request.getApplyAt() != null
             ? request.getApplyAt()
-            : OffsetDateTime.now();
+            : now;
+
+        if (applyAt.isBefore(now)) {
+            throw new InvalidNoticeScheduleException("적용 시각은 현재 시각보다 과거일 수 없습니다.");
+        }
 
         Notice notice = Notice.builder()
             .title(request.getTitle())
