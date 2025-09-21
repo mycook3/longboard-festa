@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/notices")
+@RequestMapping("/api/v1/notices")
 @RequiredArgsConstructor
 @Tag(name = "Notice", description = "공지 관리 API")
 public class NoticeController {
