@@ -42,6 +42,8 @@ spring:
         format_sql: false
         show_sql: false
         dialect: org.hibernate.community.dialect.SQLiteDialect
+        jdbc:
+          use_get_generated_keys: false
 
 logging:
   level:
