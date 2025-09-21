@@ -9,14 +9,14 @@ import lombok.Getter;
 @AllArgsConstructor
 @Builder
 public class NoticeListResponse {
-    private final List<NoticeResponse> pinned;
+    private final List<NoticeSummaryResponse> pinned;
     private final PagedNotices publics;
 
     @Getter
     @AllArgsConstructor
     @Builder
     public static class PagedNotices {
-        private final List<NoticeResponse> contents;
+        private final List<NoticeSummaryResponse> contents;
         private final int page;
         private final int size;
         private final long totalElements;
