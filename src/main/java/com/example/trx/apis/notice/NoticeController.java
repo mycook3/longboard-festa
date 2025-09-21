@@ -7,8 +7,10 @@ import com.example.trx.service.notice.NoticeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,5 +30,11 @@ public class NoticeController {
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResult<NoticeResponse> createNotice(@Valid @RequestBody NoticeCreateRequest request) {
         return ApiResult.succeed(noticeService.createNotice(request));
+    }
+
+    @Operation(summary = "공지 조회", description = "적용 시각이 지난 공지를 상단 고정 순으로 조회합니다.")
+    @GetMapping
+    public ApiResult<List<NoticeResponse>> getNotices() {
+        return ApiResult.succeed(noticeService.getNotices());
     }
 }
