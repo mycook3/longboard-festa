@@ -7,7 +7,10 @@ import com.example.trx.domain.notice.NoticeImportance;
 import com.example.trx.domain.notice.exception.InvalidNoticeScheduleException;
 import com.example.trx.repository.notice.NoticeRepository;
 import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,15 +44,30 @@ public class NoticeService {
 
         Notice saved = noticeRepository.save(notice);
 
+        return toResponse(saved);
+    }
+
+    @Transactional(readOnly = true)
+    public List<NoticeResponse> getNotices() {
+        OffsetDateTime now = OffsetDateTime.now();
+        Sort sort = Sort.by(Sort.Order.desc("pinned"), Sort.Order.desc("createdAt"));
+
+        return noticeRepository.findByApplyAtLessThanEqual(now, sort)
+            .stream()
+            .map(this::toResponse)
+            .collect(Collectors.toList());
+    }
+
+    private NoticeResponse toResponse(Notice notice) {
         return NoticeResponse.builder()
-            .id(saved.getId())
-            .title(saved.getTitle())
-            .content(saved.getContent())
-            .importance(saved.getImportance())
-            .pinned(saved.isPinned())
-            .applyAt(saved.getApplyAt())
-            .createdAt(saved.getCreatedAt())
-            .updatedAt(saved.getUpdatedAt())
+            .id(notice.getId())
+            .title(notice.getTitle())
+            .content(notice.getContent())
+            .importance(notice.getImportance())
+            .pinned(notice.isPinned())
+            .applyAt(notice.getApplyAt())
+            .createdAt(notice.getCreatedAt())
+            .updatedAt(notice.getUpdatedAt())
             .build();
     }
 }
