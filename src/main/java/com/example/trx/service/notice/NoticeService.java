@@ -7,7 +7,7 @@ import com.example.trx.domain.notice.Notice;
 import com.example.trx.domain.notice.NoticeImportance;
 import com.example.trx.domain.notice.exception.InvalidNoticeScheduleException;
 import com.example.trx.repository.notice.NoticeRepository;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -29,8 +29,8 @@ public class NoticeService {
         NoticeImportance importance = request.getImportance() != null
             ? request.getImportance()
             : NoticeImportance.NORMAL;
-        OffsetDateTime now = OffsetDateTime.now();
-        OffsetDateTime applyAt = request.getApplyAt() != null
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime applyAt = request.getApplyAt() != null
             ? request.getApplyAt()
             : now;
 
@@ -53,7 +53,7 @@ public class NoticeService {
 
     @Transactional(readOnly = true)
     public NoticeListResponse getNotices(int page, int size) {
-        OffsetDateTime now = OffsetDateTime.now();
+        LocalDateTime now = LocalDateTime.now();
 
         Sort pinnedSort = Sort.by(Sort.Order.desc("createdAt"));
         List<NoticeResponse> pinnedNotices = noticeRepository
