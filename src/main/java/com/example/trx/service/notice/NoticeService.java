@@ -1,6 +1,7 @@
 package com.example.trx.service.notice;
 
 import com.example.trx.apis.notice.dto.NoticeCreateRequest;
+import com.example.trx.apis.notice.dto.NoticeListResponse;
 import com.example.trx.apis.notice.dto.NoticeResponse;
 import com.example.trx.domain.notice.Notice;
 import com.example.trx.domain.notice.NoticeImportance;
@@ -10,6 +11,9 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,14 +52,37 @@ public class NoticeService {
     }
 
     @Transactional(readOnly = true)
-    public List<NoticeResponse> getNotices() {
+    public NoticeListResponse getNotices(int page, int size) {
         OffsetDateTime now = OffsetDateTime.now();
-        Sort sort = Sort.by(Sort.Order.desc("pinned"), Sort.Order.desc("createdAt"));
 
-        return noticeRepository.findByApplyAtLessThanEqual(now, sort)
+        Sort pinnedSort = Sort.by(Sort.Order.desc("createdAt"));
+        List<NoticeResponse> pinnedNotices = noticeRepository
+            .findByPinnedIsTrueAndApplyAtLessThanEqual(now, pinnedSort)
             .stream()
             .map(this::toResponse)
             .collect(Collectors.toList());
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("createdAt")));
+        Page<Notice> pageResult = noticeRepository
+            .findByPinnedIsFalseAndApplyAtLessThanEqual(now, pageable);
+
+        List<NoticeResponse> generalContents = pageResult.getContent().stream()
+            .map(this::toResponse)
+            .collect(Collectors.toList());
+
+        NoticeListResponse.PagedNotices paged = NoticeListResponse.PagedNotices.builder()
+            .contents(generalContents)
+            .page(pageResult.getNumber())
+            .size(pageResult.getSize())
+            .totalElements(pageResult.getTotalElements())
+            .totalPages(pageResult.getTotalPages())
+            .last(pageResult.isLast())
+            .build();
+
+        return NoticeListResponse.builder()
+            .pinned(pinnedNotices)
+            .publics(paged)
+            .build();
     }
 
     private NoticeResponse toResponse(Notice notice) {
