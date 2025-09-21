@@ -2,7 +2,7 @@ package com.example.trx.apis.notice.dto;
 
 import com.example.trx.domain.notice.NoticeImportance;
 import jakarta.validation.constraints.NotBlank;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,5 +26,5 @@ public class NoticeCreateRequest {
 
     private NoticeImportance importance;
 
-    private OffsetDateTime applyAt;
+    private LocalDateTime applyAt;
 }

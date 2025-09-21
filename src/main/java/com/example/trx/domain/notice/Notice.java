@@ -10,7 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -44,5 +44,5 @@ public class Notice extends BaseTimeEntity {
     private boolean pinned;
 
     @Column(name = "apply_at", nullable = false)
-    private OffsetDateTime applyAt;
+    private LocalDateTime applyAt;
 }
