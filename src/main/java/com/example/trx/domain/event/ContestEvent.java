@@ -96,7 +96,7 @@ public class ContestEvent {
         .limit(limit)
         .toList();
 
-    this.round = nextRound;//라운드 진행
+    this.round = nextRound;
     top.forEach(run -> this.addRun(run.getParticipant()));
   }
 }
