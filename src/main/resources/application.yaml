@@ -22,10 +22,10 @@ tomcat:
     enabled: true
 spring:
   datasource:
-    url: jdbc:sqlite:./festa.sqlite   # 호스트·포트·DB명
-    username:                # DB 계정
+    url: jdbc:h2:mem:testdb   # 호스트·포트·DB명
+    username: sa              # DB 계정
     password:                          # DB 비밀번호
-    driver-class-name: org.sqlite.JDBC
+    driver-class-name: org.h2.Driver
     hikari:                   # (선택) 풀 사이즈 튜닝
       maximum-pool-size: 10   # 동시 커넥션 최대치
       minimum-idle: 2
@@ -41,7 +41,7 @@ spring:
       hibernate:
         format_sql: false
         show_sql: false
-        dialect: org.hibernate.community.dialect.SQLiteDialect
+        dialect: org.hibernate.dialect.H2Dialect
 
 logging:
   level:

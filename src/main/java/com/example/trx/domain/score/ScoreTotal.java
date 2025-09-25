@@ -45,7 +45,7 @@ public class ScoreTotal extends BaseTimeEntity {
     @Column(name = "total", nullable = false, precision = 8, scale = 2)
     private BigDecimal total;
 
-    @Column(name = "breakdown_json", columnDefinition = "jsonb")
+    @Column(name = "breakdown_json")//, columnDefinition = "jsonb")
     private String breakdownJson;
 
     @Column(name = "is_locked", nullable = false)
