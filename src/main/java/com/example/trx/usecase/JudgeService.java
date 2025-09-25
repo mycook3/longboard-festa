@@ -1,9 +1,7 @@
-package com.example.trx.service;
+package com.example.trx.usecase;
 
 import com.example.trx.domain.judge.Judge;
 import com.example.trx.domain.run.Run;
-import com.example.trx.domain.score.ScoreTotal;
-import com.example.trx.domain.user.Participant;
 import com.example.trx.repository.JudgeRepository;
 import com.example.trx.repository.ParticipantRepository;
 import com.example.trx.repository.RunRepository;

@@ -4,6 +4,7 @@ import com.example.trx.domain.judge.Judge;
 import com.example.trx.domain.run.Run;
 import com.example.trx.domain.score.ScoreTotal;
 import com.example.trx.domain.user.Participant;
+import com.example.trx.domain.user.UserStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -19,6 +20,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -73,7 +75,7 @@ public class ContestEvent {
     runs.add(run);
   }
 
-  public void proceedRoundAndDropParticipants() {
+  public void proceedRoundAndDropParticipants() throws IllegalStateException {
     Round nextRound = round.proceed();
     Integer limit = nextRound.getLimit();
 
@@ -98,5 +100,17 @@ public class ContestEvent {
 
     this.round = nextRound;
     top.forEach(run -> this.addRun(run.getParticipant()));
+  }
+
+  public void proceedRun() throws IllegalStateException {
+    if (this.currentRun == null) throw new IllegalStateException("Current run is null");
+    this.currentRun.endRun();
+
+    Optional<Run> nextRun = runs.stream()
+        .filter(run -> run.getRound().equals(this.round))
+        .filter(run -> !run.getUserStatus().equals(UserStatus.DONE)) // 아직 끝나지 않은 Run
+        .findFirst();
+
+    this.currentRun = nextRun.orElse(null);
   }
 }
