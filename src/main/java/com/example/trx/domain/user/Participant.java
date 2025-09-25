@@ -1,5 +1,6 @@
 package com.example.trx.domain.user;
 
+import com.example.trx.domain.event.ContestEvent;
 import com.example.trx.domain.event.Division;
 import com.example.trx.domain.run.Run;
 import com.example.trx.support.util.BaseTimeEntity;
@@ -10,8 +11,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Comment;
 
 @Getter
 @Setter
@@ -64,6 +65,7 @@ public class Participant extends BaseTimeEntity {
 
     // 참가 종목
     @OneToMany(mappedBy = "participant", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<Participation> participations = new ArrayList<>();
 
     // 한 마디 & 각오
@@ -83,4 +85,10 @@ public class Participant extends BaseTimeEntity {
     @OneToMany(mappedBy = "participant", cascade = CascadeType.ALL, orphanRemoval = false)
     @Builder.Default
     private List<Run> runs = new ArrayList<>();
+
+    public void participate(ContestEvent event) {
+      event.addRun(this);
+      Participation participation = new Participation(this, event);
+      participations.add(participation);
+    }
 }
