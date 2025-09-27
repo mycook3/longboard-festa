@@ -1,7 +1,7 @@
-package com.example.trx.domain.user;
+package com.example.trx.domain.event;
 
 public enum DisciplineCode {
     FREESTYLE,
     SLALOM,
-    HIPPIE
+    DANCING
 }

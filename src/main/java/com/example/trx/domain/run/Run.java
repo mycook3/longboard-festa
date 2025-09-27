@@ -1,7 +1,9 @@
 package com.example.trx.domain.run;
 
+import com.example.trx.domain.event.ContestEvent;
+import com.example.trx.domain.event.Round;
 import com.example.trx.domain.score.ScoreTotal;
-import com.example.trx.domain.user.DisciplineCode;
+import com.example.trx.domain.event.DisciplineCode;
 import com.example.trx.domain.user.Participant;
 import com.example.trx.domain.user.UserStatus;
 import com.example.trx.support.util.BaseTimeEntity;
@@ -13,6 +15,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * 각 참가자들의 퍼포먼스 1회
+ */
 @Getter
 @Setter
 @NoArgsConstructor
@@ -20,6 +25,12 @@ import lombok.Setter;
 @Builder
 @Entity
 public class Run extends BaseTimeEntity {
+
+    public Run(Participant participant, Round round, ContestEvent contestEvent) {
+      this.participant = participant;
+      this.round = round;
+      this.contestEvent = contestEvent;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,14 +42,14 @@ public class Run extends BaseTimeEntity {
             foreignKey = @ForeignKey(name = "fk_run_participant"))
     private Participant participant;
 
-    // 종목 코드
-    @Enumerated(EnumType.STRING)
-    @Column(name = "discipline_code", nullable = false, length = 32)
-    private DisciplineCode disciplineCode;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "contest_event_id", nullable = false)
+    private ContestEvent contestEvent;
 
-    // 라운드 번호 (예: 1=예선, 2=결선)
-    @Column(name = "round_no", nullable = false)
-    private Integer roundNo;
+    // 라운드 번호
+    @Enumerated(EnumType.STRING)
+    @Column(name = "round", nullable = false)
+    private Round round;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 16)
