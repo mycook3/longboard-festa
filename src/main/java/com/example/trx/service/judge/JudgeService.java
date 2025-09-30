@@ -8,6 +8,8 @@ import com.example.trx.domain.judge.JudgeStatus;
 import com.example.trx.domain.judge.exception.JudgeAlreadyExistsException;
 import com.example.trx.domain.judge.exception.JudgeNotFoundException;
 import com.example.trx.repository.judge.JudgeRepository;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -45,6 +47,20 @@ public class JudgeService {
             .disciplineCode(saved.getDisciplineCode())
             .status(saved.getStatus())
             .build();
+    }
+
+    @Transactional(readOnly = true)
+    public List<JudgeResponse> getJudges() {
+        return judgeRepository.findAllByDeletedFalse().stream()
+            .map(judge -> JudgeResponse.builder()
+                .id(judge.getId())
+                .name(judge.getName())
+                .username(judge.getUsername())
+                .judgeNumber(judge.getJudgeNumber())
+                .disciplineCode(judge.getDisciplineCode())
+                .status(judge.getStatus())
+                .build())
+            .collect(Collectors.toList());
     }
 
     @Transactional

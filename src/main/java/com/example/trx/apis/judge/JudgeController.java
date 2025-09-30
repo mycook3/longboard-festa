@@ -11,7 +11,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import java.util.List;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -34,6 +36,13 @@ public class JudgeController {
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResult<JudgeResponse> createJudge(@Valid @RequestBody JudgeCreateRequest request) {
         return ApiResult.succeed(judgeService.createJudge(request));
+    }
+
+    @Operation(summary = "심사위원 목록 조회", description = "심사위원의 기본 정보를 조회합니다.")
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResult<List<JudgeResponse>> getJudges() {
+        return ApiResult.succeed(judgeService.getJudges());
     }
 
     @Operation(summary = "심사위원 정보 수정", description = "관리자가 심사위원 정보를 수정합니다.")
