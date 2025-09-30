@@ -35,6 +35,11 @@ public class Judge extends BaseTimeEntity {
     @Column(name = "name", nullable = false, length = 64)
     private String name;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 16)
+    @Builder.Default
+    private JudgeStatus status = JudgeStatus.ACTIVE;
+
     // 관계: Judge 1 : N ScoreTotal
     @OneToMany(mappedBy = "judge", cascade = CascadeType.ALL, orphanRemoval = false)
     @Builder.Default
