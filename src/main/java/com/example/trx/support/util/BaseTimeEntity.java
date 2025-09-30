@@ -21,4 +21,15 @@ public abstract class BaseTimeEntity {
     @LastModifiedDate
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    @Column(name = "deleted", nullable = false)
+    private boolean deleted = false;
+
+    public void markDeleted() {
+        this.deleted = true;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
 }
