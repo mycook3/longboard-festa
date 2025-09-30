@@ -60,14 +60,14 @@ public class NoticeService {
 
         Sort pinnedSort = Sort.by(Sort.Order.desc("createdAt"));
         List<NoticeSummaryResponse> pinnedNotices = noticeRepository
-            .findByPinnedIsTrueAndApplyAtLessThanEqual(now, pinnedSort)
+            .findByPinnedIsTrueAndApplyAtLessThanEqualAndDeletedFalse(now, pinnedSort)
             .stream()
             .map(this::toSummary)
             .collect(Collectors.toList());
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("createdAt")));
         Page<Notice> pageResult = noticeRepository
-            .findByPinnedIsFalseAndApplyAtLessThanEqual(now, pageable);
+            .findByPinnedIsFalseAndApplyAtLessThanEqualAndDeletedFalse(now, pageable);
 
         List<NoticeSummaryResponse> generalContents = pageResult.getContent().stream()
             .map(this::toSummary)
@@ -90,14 +90,14 @@ public class NoticeService {
 
     @Transactional(readOnly = true)
     public NoticeResponse getNotice(Long noticeId) {
-        Notice notice = noticeRepository.findById(noticeId)
+        Notice notice = noticeRepository.findByIdAndDeletedFalse(noticeId)
             .orElseThrow(() -> new NoticeNotFoundException(noticeId));
         return toResponse(notice);
     }
 
     @Transactional
     public NoticeResponse updateNotice(Long noticeId, NoticeUpdateRequest request) {
-        Notice notice = noticeRepository.findById(noticeId)
+        Notice notice = noticeRepository.findByIdAndDeletedFalse(noticeId)
             .orElseThrow(() -> new NoticeNotFoundException(noticeId));
 
         LocalDateTime now = LocalDateTime.now();
@@ -119,16 +119,14 @@ public class NoticeService {
         notice.setImportance(importance);
         notice.setApplyAt(applyAt);
 
-        Notice saved = noticeRepository.save(notice);
-
-        return toResponse(saved);
+        return toResponse(notice);
     }
 
     @Transactional
     public void deleteNotice(Long noticeId) {
-        Notice notice = noticeRepository.findById(noticeId)
+        Notice notice = noticeRepository.findByIdAndDeletedFalse(noticeId)
             .orElseThrow(() -> new NoticeNotFoundException(noticeId));
-        noticeRepository.delete(notice);
+        notice.markDeleted();
     }
 
     private NoticeResponse toResponse(Notice notice) {
