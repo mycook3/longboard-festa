@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -43,5 +44,14 @@ public class JudgeController {
         @Valid @RequestBody JudgeUpdateRequest request
     ) {
         return ApiResult.succeed(judgeService.updateJudge(judgeId, request));
+    }
+
+    @Operation(summary = "심사위원 비활성화", description = "심사위원을 사용 불가 상태로 전환합니다.")
+    @DeleteMapping("/{judgeId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResult<Void> deactivateJudge(@PathVariable Long judgeId) {
+        judgeService.deactivateJudge(judgeId);
+        return ApiResult.succeed(null);
     }
 }

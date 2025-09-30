@@ -65,4 +65,11 @@ public class JudgeService {
             .status(judge.getStatus())
             .build();
     }
+
+    @Transactional
+    public void deactivateJudge(Long judgeId) {
+        Judge judge = judgeRepository.findById(judgeId)
+            .orElseThrow(() -> new JudgeNotFoundException(judgeId));
+        judge.setStatus(JudgeStatus.INACTIVE);
+    }
 }
