@@ -11,18 +11,23 @@ import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 @Component
 public class JwtTokenProvider {
+
+    private static final String DEFAULT_SECRET =
+        "ZmVzbWFuLXJhbXBtdXMtcmVzdC1qd3QtdG9rZW4tTURiVkR2Rnh2S2pS"; // base64 encoded 256-bit key
 
     private final Key signingKey;
     private final long validityInMillis;
 
     public JwtTokenProvider(
-        @Value("${SECURITY_JWT_SECRET:change-me-change-me-change-me-123456}") String secret,
+        @Value("${SECURITY_JWT_SECRET:}") String secret,
         @Value("${SECURITY_JWT_TOKEN_VALIDITY_IN_SECONDS:3600}") long validityInSeconds
     ) {
-        byte[] keyBytes = resolveKeyBytes(secret);
+        String resolvedSecret = StringUtils.hasText(secret) ? secret : DEFAULT_SECRET;
+        byte[] keyBytes = resolveKeyBytes(resolvedSecret);
         this.signingKey = Keys.hmacShaKeyFor(keyBytes);
         this.validityInMillis = validityInSeconds * 1000;
     }
@@ -40,13 +45,17 @@ public class JwtTokenProvider {
     }
 
     private byte[] resolveKeyBytes(String secret) {
-        if (secret == null) {
-            return new byte[0];
+        if (!StringUtils.hasText(secret)) {
+            throw new IllegalStateException("JWT 비밀 키가 설정되지 않았습니다.");
         }
         try {
             return Decoders.BASE64.decode(secret);
         } catch (IllegalArgumentException ex) {
-            return secret.getBytes(StandardCharsets.UTF_8);
+            byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
+            if (keyBytes.length < 32) {
+                throw new IllegalStateException("JWT 비밀 키는 최소 32바이트 이상이어야 합니다.");
+            }
+            return keyBytes;
         }
     }
 }
