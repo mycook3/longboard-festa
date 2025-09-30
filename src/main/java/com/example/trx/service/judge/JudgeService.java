@@ -49,7 +49,7 @@ public class JudgeService {
 
     @Transactional
     public JudgeResponse updateJudge(Long judgeId, JudgeUpdateRequest request) {
-        Judge judge = judgeRepository.findById(judgeId)
+        Judge judge = judgeRepository.findByIdAndDeletedFalse(judgeId)
             .orElseThrow(() -> new JudgeNotFoundException(judgeId));
 
         judge.setName(request.getName());
@@ -68,8 +68,9 @@ public class JudgeService {
 
     @Transactional
     public void deactivateJudge(Long judgeId) {
-        Judge judge = judgeRepository.findById(judgeId)
+        Judge judge = judgeRepository.findByIdAndDeletedFalse(judgeId)
             .orElseThrow(() -> new JudgeNotFoundException(judgeId));
         judge.setStatus(JudgeStatus.INACTIVE);
+        judge.markDeleted();
     }
 }
