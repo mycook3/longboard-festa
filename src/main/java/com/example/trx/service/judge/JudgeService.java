@@ -2,11 +2,12 @@ package com.example.trx.service.judge;
 
 import com.example.trx.apis.judge.dto.JudgeCreateRequest;
 import com.example.trx.apis.judge.dto.JudgeResponse;
+import com.example.trx.apis.judge.dto.JudgeUpdateRequest;
 import com.example.trx.domain.judge.Judge;
 import com.example.trx.domain.judge.JudgeStatus;
 import com.example.trx.domain.judge.exception.JudgeAlreadyExistsException;
+import com.example.trx.domain.judge.exception.JudgeNotFoundException;
 import com.example.trx.repository.judge.JudgeRepository;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -43,6 +44,25 @@ public class JudgeService {
             .judgeNumber(saved.getJudgeNumber())
             .disciplineCode(saved.getDisciplineCode())
             .status(saved.getStatus())
+            .build();
+    }
+
+    @Transactional
+    public JudgeResponse updateJudge(Long judgeId, JudgeUpdateRequest request) {
+        Judge judge = judgeRepository.findById(judgeId)
+            .orElseThrow(() -> new JudgeNotFoundException(judgeId));
+
+        judge.setName(request.getName());
+        judge.setDisciplineCode(request.getDisciplineCode());
+        judge.setStatus(request.getStatus());
+
+        return JudgeResponse.builder()
+            .id(judge.getId())
+            .name(judge.getName())
+            .username(judge.getUsername())
+            .judgeNumber(judge.getJudgeNumber())
+            .disciplineCode(judge.getDisciplineCode())
+            .status(judge.getStatus())
             .build();
     }
 }
