@@ -26,6 +26,11 @@ public class SwaggerConfig {
     }
 
     @Bean
+    public GroupedOpenApi noticeApi() {
+        return GroupedOpenApi.builder().group("notices").pathsToMatch("/api/v1/notices/**").build();
+    }
+
+    @Bean
     public GroupedOpenApi accountApi() {
         return GroupedOpenApi.builder().group("accounts").pathsToMatch("/api/accounts/**").build();
     }

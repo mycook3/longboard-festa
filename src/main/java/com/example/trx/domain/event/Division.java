@@ -1,7 +1,7 @@
 package com.example.trx.domain.event;
 
 public enum Division {
-    CHALLENGER,   // 챌린저
-    ROOKIE,       // 루키
-    CHICK    // 진격의 삐약이
+    BEGINNER,  // 비기너
+    OPEN,      // 오픈
+    PRO        // 프로
 }
