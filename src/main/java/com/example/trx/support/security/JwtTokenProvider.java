@@ -19,8 +19,8 @@ public class JwtTokenProvider {
     private final long validityInMillis;
 
     public JwtTokenProvider(
-        @Value("${security.jwt.secret:change-me-change-me-change-me-123456}") String secret,
-        @Value("${security.jwt.token-validity-in-seconds:3600}") long validityInSeconds
+        @Value("${SECURITY_JWT_SECRET:change-me-change-me-change-me-123456}") String secret,
+        @Value("${SECURITY_JWT_TOKEN_VALIDITY_IN_SECONDS:3600}") long validityInSeconds
     ) {
         byte[] keyBytes = resolveKeyBytes(secret);
         this.signingKey = Keys.hmacShaKeyFor(keyBytes);
