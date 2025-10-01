@@ -3,13 +3,16 @@ package com.example.trx.usecase;
 import com.example.trx.domain.event.ContestEvent;
 import com.example.trx.domain.event.DisciplineCode;
 import com.example.trx.domain.event.Division;
+import com.example.trx.domain.judge.Judge;
 import com.example.trx.domain.user.Gender;
 import com.example.trx.domain.user.Participant;
 import com.example.trx.domain.user.UserStatus;
 import com.example.trx.repository.ContestEventRepository;
+import com.example.trx.repository.JudgeRepository;
 import com.example.trx.repository.ParticipantRepository;
 import java.time.LocalDate;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,7 +32,11 @@ public class UseCaseTest {
   @Autowired
   private ParticipantRepository participantRepository;
 
+  @Autowired
+  private JudgeRepository judgeRepository;
+
   @Test
+  @Order(1)
   public void initTest() {
     for (DisciplineCode disciplineCode : DisciplineCode.values()) {
       for (Division division : Division.values()) {
@@ -44,6 +51,7 @@ public class UseCaseTest {
 
   @Test
   @Transactional
+  @Order(2)
   public void findContestEventAndAddParticipant() {
     Participant participant = Participant.builder()
         .email("pj0642-gmail.com")
@@ -72,11 +80,22 @@ public class UseCaseTest {
   }
 
   @Test
+  @Transactional
+  @Order(3)
   public void addParticipantAndJudge() {
 
+    ContestEvent event = contestEventRepository.findContestEventByDivisionAndDisciplineCode(Division.BEGINNER, DisciplineCode.FREESTYLE).orElse(null);
 
+    Judge judge = Judge.builder()
+        .judgeNumber(event.getJudges().size() + 1)
+        .name("김심사")
+        .contestEvent(event)
+        .build();
 
-
+    judgeRepository.save(judge);
+    event.addJudge(judge);
+    assertEquals(1, judge.getJudgeNumber());
+    assertEquals(1, judge.getContestEvent().getJudges().size());
   }
 
   @Test

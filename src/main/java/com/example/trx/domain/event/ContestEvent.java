@@ -113,4 +113,9 @@ public class ContestEvent {
 
     this.currentRun = nextRun.orElse(null);
   }
+
+  public void addJudge(Judge judge) {
+    judges.add(judge);
+    judge.setContestEvent(this);
+  }
 }
