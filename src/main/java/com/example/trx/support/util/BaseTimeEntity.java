@@ -4,6 +4,10 @@ import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import java.time.LocalDateTime;
+<<<<<<< HEAD
+import java.time.OffsetDateTime;
+=======
+>>>>>>> d7963050fcd6d2c87a1a039cbf4f1fb61c37ba82
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
