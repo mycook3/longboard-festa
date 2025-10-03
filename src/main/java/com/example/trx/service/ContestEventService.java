@@ -1,4 +1,4 @@
-package com.example.trx.usecase;
+package com.example.trx.service;
 
 import com.example.trx.domain.event.ContestEvent;
 import com.example.trx.domain.event.DisciplineCode;

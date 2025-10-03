@@ -1,6 +1,6 @@
 package com.example.trx.apis.user;
 
-import com.example.trx.usecase.user.UserService;
+import com.example.trx.service.user.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

@@ -67,7 +67,12 @@ public class ContestEvent {
 
    //TODO
   public void init() {
+    Optional<Run> nextRun = runs.stream()
+        .filter(run -> run.getRound().equals(this.round))
+        .filter(run -> !run.getUserStatus().equals(UserStatus.DONE)) // 아직 끝나지 않은 Run
+        .findFirst();
 
+    this.currentRun = nextRun.orElse(null);
   }
 
   public void addRun(Participant participant){

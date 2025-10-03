@@ -1,4 +1,4 @@
-package com.example.trx.usecase;
+package com.example.trx.service;
 
 import com.example.trx.domain.judge.Judge;
 import com.example.trx.domain.run.Run;
