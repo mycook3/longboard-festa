@@ -1,4 +1,4 @@
-package com.example.trx.usecase.user;
+package com.example.trx.service.user;
 
 import com.example.trx.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
