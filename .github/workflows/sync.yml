@@ -1,0 +1,30 @@
+name: Sync Fork
+
+on:
+  schedule:
+    - cron: '0 */2 * * *'   # 1시간마다 실행 (UTC 기준)
+  workflow_dispatch:       # 필요시 수동 실행도 가능
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Add upstream
+        run: git remote add upstream https://github.com/mihye126/longboard-festa.git
+
+      - name: Fetch and merge
+        run: |
+          git fetch upstream
+          git checkout main
+          git merge upstream/main || true
+          git push origin main
