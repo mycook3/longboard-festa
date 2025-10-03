@@ -22,10 +22,10 @@ tomcat:
     enabled: true
 spring:
   datasource:
-    url: jdbc:h2:mem:testdb   # 호스트·포트·DB명
-    username: sa              # DB 계정
-    password:                          # DB 비밀번호
-    driver-class-name: org.h2.Driver
+    url: ${SPRING_DATASOURCE_URL:jdbc:sqlite:./festa.sqlite}   # 호스트·포트·DB명
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.sqlite.JDBC
     hikari:                   # (선택) 풀 사이즈 튜닝
       maximum-pool-size: 10   # 동시 커넥션 최대치
       minimum-idle: 2
@@ -41,7 +41,9 @@ spring:
       hibernate:
         format_sql: false
         show_sql: false
-        dialect: org.hibernate.dialect.H2Dialect
+        dialect: org.hibernate.community.dialect.SQLiteDialect
+        jdbc:
+          use_get_generated_keys: false
 
 logging:
   level:
@@ -58,9 +60,9 @@ tomcat:
     enabled: true
 spring:
   datasource:
-    url:   # 호스트·포트·DB명
-    username:                               # DB 계정
-    password:                               # DB 비밀번호
+    url: ${SPRING_DATASOURCE_URL:}
+    username: ${SPRING_DATASOURCE_USERNAME:}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
     driver-class-name: org.postgresql.Driver
     hikari:                   # (선택) 풀 사이즈 튜닝
       maximum-pool-size: 10   # 동시 커넥션 최대치
