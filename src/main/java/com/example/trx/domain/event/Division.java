@@ -1,7 +1,7 @@
 package com.example.trx.domain.event;
 
 public enum Division {
-  PRO,
-  OPEN,
-  BEGINNER
+    BEGINNER,  // 비기너
+    OPEN,      // 오픈
+    PRO        // 프로
 }
