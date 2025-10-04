@@ -67,7 +67,7 @@ public class Run extends BaseTimeEntity {
     }
 
     public void endRun() {
-      if (this.scores.size() == this.contestEvent.getJudges().size()) {
+      if (this.scores.size() == 5) {
         userStatus = UserStatus.DONE;
       }
       //TODO 그 외의 경우 예외처x`리

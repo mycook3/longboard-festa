@@ -3,6 +3,7 @@ package com.example.trx.service.event;
 import com.example.trx.domain.event.ContestEvent;
 import com.example.trx.domain.event.DisciplineCode;
 import com.example.trx.domain.event.Division;
+import com.example.trx.domain.event.Round;
 import com.example.trx.domain.event.exception.ContestEventNotFound;
 import com.example.trx.repository.event.ContestEventRepository;
 import java.util.NoSuchElementException;
@@ -54,10 +55,12 @@ public class ContestEventService {
     }
   }
 
-  public void addParticipant() {
+  @Transactional
+  public void setRound(Long eventId, String roundName) {
+    ContestEvent contestEvent = contestEventRepository.findById(eventId)
+        .orElseThrow(() -> new ContestEventNotFound(eventId));
 
-
-
-
+    Round round = Round.valueOf(roundName);
+    contestEvent.setRound(round);
   }
 }

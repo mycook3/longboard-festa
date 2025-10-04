@@ -10,4 +10,8 @@ public class ContestEventNotFound extends RuntimeException {
     public ContestEventNotFound(Division division, DisciplineCode disciplinecode) {
         super("해당 종목을 찾을 수 없습니다." + division.name() + "-" + disciplinecode.name());
     }
+
+    public ContestEventNotFound(Long contestId) {
+        super("해당 종목을 찾을 수 없습니다. id: " + contestId);
+    }
 }
