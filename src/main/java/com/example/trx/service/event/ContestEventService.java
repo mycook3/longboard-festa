@@ -1,4 +1,4 @@
-package com.example.trx.service;
+package com.example.trx.service.event;
 
 import com.example.trx.domain.event.ContestEvent;
 import com.example.trx.domain.event.DisciplineCode;
