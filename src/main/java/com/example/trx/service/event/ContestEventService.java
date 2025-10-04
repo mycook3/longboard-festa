@@ -3,6 +3,7 @@ package com.example.trx.service.event;
 import com.example.trx.domain.event.ContestEvent;
 import com.example.trx.domain.event.DisciplineCode;
 import com.example.trx.domain.event.Division;
+import com.example.trx.domain.event.exception.ContestEventNotFound;
 import com.example.trx.repository.event.ContestEventRepository;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
@@ -15,19 +16,22 @@ public class ContestEventService {
 
   private final ContestEventRepository contestEventRepository;
 
-  public ContestEvent getContestEventByDivisionAndDisciplineCode(Division division, DisciplineCode disciplineCode) throws NoSuchElementException {
+  public ContestEvent getContestEventByDivisionAndDisciplineCode(String divisionName, String eventName) {
+    Division division = Division.valueOf(divisionName);
+    DisciplineCode disciplineCode = DisciplineCode.valueOf(eventName);
+
     return contestEventRepository
         .findContestEventByDivisionAndDisciplineCode(division, disciplineCode)
-        .orElseThrow(() -> new NoSuchElementException("Contest event not found"));
+        .orElseThrow(() -> new ContestEventNotFound(division, disciplineCode));
   }
 
   @Transactional
   public ContestEvent createContestEvent(String divisionName, String eventName) {//TODO: 응답 DTO
-    Division div = Division.valueOf(divisionName);
+    Division division = Division.valueOf(divisionName);
     DisciplineCode disciplineCode = DisciplineCode.valueOf(eventName);
 
     ContestEvent contestEvent = ContestEvent.builder()
-        .division(div)
+        .division(division)
         .disciplineCode(disciplineCode)
         .build();
 
@@ -35,8 +39,13 @@ public class ContestEventService {
   }
 
   @Transactional
-  public void proceedRunOrRound(Division division, DisciplineCode disciplineCode) throws NoSuchElementException, IllegalStateException {
-    ContestEvent contestEvent = getContestEventByDivisionAndDisciplineCode(division, disciplineCode);
+  public void proceedRunOrRound(String divisionName, String eventName) {
+    Division division = Division.valueOf(divisionName);
+    DisciplineCode disciplineCode = DisciplineCode.valueOf(eventName);
+
+    ContestEvent contestEvent = contestEventRepository
+        .findContestEventByDivisionAndDisciplineCode(division, disciplineCode)
+        .orElseThrow(() -> new ContestEventNotFound(division, disciplineCode));
 
     try {
       contestEvent.proceedRun();
@@ -45,7 +54,6 @@ public class ContestEventService {
     }
   }
 
-  //종목별 참가자 추가
   public void addParticipant() {
 
 
