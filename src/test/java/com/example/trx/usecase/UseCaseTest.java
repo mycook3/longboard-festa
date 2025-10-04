@@ -1,6 +1,5 @@
 package com.example.trx.usecase;
 
-import com.example.trx.repository.JudgeRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
@@ -11,5 +10,8 @@ import org.springframework.stereotype.Component;
 @EnableJpaAuditing
 @Component
 public class UseCaseTest {
+
+
+
 
 }

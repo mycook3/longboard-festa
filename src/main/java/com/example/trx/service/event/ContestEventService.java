@@ -22,6 +22,19 @@ public class ContestEventService {
   }
 
   @Transactional
+  public ContestEvent createContestEvent(String divisionName, String eventName) {//TODO: 응답 DTO
+    Division div = Division.valueOf(divisionName);
+    DisciplineCode disciplineCode = DisciplineCode.valueOf(eventName);
+
+    ContestEvent contestEvent = ContestEvent.builder()
+        .division(div)
+        .disciplineCode(disciplineCode)
+        .build();
+
+    return contestEventRepository.save(contestEvent);
+  }
+
+  @Transactional
   public void proceedRunOrRound(Division division, DisciplineCode disciplineCode) throws NoSuchElementException, IllegalStateException {
     ContestEvent contestEvent = getContestEventByDivisionAndDisciplineCode(division, disciplineCode);
 
@@ -32,16 +45,8 @@ public class ContestEventService {
     }
   }
 
-
   //종목별 참가자 추가
   public void addParticipant() {
-
-
-
-
-  }
-
-  public void addJudge() {
 
 
 

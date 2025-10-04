@@ -1,6 +1,5 @@
 package com.example.trx.domain.event;
 
-import com.example.trx.domain.judge.Judge;
 import com.example.trx.domain.run.Run;
 import com.example.trx.domain.score.ScoreTotal;
 import com.example.trx.domain.user.Participant;
@@ -21,12 +20,16 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 //종목 정보
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 public class ContestEvent {
 
@@ -59,6 +62,7 @@ public class ContestEvent {
 
   // 해당 종목에서 심사된 모든 시도
   @OneToMany(mappedBy = "contestEvent", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @Builder.Default
   private List<Run> runs = new ArrayList<>();
 
    //TODO
