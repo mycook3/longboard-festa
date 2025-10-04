@@ -1,6 +1,5 @@
 package com.example.trx.domain.event;
 
-import com.example.trx.domain.judge.Judge;
 import com.example.trx.domain.run.Run;
 import com.example.trx.domain.score.ScoreTotal;
 import com.example.trx.domain.user.Participant;
@@ -21,21 +20,20 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 //종목 정보
 @Entity
 @Getter
+@Setter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 public class ContestEvent {
-
-  public ContestEvent(Division division, DisciplineCode disciplineCode) {
-    this.division = division;
-    this.disciplineCode = disciplineCode;
-    this.round = Round.PRELIMINARY;
-  }
-
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
@@ -52,10 +50,6 @@ public class ContestEvent {
   @Enumerated(EnumType.STRING)
   private Round round;
 
-  // 심사위원
-  @OneToMany(mappedBy = "contestEvent", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  private List<Judge> judges = new ArrayList<>();
-
   // 현재 진행 중인 것
   @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "current_run_id")
@@ -63,6 +57,7 @@ public class ContestEvent {
 
   // 해당 종목에서 심사된 모든 시도
   @OneToMany(mappedBy = "contestEvent", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @Builder.Default
   private List<Run> runs = new ArrayList<>();
 
    //TODO
@@ -117,10 +112,5 @@ public class ContestEvent {
         .findFirst();
 
     this.currentRun = nextRun.orElse(null);
-  }
-
-  public void addJudge(Judge judge) {
-    judges.add(judge);
-    judge.setContestEvent(this);
   }
 }

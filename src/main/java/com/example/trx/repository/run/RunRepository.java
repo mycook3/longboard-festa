@@ -1,7 +1,6 @@
-package com.example.trx.repository;
+package com.example.trx.repository.run;
 
 import com.example.trx.domain.run.Run;
-import com.example.trx.domain.user.Participant;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

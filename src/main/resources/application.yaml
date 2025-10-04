@@ -1,7 +1,7 @@
 springdoc:
   packages-to-scan: com.example.trx.apis
-  default-consumes-media-type: application/json;charser=UTF-8
-  default-produces-media-type: application/json;charser=UTF-8
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8
   api-docs:
     path: /api
   swagger-ui:
@@ -60,9 +60,9 @@ tomcat:
     enabled: true
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL:}
-    username: ${SPRING_DATASOURCE_USERNAME:}
-    password: ${SPRING_DATASOURCE_PASSWORD:}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
     hikari:                   # (선택) 풀 사이즈 튜닝
       maximum-pool-size: 10   # 동시 커넥션 최대치
