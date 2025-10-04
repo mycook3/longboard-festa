@@ -52,10 +52,6 @@ public class ContestEvent {
   @Enumerated(EnumType.STRING)
   private Round round;
 
-  // 심사위원
-  @OneToMany(mappedBy = "contestEvent", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  private List<Judge> judges = new ArrayList<>();
-
   // 현재 진행 중인 것
   @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "current_run_id")
@@ -117,10 +113,5 @@ public class ContestEvent {
         .findFirst();
 
     this.currentRun = nextRun.orElse(null);
-  }
-
-  public void addJudge(Judge judge) {
-    judges.add(judge);
-    judge.setContestEvent(this);
   }
 }
