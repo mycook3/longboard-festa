@@ -70,6 +70,6 @@ public class Run extends BaseTimeEntity {
       if (this.scores.size() == 5) {
         userStatus = UserStatus.DONE;
       }
-      //TODO 그 외의 경우 예외처x`리
+      //TODO 그 외의 경우 예외처리
     }
 }
