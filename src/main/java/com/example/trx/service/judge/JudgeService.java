@@ -32,7 +32,6 @@ public class JudgeService {
             .name(request.getName())
             .username(request.getUsername())
             .password(passwordEncoder.encode(request.getPassword()))
-            .disciplineCode(request.getDisciplineCode())
             .judgeNumber(request.getJudgeNumber())
             .status(JudgeStatus.ACTIVE)
             .build();
@@ -44,7 +43,6 @@ public class JudgeService {
             .name(saved.getName())
             .username(saved.getUsername())
             .judgeNumber(saved.getJudgeNumber())
-            .disciplineCode(saved.getDisciplineCode())
             .status(saved.getStatus())
             .build();
     }
@@ -57,7 +55,6 @@ public class JudgeService {
                 .name(judge.getName())
                 .username(judge.getUsername())
                 .judgeNumber(judge.getJudgeNumber())
-                .disciplineCode(judge.getDisciplineCode())
                 .status(judge.getStatus())
                 .build())
             .collect(Collectors.toList());
@@ -69,7 +66,6 @@ public class JudgeService {
             .orElseThrow(() -> new JudgeNotFoundException(judgeId));
 
         judge.setName(request.getName());
-        judge.setDisciplineCode(request.getDisciplineCode());
         judge.setStatus(request.getStatus());
 
         return JudgeResponse.builder()
@@ -77,7 +73,6 @@ public class JudgeService {
             .name(judge.getName())
             .username(judge.getUsername())
             .judgeNumber(judge.getJudgeNumber())
-            .disciplineCode(judge.getDisciplineCode())
             .status(judge.getStatus())
             .build();
     }
