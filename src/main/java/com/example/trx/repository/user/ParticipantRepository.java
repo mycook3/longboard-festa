@@ -1,6 +1,5 @@
-package com.example.trx.repository;
+package com.example.trx.repository.user;
 
-import com.example.trx.domain.judge.Judge;
 import com.example.trx.domain.user.Participant;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
