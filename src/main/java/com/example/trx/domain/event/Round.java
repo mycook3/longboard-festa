@@ -1,34 +1,67 @@
 package com.example.trx.domain.event;
 
-//종목별 라운드 진행 상황
-public enum Round {
-  PRELIMINARY(1000),//32강 선발
-  ROUND_32(32),//32강
-  ROUND_16(16),//16강
-  ROUND_8(8),//8강
-  SEMI_FINAL(4),//준결승
-  FINAL(2),//결승
-  WIN(1);//우승
+import com.example.trx.domain.run.Run;
+import com.example.trx.domain.user.Participant;
+import com.example.trx.domain.user.UserStatus;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import java.util.List;
+import java.util.Optional;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Data
+public class Round {
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
+  private Integer roundNumber;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  private ContestEvent contestEvent;
+
+  @OneToOne(fetch = FetchType.LAZY)
+  private Run currentRun;
+
+  @OneToMany
+  private List<Run> runs;
+
+  private String name;
   private Integer limit;
 
-  Round(int i) {
-    this.limit = i;
+  public void addParticipants(List<Participant> participants) {
+    for (Participant participant : participants) {
+      Run run = Run.builder()
+          .contestEvent(contestEvent)
+          .participant(participant)
+          .userStatus(UserStatus.WAITING)
+          .build();
+      runs.add(run);
+    }
   }
 
-  public Integer getLimit() {
-    return this.limit;
+  public Optional<Run> findNextRun() {
+   return runs.stream()
+        .filter(run -> run.getUserStatus().equals(UserStatus.WAITING))
+        .findFirst();
   }
 
-  public Round proceed() throws IllegalStateException {
-    return switch (this) {
-      case PRELIMINARY -> ROUND_32;
-      case ROUND_32 -> ROUND_16;
-      case ROUND_16 -> ROUND_8;
-      case ROUND_8 -> SEMI_FINAL;
-      case SEMI_FINAL -> FINAL;
-      case FINAL -> WIN;
-      case WIN -> throw new IllegalStateException("종료된 종목입니다");
-    };
+  public void moveToRun(Run run) {
+    if (run == null) throw new IllegalArgumentException("Run is null");
+    run.markAsOngoing();
+    currentRun = run;
   }
 }
