@@ -1,8 +1,11 @@
 package com.example.trx.domain.event;
 
+import com.example.trx.domain.judge.JudgeStatus;
+import com.example.trx.domain.judge.Judging;
 import com.example.trx.domain.run.Run;
-import com.example.trx.domain.score.ScoreTotal;
 import com.example.trx.domain.user.Participant;
+import com.example.trx.domain.user.Participation;
+import com.example.trx.domain.user.ParticipationStatus;
 import com.example.trx.domain.user.UserStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -12,14 +15,11 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
-import java.math.BigDecimal;
+import jakarta.persistence.OrderBy;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -33,7 +33,7 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ContestEvent {
+public class ContestEvent {//Aggregate Root
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
@@ -46,71 +46,80 @@ public class ContestEvent {
   @Enumerated(EnumType.STRING)
   private DisciplineCode disciplineCode;
 
-  // 현재 진행 중인 라운드
   @Enumerated(EnumType.STRING)
-  private Round round;
+  private ContestEventStatus contestEventStatus = ContestEventStatus.READY;
 
-  // 현재 진행 중인 것
-  @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  @JoinColumn(name = "current_run_id")
-  private Run currentRun;
+  // 현재 진행 중인 라운드
+  @OneToOne(fetch = FetchType.LAZY)
+  private Round currentRound;
 
-  // 해당 종목에서 심사된 모든 시도
-  @OneToMany(mappedBy = "contestEvent", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.LAZY)
+  @OrderBy("roundNumber ASC")
+  private List<Round> rounds;
+
+  @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   @Builder.Default
-  private List<Run> runs = new ArrayList<>();
+  private List<Judging> judgings= new ArrayList<>();
 
-   //TODO
-  public void init() {
-    Optional<Run> nextRun = runs.stream()
-        .filter(run -> run.getRound().equals(this.round))
-        .filter(run -> !run.getUserStatus().equals(UserStatus.DONE)) // 아직 끝나지 않은 Run
-        .findFirst();
+  @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @Builder.Default
+  private List<Participation> participations = new ArrayList<>();
 
-    this.currentRun = nextRun.orElse(null);
-  }
-
-  public void addRun(Participant participant){
-    Run run = new Run(participant, this.round, this);
-    runs.add(run);
-  }
-
-  public void proceedRoundAndDropParticipants() throws IllegalStateException {
-    Round nextRound = round.proceed();
-    Integer limit = nextRound.getLimit();
-
-    //다음 라운드로 넘어갈 사람들만 추리기
-    //TODO 동점자 처리 의논 필요
-    List<Run> top = runs.stream().filter(run -> round.equals(run.getRound()))
-        .sorted(
-           Comparator.comparing((Run run) -> {
-                List<BigDecimal> scores = run.getScores()
-                                             .stream()
-                                             .map(ScoreTotal::getTotal)
-                                             .sorted()
-                                             .toList();
-
-                return scores.subList(1, scores.size() - 1)
-                             .stream()
-                             .reduce(BigDecimal.ZERO, BigDecimal::add);
-            }).reversed()
-        )
+  public void addRound(String roundName, Integer roundNumber, Integer limit) {
+    Round round = Round.builder()
+        .contestEvent(this)
+        .name(roundName)
+        .roundNumber(roundNumber)
         .limit(limit)
+        .build();
+
+    rounds.add(round);
+  }
+
+  public void start() {
+    if (contestEventStatus != ContestEventStatus.READY) throw new IllegalStateException("이미 진행 중이거나 종료된 종목입니다");
+    if (rounds.isEmpty()) throw new IllegalStateException("No round has been started");
+
+    currentRound = rounds.get(0);
+
+    List<Participant> activeParticipants = participations.stream()
+        .filter(p -> p.getStatus() == ParticipationStatus.ACTIVE)
+        .map(Participation::getParticipant)
         .toList();
 
-    this.round = nextRound;
-    top.forEach(run -> this.addRun(run.getParticipant()));
+    currentRound.addParticipants(activeParticipants);
+    contestEventStatus = ContestEventStatus.IN_PROGRESS;
   }
 
-  public void proceedRun() throws IllegalStateException {
-    if (this.currentRun == null) throw new IllegalStateException("Current run is null");
-    this.currentRun.endRun();
-
-    Optional<Run> nextRun = runs.stream()
-        .filter(run -> run.getRound().equals(this.round))
-        .filter(run -> !run.getUserStatus().equals(UserStatus.DONE)) // 아직 끝나지 않은 Run
-        .findFirst();
-
-    this.currentRun = nextRun.orElse(null);
+  public Run getCurrentRun() {
+    if (currentRound != null && currentRound.getCurrentRun() != null) return currentRound.getCurrentRun();
+    throw new IllegalStateException("no currentRound or currentRun");
   }
+
+  public void proceedRun() {
+    if (contestEventStatus != ContestEventStatus.IN_PROGRESS) throw new IllegalStateException("시작하지 않았거나 종료된 종목입니다.");
+    if (rounds.isEmpty()) throw new IllegalStateException("No round has been started");
+
+    Run currentRun = this.getCurrentRun();
+
+    int activeJudgesCount = this.judgings.stream()
+        .filter(judging -> judging.getJudge().getStatus().equals(JudgeStatus.ACTIVE))
+        .toList()
+        .size();
+
+    if (currentRun.canBeCompleted(activeJudgesCount)) {
+      currentRun.markAsDone();
+      Run nextRun = currentRound.findNextRun()
+          .orElseThrow(() -> new IllegalStateException("해당 라운드의 마지막 참가자입니다."));
+
+      currentRound.moveToRun(nextRun);
+    }
+  }
+
+  public void proceedRound() {
+
+
+
+  }
+
 }
