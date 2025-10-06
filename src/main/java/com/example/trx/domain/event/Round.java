@@ -33,8 +33,6 @@ public class Round {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  private Integer roundNumber;
-
   @ManyToOne(fetch = FetchType.LAZY)
   private ContestEvent contestEvent;
 

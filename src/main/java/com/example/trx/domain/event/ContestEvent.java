@@ -6,7 +6,6 @@ import com.example.trx.domain.run.Run;
 import com.example.trx.domain.user.Participant;
 import com.example.trx.domain.user.Participation;
 import com.example.trx.domain.user.ParticipationStatus;
-import com.example.trx.domain.user.UserStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -20,6 +19,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.OrderBy;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -54,7 +54,6 @@ public class ContestEvent {//Aggregate Root
   private Round currentRound;
 
   @OneToMany(fetch = FetchType.LAZY)
-  @OrderBy("roundNumber ASC")
   private List<Round> rounds;
 
   @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -65,12 +64,11 @@ public class ContestEvent {//Aggregate Root
   @Builder.Default
   private List<Participation> participations = new ArrayList<>();
 
-  public void addRound(String roundName, Integer roundNumber, Integer limit) {
+  public void addRound(String roundName, Integer limit) {
     Round round = Round.builder()
         .contestEvent(this)
         .name(roundName)
         .status(RoundStatus.BEFORE)
-        .roundNumber(roundNumber)
         .limit(limit)
         .build();
 
@@ -122,18 +120,24 @@ public class ContestEvent {//Aggregate Root
     if (contestEventStatus != ContestEventStatus.IN_PROGRESS) throw new IllegalStateException("시작하지 않았거나 종료된 종목입니다.");
     if (rounds.isEmpty()) throw new IllegalStateException("No round has been started");
 
-    boolean isLast = currentRound.getRoundNumber() == rounds.size();//1-based
+    Round nextRound = findNextRound().orElse(null);
+    boolean isLast = nextRound == null;
 
     if (isLast) currentRound.markAsCompleted();
     else if (currentRound.canBeCompleted()) {
       currentRound.markAsCompleted();
 
-      Round nextRound = rounds.get(currentRound.getRoundNumber());//to 0-based
       List<Participant> survivors = currentRound.getSurvivors(nextRound);
       nextRound.addParticipants(survivors);
       nextRound.markAsInProgress();
 
       currentRound = nextRound;
     }
+  }
+
+  public Optional<Round> findNextRound() {
+    return rounds.stream()
+          .filter(round -> round.getStatus().equals(RoundStatus.BEFORE))
+          .findFirst();
   }
 }
