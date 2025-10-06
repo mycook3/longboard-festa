@@ -67,6 +67,11 @@ public class Round {
         .filter(run -> run.getUserStatus().equals(UserStatus.WAITING))
         .findFirst();
   }
+    public void start() {
+    if (runs.isEmpty()) throw new IllegalStateException("no runs added");
+    currentRun = runs.get(0);
+    currentRun.markAsOngoing();
+  }
 
   public void moveToRun(Run run) {
     if (run == null) throw new IllegalArgumentException("Run is null");

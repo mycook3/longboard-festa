@@ -83,7 +83,30 @@ class ContestEventServiceTest {
   @Test
   @Transactional
   public void startTest() {
+    ContestEvent event = contestEventService.createContestEvent("BEGINNER", "FREESTYLE");
+    contestEventService.addRound(1L, "32강", 32);
 
+    Participant participant = Participant.builder()
+        .nameKr("박영서")
+        .bibNumber(1)
+        .phone("010-0000-0000")
+        .emergencyContact("010-1111-1111")
+        .gender(Gender.MALE)
+        .birth(LocalDate.of(1995, 6, 8))
+        .email("pj0642@gmail.com")
+        .division(Division.BEGINNER)
+        .residence("서울특별시 관악구")
+        .oneLiner("ㅎㅇㅎㅇ")
+        .build();
+
+    participant.participate(event);
+
+    contestEventService.startContestEvent(1L);
+
+    ContestEvent saved = contestEventRepository.findById(1L).orElse(null);
+    assertEquals(ContestEventStatus.IN_PROGRESS, saved.getContestEventStatus());
+    assertEquals(32, saved.getCurrentRound().getParticipantLimit());
+    assertEquals("박영서", saved.getCurrentRun().getParticipant().getNameKr());
   }
 
 

@@ -91,6 +91,7 @@ public class ContestEvent {//Aggregate Root
 
     currentRound.addParticipants(activeParticipants);
     contestEventStatus = ContestEventStatus.IN_PROGRESS;
+    currentRound.start();
   }
 
   public Run getCurrentRun() {
