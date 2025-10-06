@@ -69,6 +69,7 @@ public class ContestEvent {//Aggregate Root
     Round round = Round.builder()
         .contestEvent(this)
         .name(roundName)
+        .status(RoundStatus.BEFORE)
         .roundNumber(roundNumber)
         .limit(limit)
         .build();
@@ -81,6 +82,7 @@ public class ContestEvent {//Aggregate Root
     if (rounds.isEmpty()) throw new IllegalStateException("No round has been started");
 
     currentRound = rounds.get(0);
+    currentRound.markAsInProgress();
 
     List<Participant> activeParticipants = participations.stream()
         .filter(p -> p.getStatus() == ParticipationStatus.ACTIVE)
@@ -117,9 +119,21 @@ public class ContestEvent {//Aggregate Root
   }
 
   public void proceedRound() {
+    if (contestEventStatus != ContestEventStatus.IN_PROGRESS) throw new IllegalStateException("시작하지 않았거나 종료된 종목입니다.");
+    if (rounds.isEmpty()) throw new IllegalStateException("No round has been started");
 
+    boolean isLast = currentRound.getRoundNumber() == rounds.size();//1-based
 
+    if (isLast) currentRound.markAsCompleted();
+    else if (currentRound.canBeCompleted()) {
+      currentRound.markAsCompleted();
 
+      Round nextRound = rounds.get(currentRound.getRoundNumber());//to 0-based
+      List<Participant> survivors = currentRound.getSurvivors(nextRound);
+      nextRound.addParticipants(survivors);
+      nextRound.markAsInProgress();
+
+      currentRound = nextRound;
+    }
   }
-
 }
