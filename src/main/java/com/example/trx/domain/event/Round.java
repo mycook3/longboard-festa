@@ -15,6 +15,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -43,10 +44,12 @@ public class Round {
   private RoundStatus status;
 
   @OneToMany
-  private List<Run> runs;
+  @Builder.Default
+  private List<Run> runs =  new ArrayList<>();
 
   private String name;
-  private Integer limit;
+
+  private Integer participantLimit;
 
   public void addParticipants(List<Participant> participants) {
     for (Participant participant : participants) {
@@ -98,7 +101,7 @@ public class Round {
                   .reduce(BigDecimal.ZERO, BigDecimal::add);
             }).reversed()
         )
-        .limit(nextRound.getLimit())
+        .limit(nextRound.getParticipantLimit())
         .map(Run::getParticipant)
         .toList();
   }

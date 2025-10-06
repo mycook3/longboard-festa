@@ -47,14 +47,16 @@ public class ContestEvent {//Aggregate Root
   private DisciplineCode disciplineCode;
 
   @Enumerated(EnumType.STRING)
+  @Builder.Default
   private ContestEventStatus contestEventStatus = ContestEventStatus.READY;
 
   // 현재 진행 중인 라운드
   @OneToOne(fetch = FetchType.LAZY)
   private Round currentRound;
 
-  @OneToMany(fetch = FetchType.LAZY)
-  private List<Round> rounds;
+  @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @Builder.Default
+  private List<Round> rounds = new ArrayList<>();
 
   @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   @Builder.Default
@@ -69,7 +71,7 @@ public class ContestEvent {//Aggregate Root
         .contestEvent(this)
         .name(roundName)
         .status(RoundStatus.BEFORE)
-        .limit(limit)
+        .participantLimit(limit)
         .build();
 
     rounds.add(round);
@@ -77,7 +79,7 @@ public class ContestEvent {//Aggregate Root
 
   public void start() {
     if (contestEventStatus != ContestEventStatus.READY) throw new IllegalStateException("이미 진행 중이거나 종료된 종목입니다");
-    if (rounds.isEmpty()) throw new IllegalStateException("No round has been started");
+    if (rounds.isEmpty()) throw new IllegalStateException("No round has been added");
 
     currentRound = rounds.get(0);
     currentRound.markAsInProgress();
