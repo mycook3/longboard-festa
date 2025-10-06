@@ -87,8 +87,8 @@ public class Participant extends BaseTimeEntity {
     private List<Run> runs = new ArrayList<>();
 
     public void participate(ContestEvent event) {
-      event.addRun(this);
       Participation participation = new Participation(this, event);
+      event.getParticipations().add(participation);
       participations.add(participation);
     }
 }
