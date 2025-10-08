@@ -1,4 +1,4 @@
-package com.example.trx.service;
+package com.example.trx.service.user;
 
 import com.example.trx.domain.event.ContestEvent;
 import com.example.trx.domain.event.exception.ContestEventNotFound;
