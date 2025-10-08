@@ -3,7 +3,6 @@ package com.example.trx.service.judge;
 import com.example.trx.apis.judge.dto.JudgeCreateRequest;
 import com.example.trx.apis.judge.dto.JudgeResponse;
 import com.example.trx.apis.judge.dto.JudgeUpdateRequest;
-import com.example.trx.domain.event.ContestEvent;
 import com.example.trx.domain.judge.Judge;
 import com.example.trx.domain.judge.JudgeStatus;
 import com.example.trx.domain.judge.exception.JudgeAlreadyExistsException;

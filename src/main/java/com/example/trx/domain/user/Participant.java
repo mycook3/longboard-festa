@@ -79,6 +79,7 @@ public class Participant extends BaseTimeEntity {
     // 상태 << ?
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 16)
+    @Builder.Default
     private UserStatus userStatus = UserStatus.WAITING;
 
     // 1회 시도 및 기록. 관계: Participant 1 : N Run
