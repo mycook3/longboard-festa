@@ -51,6 +51,7 @@ public class SecurityConfig {
                     "/api/v3/api-docs",
                     "/api/v3/api-docs/**"
                 ).permitAll()
+                .requestMatchers("/api/v1/judges/**").hasRole("ADMIN")
                 .anyRequest().authenticated())
             .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
