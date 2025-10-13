@@ -106,9 +106,12 @@ public class Round {
                   .sorted()
                   .toList();
 
-              return scores//.subList(1, scores.size() - 1)
-                  .stream()
-                  .reduce(BigDecimal.ZERO, BigDecimal::add);
+              if (scores.size() > 2) {//3인 이상
+                return scores.subList(1, scores.size() - 1)
+                    .stream()
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+              }
+              return scores.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
             }).reversed()
         )
         .limit(nextRound.getParticipantLimit())
