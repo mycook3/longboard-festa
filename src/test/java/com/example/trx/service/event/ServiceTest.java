@@ -235,4 +235,73 @@ class ServiceTest {
     assertEquals("박영서2", saved.getCurrentRun().getParticipant().getNameKr());
   }
 
+  @Test
+  public void proceedRoundTest() {
+    contestEventService.createContestEvent("BEGINNER", "FREESTYLE");
+    contestEventService.addRound(1L, "결승", 2);
+    contestEventService.addRound(1L, "우승", 1);
+
+    ///////////////////////////////////////////
+    ParticipantCreateRequest req1 = ParticipantCreateRequest.builder()
+        .nameKr("박영서")
+        .phone("010-0000-0000")
+        .emergencyContact("010-1111-1111")
+        .gender("MALE")
+        .birth(LocalDate.of(1995, 6, 8))
+        .email("pj0642@gmail.com")
+        .division("BEGINNER")
+        .residence("서울특별시 관악구")
+        .eventToParticipate(List.of("FREESTYLE"))
+        .oneLiner("ㅎㅇㅎㅇ")
+        .build();
+
+    ParticipantCreateRequest req2= ParticipantCreateRequest.builder()
+        .nameKr("박영서2")
+        .phone("010-0000-0000")
+        .emergencyContact("010-1111-1111")
+        .gender("MALE")
+        .birth(LocalDate.of(1995, 6, 8))
+        .email("pj0642@gmail.com")
+        .division("BEGINNER")
+        .residence("서울특별시 관악구")
+        .eventToParticipate(List.of("FREESTYLE"))
+        .oneLiner("ㅎㅇㅎㅇ")
+        .build();
+
+    participantService.createParticipantAndParticipate(req1);
+    participantService.createParticipantAndParticipate(req2);
+    ///////////////////////////////////////////
+
+    contestEventService.initContest(1L);
+    contestEventService.startContestEvent(1L);
+
+    JudgeCreateRequest judgeCreateReq = JudgeCreateRequest.builder()
+        .judgeNumber(1)
+        .name("김심사")
+        .username("judge_kim")
+        .password("1234")
+        .disciplineCode(DisciplineCode.FREESTYLE)
+        .build();
+
+    judgeService.createJudge(judgeCreateReq);
+    judgeService.submitScore(1L, 1L, BigDecimal.valueOf(99), "어쩌고저쩌고");
+
+    contestEventService.proceedRun(1L);
+
+    judgeService.submitScore(2L, 1L, BigDecimal.valueOf(100), "어쩌고저쩌고");
+
+    contestEventService.proceedRun(1L);
+    contestEventService.proceedRound(1L);
+
+    ContestEvent saved = transactionTemplate.execute(status -> {
+      ContestEvent ev = contestEventRepository.findById(1L).orElse(null);
+      ev.getCurrentRound().getRuns();
+      ev.getCurrentRound().getCurrentRun().getParticipant().getNameKr();
+
+      return ev;
+    });
+    assertEquals("우승", saved.getCurrentRound().getName());
+    assertEquals("박영서2", saved.getCurrentRound().getCurrentRun().getParticipant().getNameKr());
+  }
+
 }
