@@ -25,7 +25,7 @@ public class Participation {//초기 등록 현황을 기록
   private ParticipationStatus status;
 
   @ManyToOne
-  @JoinColumn(name = "participation_id")
+  @JoinColumn(name = "participant_id")
   private Participant participant;
 
   @ManyToOne

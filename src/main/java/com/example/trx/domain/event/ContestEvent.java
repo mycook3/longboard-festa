@@ -17,7 +17,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.OrderBy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -53,9 +52,10 @@ public class ContestEvent {//Aggregate Root
 
   // 현재 진행 중인 라운드
   @OneToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "current_round_id")
   private Round currentRound;
 
-  @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "contestEvent", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   @Builder.Default
   private List<Round> rounds = new ArrayList<>();
 
@@ -78,9 +78,10 @@ public class ContestEvent {//Aggregate Root
     rounds.add(round);
   }
 
-  public void start() {
+  public void init() {
     if (contestEventStatus != ContestEventStatus.READY) throw new IllegalStateException("이미 진행 중이거나 종료된 종목입니다");
     if (rounds.isEmpty()) throw new IllegalStateException("No round has been added");
+    contestEventStatus = ContestEventStatus.IN_PROGRESS;
 
     currentRound = rounds.get(0);
     currentRound.markAsInProgress();
@@ -91,13 +92,16 @@ public class ContestEvent {//Aggregate Root
         .toList();
 
     currentRound.addParticipants(activeParticipants);
-    contestEventStatus = ContestEventStatus.IN_PROGRESS;
+  }
+
+  public void startFirstRound() {
     currentRound.start();
   }
 
   public Run getCurrentRun() {
     if (currentRound != null && currentRound.getCurrentRun() != null) return currentRound.getCurrentRun();
-    throw new IllegalStateException("no currentRound or currentRun");
+    if (currentRound == null) throw new IllegalStateException("no currentRound set");
+    throw new IllegalStateException("no currentRun set");
   }
 
   public void proceedRun() {

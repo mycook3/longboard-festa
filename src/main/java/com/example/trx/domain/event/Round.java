@@ -4,6 +4,7 @@ import com.example.trx.domain.run.Run;
 import com.example.trx.domain.score.ScoreTotal;
 import com.example.trx.domain.user.Participant;
 import com.example.trx.domain.user.UserStatus;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -11,6 +12,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
@@ -38,12 +40,13 @@ public class Round {
   private ContestEvent contestEvent;
 
   @OneToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "current_run_id")
   private Run currentRun;
 
   @Enumerated(EnumType.STRING)
   private RoundStatus status;
 
-  @OneToMany
+  @OneToMany(mappedBy = "round", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   @Builder.Default
   private List<Run> runs =  new ArrayList<>();
 
@@ -54,7 +57,7 @@ public class Round {
   public void addParticipants(List<Participant> participants) {
     for (Participant participant : participants) {
       Run run = Run.builder()
-          .contestEvent(contestEvent)
+          .round(this)
           .participant(participant)
           .userStatus(UserStatus.WAITING)
           .build();
@@ -67,7 +70,8 @@ public class Round {
         .filter(run -> run.getUserStatus().equals(UserStatus.WAITING))
         .findFirst();
   }
-    public void start() {
+
+  public void start() {
     if (runs.isEmpty()) throw new IllegalStateException("no runs added");
     currentRun = runs.get(0);
     currentRun.markAsOngoing();

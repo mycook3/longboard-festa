@@ -36,9 +36,9 @@ public class Run extends BaseTimeEntity {
             foreignKey = @ForeignKey(name = "fk_run_participant"))
     private Participant participant;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "contest_event_id", nullable = false)
-    private ContestEvent contestEvent;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "round_id", nullable = false)
+    private Round round;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 16)
