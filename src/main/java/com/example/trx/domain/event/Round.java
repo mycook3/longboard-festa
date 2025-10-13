@@ -106,7 +106,7 @@ public class Round {
                   .sorted()
                   .toList();
 
-              return scores.subList(1, scores.size() - 1)
+              return scores//.subList(1, scores.size() - 1)
                   .stream()
                   .reduce(BigDecimal.ZERO, BigDecimal::add);
             }).reversed()
