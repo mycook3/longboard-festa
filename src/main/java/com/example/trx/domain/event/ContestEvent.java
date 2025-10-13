@@ -1,7 +1,5 @@
 package com.example.trx.domain.event;
 
-import com.example.trx.domain.judge.JudgeStatus;
-import com.example.trx.domain.judge.Judging;
 import com.example.trx.domain.run.Run;
 import com.example.trx.domain.user.Participant;
 import com.example.trx.domain.user.Participation;
@@ -61,10 +59,6 @@ public class ContestEvent {//Aggregate Root
 
   @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   @Builder.Default
-  private List<Judging> judgings= new ArrayList<>();
-
-  @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-  @Builder.Default
   private List<Participation> participations = new ArrayList<>();
 
   public void addRound(String roundName, Integer limit) {
@@ -104,16 +98,11 @@ public class ContestEvent {//Aggregate Root
     throw new IllegalStateException("no currentRun set");
   }
 
-  public void proceedRun() {
+  public void proceedRun(int activeJudgesCount) {
     if (contestEventStatus != ContestEventStatus.IN_PROGRESS) throw new IllegalStateException("시작하지 않았거나 종료된 종목입니다.");
     if (rounds.isEmpty()) throw new IllegalStateException("No round has been started");
 
     Run currentRun = this.getCurrentRun();
-
-    int activeJudgesCount = this.judgings.stream()
-        .filter(judging -> judging.getJudge().getStatus().equals(JudgeStatus.ACTIVE))
-        .toList()
-        .size();
 
     if (currentRun.canBeCompleted(activeJudgesCount)) {
       currentRun.markAsDone();
@@ -122,6 +111,7 @@ public class ContestEvent {//Aggregate Root
 
       currentRound.moveToRun(nextRun);
     }
+    else throw new IllegalStateException("일부 심사위원이 점수를 제출하지 않았습니다.");//TODO
   }
 
   public void proceedRound() {
