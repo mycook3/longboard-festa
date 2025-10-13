@@ -173,7 +173,7 @@ class ServiceTest {
   @Test
   public void proceedRunTest() {
     contestEventService.createContestEvent("BEGINNER", "FREESTYLE");
-    contestEventService.addRound(1L, "결승", 1);
+    contestEventService.addRound(1L, "결승", 2);
 
     ///////////////////////////////////////////
     ParticipantCreateRequest req1 = ParticipantCreateRequest.builder()
