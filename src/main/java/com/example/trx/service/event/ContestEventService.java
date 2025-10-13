@@ -6,8 +6,10 @@ import com.example.trx.domain.event.Division;
 import com.example.trx.domain.event.Round;
 import com.example.trx.domain.event.exception.ContestEventAlreadyExistsException;
 import com.example.trx.domain.event.exception.ContestEventNotFound;
+import com.example.trx.domain.judge.Judge;
 import com.example.trx.repository.event.ContestEventRepository;
 import com.example.trx.repository.event.RoundRepository;
+import com.example.trx.repository.judge.JudgeRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ContestEventService {
 
   private final ContestEventRepository contestEventRepository;
+  private final JudgeRepository judgeRepository;
   private final RoundRepository roundRepository;
 
   public ContestEvent getContestEventByDivisionAndDisciplineCode(String divisionName, String eventName) {
@@ -80,7 +83,8 @@ public class ContestEventService {
   @Transactional
   public void proceedRun(Long eventId) {
     ContestEvent contestEvent = getContestEventById(eventId);
-    contestEvent.proceedRun();
+    int activeJudgesCount = judgeRepository.findAllByDeletedFalse().size();
+    contestEvent.proceedRun(activeJudgesCount);
   }
 
   @Transactional

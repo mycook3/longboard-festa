@@ -9,6 +9,7 @@ import com.example.trx.domain.judge.exception.JudgeAlreadyExistsException;
 import com.example.trx.domain.judge.exception.JudgeNotFoundException;
 import com.example.trx.domain.run.Run;
 import com.example.trx.domain.run.exception.RunNotFoundException;
+import com.example.trx.repository.event.ContestEventRepository;
 import com.example.trx.repository.run.RunRepository;
 import com.example.trx.repository.judge.JudgeRepository;
 import java.math.BigDecimal;
@@ -94,7 +95,6 @@ public class JudgeService {
     public void submitScore(Long runId, Long judgeId, BigDecimal score, String breakdownJson) {
       Run run = runRepository.findById(runId).orElseThrow(() -> new RunNotFoundException(runId));
       Judge judge = judgeRepository.findById(judgeId).orElseThrow(() -> new JudgeNotFoundException(judgeId));
-
       judge.submitScore(run, score, breakdownJson);
     }
 }
