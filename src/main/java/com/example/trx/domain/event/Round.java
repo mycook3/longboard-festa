@@ -55,6 +55,7 @@ public class Round {
   private Integer participantLimit;
 
   public void addParticipants(List<Participant> participants) {
+    if (participants.size() > participantLimit) throw new IllegalArgumentException("참가자 제한 수 초과");
     for (Participant participant : participants) {
       Run run = Run.builder()
           .round(this)
