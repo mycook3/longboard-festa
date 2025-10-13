@@ -3,24 +3,24 @@ package com.example.trx.service.event;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.example.trx.apis.judge.dto.JudgeCreateRequest;
+import com.example.trx.apis.user.dto.ParticipantCreateRequest;
 import com.example.trx.domain.event.ContestEvent;
 import com.example.trx.domain.event.ContestEventStatus;
 import com.example.trx.domain.event.DisciplineCode;
-import com.example.trx.domain.event.Division;
 import com.example.trx.domain.event.exception.ContestEventAlreadyExistsException;
-import com.example.trx.domain.user.Gender;
 import com.example.trx.domain.user.Participant;
 import com.example.trx.repository.event.ContestEventRepository;
-import com.example.trx.repository.user.ParticipantRepository;
 import com.example.trx.service.judge.JudgeService;
+import com.example.trx.service.user.ParticipantService;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @Slf4j
 @SpringBootTest
@@ -36,8 +36,10 @@ class ServiceTest {
   private ContestEventRepository contestEventRepository;
 
   @Autowired
-  private ParticipantRepository participantRepository;
+  private ParticipantService participantService;
 
+  @Autowired
+  private TransactionTemplate transactionTemplate;
 
   @Test
   public void createEventTest() {
@@ -70,20 +72,20 @@ class ServiceTest {
     ContestEvent event = contestEventService.createContestEvent("BEGINNER", "FREESTYLE");
     contestEventService.addRound(1L, "32강", 32);
 
-    Participant participant = Participant.builder()
+    ParticipantCreateRequest request = ParticipantCreateRequest.builder()
         .nameKr("박영서")
-        .bibNumber(1)
         .phone("010-0000-0000")
         .emergencyContact("010-1111-1111")
-        .gender(Gender.MALE)
+        .gender("MALE")
         .birth(LocalDate.of(1995, 6, 8))
         .email("pj0642@gmail.com")
-        .division(Division.BEGINNER)
+        .division("BEGINNER")
         .residence("서울특별시 관악구")
+        .eventToParticipate(List.of("FREESTYLE"))
         .oneLiner("ㅎㅇㅎㅇ")
         .build();
 
-    participant.participate(event);
+    Participant participant = participantService.createParticipantAndParticipate(request);
 
     ContestEvent saved = contestEventRepository.findById(1L).orElse(null);
     assertEquals(1, saved.getParticipations().size());
@@ -95,24 +97,24 @@ class ServiceTest {
     ContestEvent event = contestEventService.createContestEvent("BEGINNER", "FREESTYLE");
     contestEventService.addRound(1L, "32강", 32);
 
-    /////////////////////////////////////////// TODO 참가자 추가 => 서비스 분리 필요
-    Participant participant = Participant.builder()
+    ///////////////////////////////////////////
+    ParticipantCreateRequest request = ParticipantCreateRequest.builder()
         .nameKr("박영서")
-        .bibNumber(1)
         .phone("010-0000-0000")
         .emergencyContact("010-1111-1111")
-        .gender(Gender.MALE)
+        .gender("MALE")
         .birth(LocalDate.of(1995, 6, 8))
         .email("pj0642@gmail.com")
-        .division(Division.BEGINNER)
+        .division("BEGINNER")
         .residence("서울특별시 관악구")
+        .eventToParticipate(List.of("FREESTYLE"))
         .oneLiner("ㅎㅇㅎㅇ")
         .build();
 
-    participantRepository.save(participant);
-    participant.participate(event);
+    Participant participant = participantService.createParticipantAndParticipate(request);
     ////////////////////////////////////////////////////////
 
+    contestEventService.initContest(1L);
     contestEventService.startContestEvent(1L);
 
     ContestEvent saved = contestEventRepository.findById(1L).orElse(null);
@@ -123,16 +125,30 @@ class ServiceTest {
 
   @Test
   public void addJudgeAndSubmitScoreTest() {
-    ContestEvent event = contestEventService.createContestEvent("BEGINNER", "FREESTYLE");
+    contestEventService.createContestEvent("BEGINNER", "FREESTYLE");
     contestEventService.addRound(1L, "결승", 1);
 
-    /////////////////////////////////////////// TODO 참가자 추가 => 서비스 분리 필요
+    ///////////////////////////////////////////
+    ParticipantCreateRequest request = ParticipantCreateRequest.builder()
+        .nameKr("박영서")
+        .phone("010-0000-0000")
+        .emergencyContact("010-1111-1111")
+        .gender("MALE")
+        .birth(LocalDate.of(1995, 6, 8))
+        .email("pj0642@gmail.com")
+        .division("BEGINNER")
+        .residence("서울특별시 관악구")
+        .eventToParticipate(List.of("FREESTYLE"))
+        .oneLiner("ㅎㅇㅎㅇ")
+        .build();
 
+    Participant participant = participantService.createParticipantAndParticipate(request);
     ///////////////////////////////////////////
 
+    contestEventService.initContest(1L);
     contestEventService.startContestEvent(1L);
 
-    JudgeCreateRequest request = JudgeCreateRequest.builder()
+    JudgeCreateRequest judgeCreateReq = JudgeCreateRequest.builder()
         .judgeNumber(1)
         .name("김심사")
         .username("judge_kim")
@@ -140,32 +156,18 @@ class ServiceTest {
         .disciplineCode(DisciplineCode.FREESTYLE)
         .build();
 
-    judgeService.createJudge(request);
+    judgeService.createJudge(judgeCreateReq);
+    judgeService.submitScore(1L, 1L, BigDecimal.valueOf(100), "어쩌고저쩌고");
 
+    ContestEvent saved = transactionTemplate.execute(status -> {
+      ContestEvent ev = contestEventRepository.findById(1L).orElse(null);
+      ev.getCurrentRound().getRuns().size();
+      ev.getCurrentRun().getScores().get(0);
+      return ev;
+    });
+
+    assertTrue(BigDecimal.valueOf(100).compareTo(saved.getCurrentRun().getScores().get(0).getTotal()) == 0);
+    assertEquals(saved.getCurrentRound().getRuns().size(), 1);
   }
 
-  @Test
-  public void proceedRunTest() {
-      ContestEvent event = contestEventService.createContestEvent("BEGINNER", "FREESTYLE");
-      contestEventService.addRound(1L, "결승", 2);
-
-      Participant jihwan = Participant.builder()
-        .nameKr("박지환")
-        .bibNumber(2)
-        .phone("010-0000-0000")
-        .emergencyContact("010-1111-1111")
-        .gender(Gender.MALE)
-        .birth(LocalDate.of(1995, 11, 12))
-        .email("mycook3@naver.com")
-        .division(Division.BEGINNER)
-        .residence("서울특별시 강동구")
-        .oneLiner("ㅎㅇㅎㅇ2")
-        .build();
-
-
-    jihwan.participate(event);
-
-
-
-  }
 }

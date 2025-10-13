@@ -50,10 +50,9 @@ public class ContestEventService {
   }
 
   @Transactional
-  public List<Round> addRound(Long eventId, String roundName, Integer limit) {
+  public void addRound(Long eventId, String roundName, Integer limit) {
     ContestEvent contestEvent = getContestEventById(eventId);
     contestEvent.addRound(roundName, limit);
-    return contestEvent.getRounds();
   }
 
   @Transactional
@@ -67,9 +66,15 @@ public class ContestEventService {
   }
 
   @Transactional
+  public void initContest(Long eventId) {
+    ContestEvent contestEvent = getContestEventById(eventId);
+    contestEvent.init();
+  }
+
+  @Transactional
   public void startContestEvent(Long eventId) {
     ContestEvent contestEvent = getContestEventById(eventId);
-    contestEvent.start();
+    contestEvent.startFirstRound();
   }
 
   @Transactional
