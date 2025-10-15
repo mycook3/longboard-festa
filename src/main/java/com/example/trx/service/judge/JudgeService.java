@@ -1,17 +1,21 @@
 package com.example.trx.service.judge;
 
+import com.example.trx.apis.admin.dto.AdminTokenResponse;
 import com.example.trx.apis.judge.dto.JudgeCreateRequest;
 import com.example.trx.apis.judge.dto.JudgeResponse;
 import com.example.trx.apis.judge.dto.JudgeUpdateRequest;
 import com.example.trx.domain.judge.Judge;
 import com.example.trx.domain.judge.JudgeStatus;
 import com.example.trx.domain.judge.exception.JudgeAlreadyExistsException;
+import com.example.trx.domain.judge.exception.JudgeInvalidCredentialsException;
 import com.example.trx.domain.judge.exception.JudgeNotFoundException;
 import com.example.trx.domain.run.Run;
 import com.example.trx.domain.run.exception.RunNotFoundException;
 import com.example.trx.repository.event.ContestEventRepository;
 import com.example.trx.repository.run.RunRepository;
 import com.example.trx.repository.judge.JudgeRepository;
+import com.example.trx.repository.run.RunRepository;
+import com.example.trx.support.security.JwtTokenProvider;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,6 +31,7 @@ public class JudgeService {
     private final JudgeRepository judgeRepository;
     private final PasswordEncoder passwordEncoder;
     private final RunRepository runRepository;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Transactional
     public JudgeResponse createJudge(JudgeCreateRequest request) {
@@ -89,6 +94,23 @@ public class JudgeService {
             .orElseThrow(() -> new JudgeNotFoundException(judgeId));
         judge.setStatus(JudgeStatus.INACTIVE);
         judge.markDeleted();
+    }
+
+    @Transactional(readOnly = true)
+    public AdminTokenResponse loginJudge(String username, String rawPassword) {
+        Judge judge = judgeRepository.findByUsernameAndDeletedFalse(username)
+            .orElseThrow(() -> new JudgeNotFoundException(username));
+
+        if (!passwordEncoder.matches(rawPassword, judge.getPassword())) {
+            throw new JudgeInvalidCredentialsException();
+        }
+
+        String token = jwtTokenProvider.generateToken(judge.getUsername(), List.of("ROLE_JUDGE"));
+
+        return AdminTokenResponse.builder()
+            .token(token)
+            .tokenType(AdminTokenResponse.TokenType.BEARER)
+            .build();
     }
 
     @Transactional
