@@ -6,11 +6,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class CreateContestEventRequest {
-
-  @NotBlank
-  private String disciplineCode;
-
-  @NotBlank
-  private String division;
+public class AddRoundRequest {
+  private String roundName;
+  private Integer limit;
 }
