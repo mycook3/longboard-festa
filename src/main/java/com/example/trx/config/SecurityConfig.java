@@ -37,7 +37,7 @@ public class SecurityConfig {
             .formLogin(formLogin -> formLogin.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.POST, "/api/v1/admins", "/api/v1/admins/login").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/v1/admins", "/api/v1/admins/login", "/api/v1/judges/login").permitAll()
                 .requestMatchers(HttpMethod.GET,
                     "/api/v1/notices/**",
                     "/api/api",
@@ -51,6 +51,7 @@ public class SecurityConfig {
                     "/api/v3/api-docs",
                     "/api/v3/api-docs/**"
                 ).permitAll()
+                .requestMatchers("/api/v1/judges/**").hasRole("ADMIN")
                 .anyRequest().authenticated())
             .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
