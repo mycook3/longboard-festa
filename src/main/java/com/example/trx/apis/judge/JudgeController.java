@@ -1,7 +1,9 @@
 package com.example.trx.apis.judge;
 
 import com.example.trx.apis.dto.ApiResult;
+import com.example.trx.apis.admin.dto.AdminTokenResponse;
 import com.example.trx.apis.judge.dto.JudgeCreateRequest;
+import com.example.trx.apis.judge.dto.JudgeLoginRequest;
 import com.example.trx.apis.judge.dto.JudgeResponse;
 import com.example.trx.apis.judge.dto.JudgeUpdateRequest;
 import com.example.trx.service.judge.JudgeService;
@@ -36,6 +38,15 @@ public class JudgeController {
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResult<JudgeResponse> createJudge(@Valid @RequestBody JudgeCreateRequest request) {
         return ApiResult.succeed(judgeService.createJudge(request));
+    }
+
+    @Operation(summary = "심사위원 로그인", description = "심사위원 계정으로 로그인하고 JWT를 발급받습니다.")
+    @PostMapping("/login")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResult<AdminTokenResponse> login(
+        @Valid @RequestBody JudgeLoginRequest request
+    ) {
+        return ApiResult.succeed(judgeService.loginJudge(request.getUsername(), request.getPassword()));
     }
 
     @Operation(summary = "심사위원 목록 조회", description = "심사위원의 기본 정보를 조회합니다.")
