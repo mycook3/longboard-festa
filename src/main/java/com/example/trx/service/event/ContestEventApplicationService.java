@@ -6,16 +6,8 @@ import com.example.trx.apis.event.dto.RunResponse;
 import com.example.trx.apis.event.dto.ScoreResponse;
 import com.example.trx.apis.event.dto.SubmitScoreRequest;
 import com.example.trx.domain.event.ContestEvent;
-import com.example.trx.domain.event.DisciplineCode;
-import com.example.trx.domain.event.Division;
-import com.example.trx.domain.event.exception.ContestEventAlreadyExistsException;
-import com.example.trx.domain.event.exception.ContestEventNotFound;
 import com.example.trx.domain.run.Run;
 import com.example.trx.domain.score.ScoreTotal;
-import com.example.trx.repository.event.ContestEventRepository;
-import com.example.trx.repository.event.RoundRepository;
-import com.example.trx.repository.judge.JudgeRepository;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional //DTO 매핑을 위한 lazy fetch용 Transaction 유지(osiv off)
 public class ContestEventApplicationService {
 
   private final ContestEventDomainService contestEventDomainService;
