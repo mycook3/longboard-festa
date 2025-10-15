@@ -27,7 +27,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 class ServiceTest {
 
   @Autowired
-  private ContestEventService contestEventService;
+  private ContestEventDomainService contestEventDomainService;
 
   @Autowired
   private JudgeService judgeService;
@@ -43,20 +43,20 @@ class ServiceTest {
 
   @Test
   public void createEventTest() {
-    contestEventService.createContestEvent("BEGINNER", "FREESTYLE");
+    contestEventDomainService.createContestEvent("BEGINNER", "FREESTYLE");
     assertEquals(1, contestEventRepository.count());
 
     assertThrows(
         ContestEventAlreadyExistsException.class,
-        () -> contestEventService.createContestEvent("BEGINNER", "FREESTYLE")
+        () -> contestEventDomainService.createContestEvent("BEGINNER", "FREESTYLE")
     );
   }
 
   @Test
   @Transactional
   public void addRoundTest() {
-    ContestEvent event = contestEventService.createContestEvent("BEGINNER", "FREESTYLE");
-    contestEventService.addRound(1L, "32강", 32);
+    ContestEvent event = contestEventDomainService.createContestEvent("BEGINNER", "FREESTYLE");
+    contestEventDomainService.addRound(1L, "32강", 32);
 
     ContestEvent saved = contestEventRepository.findById(1L).orElse(null);
     assertNotNull(saved);
@@ -69,8 +69,8 @@ class ServiceTest {
   @Test
   @Transactional
   public void addParticipantTest() {
-    ContestEvent event = contestEventService.createContestEvent("BEGINNER", "FREESTYLE");
-    contestEventService.addRound(1L, "32강", 32);
+    ContestEvent event = contestEventDomainService.createContestEvent("BEGINNER", "FREESTYLE");
+    contestEventDomainService.addRound(1L, "32강", 32);
 
     ParticipantCreateRequest request = ParticipantCreateRequest.builder()
         .nameKr("박영서")
@@ -94,8 +94,8 @@ class ServiceTest {
   @Test
   @Transactional
   public void startTest() {
-    ContestEvent event = contestEventService.createContestEvent("BEGINNER", "FREESTYLE");
-    contestEventService.addRound(1L, "32강", 32);
+    ContestEvent event = contestEventDomainService.createContestEvent("BEGINNER", "FREESTYLE");
+    contestEventDomainService.addRound(1L, "32강", 32);
 
     ///////////////////////////////////////////
     ParticipantCreateRequest request = ParticipantCreateRequest.builder()
@@ -114,8 +114,8 @@ class ServiceTest {
     Participant participant = participantService.createParticipantAndParticipate(request);
     ////////////////////////////////////////////////////////
 
-    contestEventService.initContest(1L);
-    contestEventService.startContestEvent(1L);
+    contestEventDomainService.initContest(1L);
+    contestEventDomainService.startContestEvent(1L);
 
     ContestEvent saved = contestEventRepository.findById(1L).orElse(null);
     assertEquals(ContestEventStatus.IN_PROGRESS, saved.getContestEventStatus());
@@ -125,8 +125,8 @@ class ServiceTest {
 
   @Test
   public void addJudgeAndSubmitScoreTest() {
-    contestEventService.createContestEvent("BEGINNER", "FREESTYLE");
-    contestEventService.addRound(1L, "결승", 1);
+    contestEventDomainService.createContestEvent("BEGINNER", "FREESTYLE");
+    contestEventDomainService.addRound(1L, "결승", 1);
 
     ///////////////////////////////////////////
     ParticipantCreateRequest request = ParticipantCreateRequest.builder()
@@ -145,8 +145,8 @@ class ServiceTest {
     Participant participant = participantService.createParticipantAndParticipate(request);
     ///////////////////////////////////////////
 
-    contestEventService.initContest(1L);
-    contestEventService.startContestEvent(1L);
+    contestEventDomainService.initContest(1L);
+    contestEventDomainService.startContestEvent(1L);
 
     JudgeCreateRequest judgeCreateReq = JudgeCreateRequest.builder()
         .judgeNumber(1)
@@ -172,8 +172,8 @@ class ServiceTest {
 
   @Test
   public void proceedRunTest() {
-    contestEventService.createContestEvent("BEGINNER", "FREESTYLE");
-    contestEventService.addRound(1L, "결승", 2);
+    contestEventDomainService.createContestEvent("BEGINNER", "FREESTYLE");
+    contestEventDomainService.addRound(1L, "결승", 2);
 
     ///////////////////////////////////////////
     ParticipantCreateRequest req1 = ParticipantCreateRequest.builder()
@@ -206,8 +206,8 @@ class ServiceTest {
     participantService.createParticipantAndParticipate(req2);
     ///////////////////////////////////////////
 
-    contestEventService.initContest(1L);
-    contestEventService.startContestEvent(1L);
+    contestEventDomainService.initContest(1L);
+    contestEventDomainService.startContestEvent(1L);
 
     JudgeCreateRequest judgeCreateReq = JudgeCreateRequest.builder()
         .judgeNumber(1)
@@ -220,7 +220,7 @@ class ServiceTest {
     judgeService.createJudge(judgeCreateReq);
     judgeService.submitScore(1L, 1L, BigDecimal.valueOf(100), "어쩌고저쩌고");
 
-    contestEventService.proceedRun(1L);
+    contestEventDomainService.proceedRun(1L);
 
     ContestEvent saved = transactionTemplate.execute(status -> {
       ContestEvent ev = contestEventRepository.findById(1L).orElse(null);
@@ -237,9 +237,9 @@ class ServiceTest {
 
   @Test
   public void proceedRoundTest() {
-    contestEventService.createContestEvent("BEGINNER", "FREESTYLE");
-    contestEventService.addRound(1L, "결승", 2);
-    contestEventService.addRound(1L, "우승", 1);
+    contestEventDomainService.createContestEvent("BEGINNER", "FREESTYLE");
+    contestEventDomainService.addRound(1L, "결승", 2);
+    contestEventDomainService.addRound(1L, "우승", 1);
 
     ///////////////////////////////////////////
     ParticipantCreateRequest req1 = ParticipantCreateRequest.builder()
@@ -272,8 +272,8 @@ class ServiceTest {
     participantService.createParticipantAndParticipate(req2);
     ///////////////////////////////////////////
 
-    contestEventService.initContest(1L);
-    contestEventService.startContestEvent(1L);
+    contestEventDomainService.initContest(1L);
+    contestEventDomainService.startContestEvent(1L);
 
     JudgeCreateRequest judgeCreateReq = JudgeCreateRequest.builder()
         .judgeNumber(1)
@@ -286,12 +286,12 @@ class ServiceTest {
     judgeService.createJudge(judgeCreateReq);
     judgeService.submitScore(1L, 1L, BigDecimal.valueOf(99), "어쩌고저쩌고");
 
-    contestEventService.proceedRun(1L);
+    contestEventDomainService.proceedRun(1L);
 
     judgeService.submitScore(2L, 1L, BigDecimal.valueOf(100), "어쩌고저쩌고");
 
-    contestEventService.proceedRun(1L);
-    contestEventService.proceedRound(1L);
+    contestEventDomainService.proceedRun(1L);
+    contestEventDomainService.proceedRound(1L);
 
     ContestEvent saved = transactionTemplate.execute(status -> {
       ContestEvent ev = contestEventRepository.findById(1L).orElse(null);

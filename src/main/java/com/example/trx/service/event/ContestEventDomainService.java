@@ -3,25 +3,21 @@ package com.example.trx.service.event;
 import com.example.trx.domain.event.ContestEvent;
 import com.example.trx.domain.event.DisciplineCode;
 import com.example.trx.domain.event.Division;
-import com.example.trx.domain.event.Round;
 import com.example.trx.domain.event.exception.ContestEventAlreadyExistsException;
 import com.example.trx.domain.event.exception.ContestEventNotFound;
-import com.example.trx.domain.judge.Judge;
 import com.example.trx.repository.event.ContestEventRepository;
 import com.example.trx.repository.event.RoundRepository;
 import com.example.trx.repository.judge.JudgeRepository;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class ContestEventService {
+public class ContestEventDomainService {
 
   private final ContestEventRepository contestEventRepository;
   private final JudgeRepository judgeRepository;
-  private final RoundRepository roundRepository;
 
   public ContestEvent getContestEventByDivisionAndDisciplineCode(String divisionName, String eventName) {
     Division division = Division.valueOf(divisionName);
@@ -83,6 +79,4 @@ public class ContestEventService {
     ContestEvent contestEvent = getContestEventById(eventId);
     contestEvent.proceedRound();
   }
-
-
 }
