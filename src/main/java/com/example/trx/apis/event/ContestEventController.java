@@ -28,14 +28,6 @@ public class ContestEventController {
   private final ContestEventService contestEventService;
   private final JudgeService judgeService;
 
-  @Operation(summary = "대회 종목 생성", description = "수준 및 종목명을 통해 대회 종목을 생성합니다.")
-  @PostMapping
-  @ResponseStatus(HttpStatus.CREATED)
-  @PreAuthorize("hasRole('ADMIN')")
-  public void createContestEvent(@Valid @RequestBody CreateContestEventRequest request) {
-    contestEventService.createContestEvent(request.getDivision(),  request.getDisciplineCode());
-  }
-
   @Operation(summary = "종목 시작", description = "선택된 종목을 시작합니다")
   @ResponseStatus(HttpStatus.ACCEPTED)
   @PreAuthorize("hasRole('ADMIN')")
@@ -65,14 +57,6 @@ public class ContestEventController {
   @GetMapping("/{id}")
   public void getContestEvent(@PathVariable Long id) {//TODO: DTO 만들기
     contestEventService.getContestEventById(id);
-  }
-
-  @Operation(summary = "라운드 정보 추가", description = "종목에 라운드를 추가합니다")
-  @ResponseStatus(HttpStatus.ACCEPTED)
-  @PreAuthorize("hasRole('ADMIN')")
-  @PostMapping("/{id}/rounds")
-  public void addRound(@PathVariable Long id, @RequestBody AddRoundRequest request) {
-    contestEventService.addRound(id, request.getRoundName(), request.getLimit());
   }
 
   @Operation(summary = "채점 정보 제출", description = "특정 시도에 대한 채점 정보를 제출합니다")
