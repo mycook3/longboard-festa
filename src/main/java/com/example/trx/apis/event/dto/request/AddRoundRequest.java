@@ -1,6 +1,5 @@
-package com.example.trx.apis.event.dto;
+package com.example.trx.apis.event.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

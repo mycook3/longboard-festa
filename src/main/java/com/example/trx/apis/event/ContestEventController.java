@@ -1,11 +1,10 @@
 package com.example.trx.apis.event;
 
 import com.example.trx.apis.dto.ApiResult;
-import com.example.trx.apis.event.dto.ContestEventResponse;
-import com.example.trx.apis.event.dto.EditScoreRequest;
-import com.example.trx.apis.event.dto.SubmitScoreRequest;
+import com.example.trx.apis.event.dto.response.ContestEventResponse;
+import com.example.trx.apis.event.dto.request.EditScoreRequest;
+import com.example.trx.apis.event.dto.request.SubmitScoreRequest;
 import com.example.trx.service.event.ContestEventApplicationService;
-import com.example.trx.service.judge.JudgeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

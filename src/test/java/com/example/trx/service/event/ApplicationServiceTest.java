@@ -5,11 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.example.trx.apis.event.dto.ContestEventResponse;
+import com.example.trx.apis.event.dto.response.ContestEventResponse;
 import com.example.trx.apis.judge.dto.JudgeCreateRequest;
 import com.example.trx.apis.user.dto.ParticipantCreateRequest;
-import com.example.trx.domain.event.ContestEvent;
-import com.example.trx.domain.event.ContestEventStatus;
 import com.example.trx.domain.event.DisciplineCode;
 import com.example.trx.domain.user.Participant;
 import com.example.trx.repository.event.ContestEventRepository;
@@ -23,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 @Slf4j
