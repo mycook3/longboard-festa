@@ -45,7 +45,7 @@ public class ContestEventDomainService {
   }
 
   @Transactional
-  public ContestEvent createContestEvent(String divisionName, String eventName) {//TODO: 응답 DTO로 변경하기
+  public ContestEvent createContestEvent(String divisionName, String eventName) {//NO NEED
     Division division = Division.valueOf(divisionName);
     DisciplineCode disciplineCode = DisciplineCode.valueOf(eventName);
 
