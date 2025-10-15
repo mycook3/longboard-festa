@@ -3,7 +3,6 @@ package com.example.trx.service.event;
 import com.example.trx.domain.event.ContestEvent;
 import com.example.trx.domain.event.DisciplineCode;
 import com.example.trx.domain.event.Division;
-import com.example.trx.domain.event.exception.ContestEventAlreadyExistsException;
 import com.example.trx.domain.event.exception.ContestEventNotFound;
 import com.example.trx.domain.judge.Judge;
 import com.example.trx.domain.judge.exception.JudgeNotFoundException;
@@ -11,7 +10,6 @@ import com.example.trx.domain.run.Run;
 import com.example.trx.domain.run.exception.RunNotFoundException;
 import com.example.trx.domain.score.ScoreTotal;
 import com.example.trx.repository.event.ContestEventRepository;
-import com.example.trx.repository.event.RoundRepository;
 import com.example.trx.repository.judge.JudgeRepository;
 import com.example.trx.repository.run.RunRepository;
 import com.example.trx.repository.score.ScoreTotalRepository;
@@ -42,21 +40,6 @@ public class ContestEventDomainService {
     return contestEventRepository
         .findById(contestEventId)
         .orElseThrow(() -> new ContestEventNotFound(contestEventId));
-  }
-
-  @Transactional
-  public ContestEvent createContestEvent(String divisionName, String eventName) {//NO NEED
-    Division division = Division.valueOf(divisionName);
-    DisciplineCode disciplineCode = DisciplineCode.valueOf(eventName);
-
-    if (getContestEventByDivisionAndDisciplineCode(divisionName, eventName) != null) throw new ContestEventAlreadyExistsException(division, disciplineCode);
-
-    ContestEvent contestEvent = ContestEvent.builder()
-        .division(division)
-        .disciplineCode(disciplineCode)
-        .build();
-
-    return contestEventRepository.save(contestEvent);
   }
 
   @Transactional
