@@ -157,7 +157,7 @@ class ServiceTest {
         .build();
 
     judgeService.createJudge(judgeCreateReq);
-    judgeService.submitScore(1L, 1L, BigDecimal.valueOf(100), "어쩌고저쩌고");
+    contestEventDomainService.submitScore(1L, 1L, BigDecimal.valueOf(100), "어쩌고저쩌고");
 
     ContestEvent saved = transactionTemplate.execute(status -> {
       ContestEvent ev = contestEventRepository.findById(1L).orElse(null);
@@ -218,7 +218,7 @@ class ServiceTest {
         .build();
 
     judgeService.createJudge(judgeCreateReq);
-    judgeService.submitScore(1L, 1L, BigDecimal.valueOf(100), "어쩌고저쩌고");
+    contestEventDomainService.submitScore(1L, 1L, BigDecimal.valueOf(100), "어쩌고저쩌고");
 
     contestEventDomainService.proceedRun(1L);
 
@@ -284,11 +284,11 @@ class ServiceTest {
         .build();
 
     judgeService.createJudge(judgeCreateReq);
-    judgeService.submitScore(1L, 1L, BigDecimal.valueOf(99), "어쩌고저쩌고");
 
+    contestEventDomainService.submitScore(1L, 1L, BigDecimal.valueOf(99), "어쩌고저쩌고");
     contestEventDomainService.proceedRun(1L);
 
-    judgeService.submitScore(2L, 1L, BigDecimal.valueOf(100), "어쩌고저쩌고");
+    contestEventDomainService.submitScore(2L, 1L, BigDecimal.valueOf(100), "어쩌고저쩌고");
 
     contestEventDomainService.proceedRun(1L);
     contestEventDomainService.proceedRound(1L);

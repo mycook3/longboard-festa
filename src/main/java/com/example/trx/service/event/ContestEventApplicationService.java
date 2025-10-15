@@ -1,8 +1,10 @@
 package com.example.trx.service.event;
 
 import com.example.trx.apis.event.dto.ContestEventResponse;
+import com.example.trx.apis.event.dto.EditScoreRequest;
 import com.example.trx.apis.event.dto.RunResponse;
 import com.example.trx.apis.event.dto.ScoreResponse;
+import com.example.trx.apis.event.dto.SubmitScoreRequest;
 import com.example.trx.domain.event.ContestEvent;
 import com.example.trx.domain.event.DisciplineCode;
 import com.example.trx.domain.event.Division;
@@ -44,6 +46,14 @@ public class ContestEventApplicationService {
 
   public void proceedRound(Long eventId) {
     contestEventDomainService.proceedRound(eventId);
+  }
+
+  public void submitScore(Long runId, SubmitScoreRequest request) {
+    contestEventDomainService.submitScore(runId, request.getJudgeId(), request.getScoreTotal(), request.getBreakdownJson());
+  }
+
+  public void editScore(Long scoreId, EditScoreRequest request) {
+    contestEventDomainService.editScore(scoreId, request.getScoreTotal(), request.getBreakdownJson(), request.getEditedBy(), request.getEditReason());
   }
 
   private ContestEventResponse makeContestEventResponse(ContestEvent contestEvent) {
