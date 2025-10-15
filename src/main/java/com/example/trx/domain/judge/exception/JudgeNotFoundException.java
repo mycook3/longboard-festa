@@ -8,4 +8,8 @@ public class JudgeNotFoundException extends RuntimeException {
     public JudgeNotFoundException(Long id) {
         super("심사위원을 찾을 수 없습니다. id=" + id);
     }
+
+    public JudgeNotFoundException(String username) {
+        super("심사위원을 찾을 수 없습니다. username=" + username);
+    }
 }

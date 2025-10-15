@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,6 +34,7 @@ public class NoticeController {
     @Operation(summary = "공지 등록", description = "관리자가 신규 공지를 등록합니다.")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResult<NoticeResponse> createNotice(@Valid @RequestBody NoticeCreateRequest request) {
         return ApiResult.succeed(noticeService.createNotice(request));
     }
@@ -54,6 +56,7 @@ public class NoticeController {
 
     @Operation(summary = "공지 수정", description = "기존 공지를 수정합니다.")
     @PutMapping("/{noticeId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResult<NoticeResponse> updateNotice(
         @PathVariable Long noticeId,
         @Valid @RequestBody NoticeUpdateRequest request
@@ -63,6 +66,7 @@ public class NoticeController {
 
     @Operation(summary = "공지 삭제", description = "공지 하나를 삭제합니다.")
     @DeleteMapping("/{noticeId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResult<Void> deleteNotice(@PathVariable Long noticeId) {
         noticeService.deleteNotice(noticeId);
         return ApiResult.succeed(null);

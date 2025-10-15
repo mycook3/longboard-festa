@@ -10,4 +10,5 @@ public interface JudgeRepository extends JpaRepository<Judge, Long> {
     Optional<Judge> findByUsername(String username);
     Optional<Judge> findByIdAndDeletedFalse(Long id);
     List<Judge> findAllByDeletedFalse();
+    Optional<Judge> findByUsernameAndDeletedFalse(String username);
 }
