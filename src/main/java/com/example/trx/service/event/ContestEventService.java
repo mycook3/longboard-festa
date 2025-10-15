@@ -60,16 +60,6 @@ public class ContestEventService {
   }
 
   @Transactional
-  public List<Round> deleteRound() {//TODO
-    return null;
-  }
-
-  @Transactional
-  public Round updateRound() { //TODO
-    return null;
-  }
-
-  @Transactional
   public void initContest(Long eventId) {
     ContestEvent contestEvent = getContestEventById(eventId);
     contestEvent.init();
