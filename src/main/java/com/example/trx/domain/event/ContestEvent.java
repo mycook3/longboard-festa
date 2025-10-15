@@ -1,9 +1,9 @@
 package com.example.trx.domain.event;
 
 import com.example.trx.domain.run.Run;
-import com.example.trx.domain.score.ScoreTotal;
 import com.example.trx.domain.user.Participant;
-import com.example.trx.domain.user.UserStatus;
+import com.example.trx.domain.user.Participation;
+import com.example.trx.domain.user.ParticipationStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -15,9 +15,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
@@ -33,7 +31,7 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ContestEvent {
+public class ContestEvent {//Aggregate Root
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
@@ -46,71 +44,98 @@ public class ContestEvent {
   @Enumerated(EnumType.STRING)
   private DisciplineCode disciplineCode;
 
-  // 현재 진행 중인 라운드
   @Enumerated(EnumType.STRING)
-  private Round round;
-
-  // 현재 진행 중인 것
-  @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  @JoinColumn(name = "current_run_id")
-  private Run currentRun;
-
-  // 해당 종목에서 심사된 모든 시도
-  @OneToMany(mappedBy = "contestEvent", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @Builder.Default
-  private List<Run> runs = new ArrayList<>();
+  private ContestEventStatus contestEventStatus = ContestEventStatus.READY;
 
-   //TODO
+  // 현재 진행 중인 라운드
+  @OneToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "current_round_id")
+  private Round currentRound;
+
+  @OneToMany(mappedBy = "contestEvent", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @Builder.Default
+  private List<Round> rounds = new ArrayList<>();
+
+  @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @Builder.Default
+  private List<Participation> participations = new ArrayList<>();
+
+  public void addRound(String roundName, Integer limit) {
+    Round round = Round.builder()
+        .contestEvent(this)
+        .name(roundName)
+        .status(RoundStatus.BEFORE)
+        .participantLimit(limit)
+        .build();
+
+    rounds.add(round);
+  }
+
   public void init() {
-    Optional<Run> nextRun = runs.stream()
-        .filter(run -> run.getRound().equals(this.round))
-        .filter(run -> !run.getUserStatus().equals(UserStatus.DONE)) // 아직 끝나지 않은 Run
-        .findFirst();
+    if (contestEventStatus != ContestEventStatus.READY) throw new IllegalStateException("이미 진행 중이거나 종료된 종목입니다");
+    if (rounds.isEmpty()) throw new IllegalStateException("No round has been added");
+    contestEventStatus = ContestEventStatus.IN_PROGRESS;
 
-    this.currentRun = nextRun.orElse(null);
-  }
+    currentRound = rounds.get(0);
+    currentRound.markAsInProgress();
 
-  public void addRun(Participant participant){
-    Run run = new Run(participant, this.round, this);
-    runs.add(run);
-  }
-
-  public void proceedRoundAndDropParticipants() throws IllegalStateException {
-    Round nextRound = round.proceed();
-    Integer limit = nextRound.getLimit();
-
-    //다음 라운드로 넘어갈 사람들만 추리기
-    //TODO 동점자 처리 의논 필요
-    List<Run> top = runs.stream().filter(run -> round.equals(run.getRound()))
-        .sorted(
-           Comparator.comparing((Run run) -> {
-                List<BigDecimal> scores = run.getScores()
-                                             .stream()
-                                             .map(ScoreTotal::getTotal)
-                                             .sorted()
-                                             .toList();
-
-                return scores.subList(1, scores.size() - 1)
-                             .stream()
-                             .reduce(BigDecimal.ZERO, BigDecimal::add);
-            }).reversed()
-        )
-        .limit(limit)
+    List<Participant> activeParticipants = participations.stream()
+        .filter(p -> p.getStatus() == ParticipationStatus.ACTIVE)
+        .map(Participation::getParticipant)
         .toList();
 
-    this.round = nextRound;
-    top.forEach(run -> this.addRun(run.getParticipant()));
+    currentRound.addParticipants(activeParticipants);
   }
 
-  public void proceedRun() throws IllegalStateException {
-    if (this.currentRun == null) throw new IllegalStateException("Current run is null");
-    this.currentRun.endRun();
+  public void startFirstRound() {
+    currentRound.start();
+  }
 
-    Optional<Run> nextRun = runs.stream()
-        .filter(run -> run.getRound().equals(this.round))
-        .filter(run -> !run.getUserStatus().equals(UserStatus.DONE)) // 아직 끝나지 않은 Run
-        .findFirst();
+  public Run getCurrentRun() {
+    if (currentRound != null && currentRound.getCurrentRun() != null) return currentRound.getCurrentRun();
+    if (currentRound == null) throw new IllegalStateException("no currentRound set");
+    throw new IllegalStateException("no currentRun set");
+  }
 
-    this.currentRun = nextRun.orElse(null);
+  public void proceedRun(int activeJudgesCount) {
+    if (contestEventStatus != ContestEventStatus.IN_PROGRESS) throw new IllegalStateException("시작하지 않았거나 종료된 종목입니다.");
+    if (rounds.isEmpty()) throw new IllegalStateException("No round has been started");
+
+    Run currentRun = this.getCurrentRun();
+
+    if (currentRun.canBeCompleted(activeJudgesCount)) {
+      currentRun.markAsDone();
+      Run nextRun = currentRound.findNextRun()
+          .orElseThrow(() -> new IllegalStateException("해당 라운드의 마지막 참가자입니다."));
+
+      currentRound.moveToRun(nextRun);
+    }
+    else throw new IllegalStateException("일부 심사위원이 점수를 제출하지 않았습니다.");//TODO
+  }
+
+  public void proceedRound() {
+    if (contestEventStatus != ContestEventStatus.IN_PROGRESS) throw new IllegalStateException("시작하지 않았거나 종료된 종목입니다.");
+    if (rounds.isEmpty()) throw new IllegalStateException("No round has been started");
+
+    Round nextRound = findNextRound().orElse(null);
+    boolean isLast = nextRound == null;
+
+    if (isLast) currentRound.markAsCompleted();
+    else if (currentRound.canBeCompleted()) {
+      currentRound.markAsCompleted();
+
+      List<Participant> survivors = currentRound.getSurvivors(nextRound);
+      nextRound.addParticipants(survivors);
+      nextRound.markAsInProgress();
+
+      currentRound = nextRound;
+    }
+  }
+
+  public Optional<Round> findNextRound() {
+    return rounds.stream()
+          .filter(round -> round.getStatus().equals(RoundStatus.BEFORE))
+          .findFirst();
   }
 }

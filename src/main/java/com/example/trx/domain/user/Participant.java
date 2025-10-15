@@ -11,7 +11,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @Getter
@@ -64,7 +63,7 @@ public class Participant extends BaseTimeEntity {
     private Division division;
 
     // 참가 종목
-    @OneToMany(mappedBy = "participant", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "participant", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
     private List<Participation> participations = new ArrayList<>();
 
@@ -79,16 +78,17 @@ public class Participant extends BaseTimeEntity {
     // 상태 << ?
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 16)
+    @Builder.Default
     private UserStatus userStatus = UserStatus.WAITING;
 
     // 1회 시도 및 기록. 관계: Participant 1 : N Run
-    @OneToMany(mappedBy = "participant", cascade = CascadeType.ALL, orphanRemoval = false)
+    @OneToMany(mappedBy = "participant", cascade = CascadeType.ALL, orphanRemoval = false, fetch = FetchType.LAZY)
     @Builder.Default
     private List<Run> runs = new ArrayList<>();
 
     public void participate(ContestEvent event) {
-      event.addRun(this);
       Participation participation = new Participation(this, event);
+      event.getParticipations().add(participation);
       participations.add(participation);
     }
 }
