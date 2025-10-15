@@ -64,6 +64,7 @@ public class ContestEventApplicationService {
     return runs.stream()
         .map(run ->
             RunResponse.builder()
+                .id(run.getId())
                 .participantName(run.getParticipant().getNameKr())
                 .status(run.getUserStatus().name())
                 .scores(makeScoreResponseList(run.getScores()))
