@@ -1,13 +1,13 @@
 package com.example.trx.apis.event;
 
-import com.example.trx.apis.event.dto.AddRoundRequest;
-import com.example.trx.apis.event.dto.CreateContestEventRequest;
+import com.example.trx.apis.dto.ApiResult;
+import com.example.trx.apis.event.dto.ContestEventResponse;
 import com.example.trx.apis.event.dto.SubmitScoreRequest;
-import com.example.trx.service.event.ContestEventService;
+import com.example.trx.service.event.ContestEventApplicationService;
+import com.example.trx.service.event.ContestEventDomainService;
 import com.example.trx.service.judge.JudgeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,46 +25,50 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "ContestEvents", description = "대회 진행 종목 관리 API")
 public class ContestEventController {
 
-  private final ContestEventService contestEventService;
+  private final ContestEventApplicationService contestEventService;
   private final JudgeService judgeService;
 
   @Operation(summary = "종목 시작", description = "선택된 종목을 시작합니다")
   @ResponseStatus(HttpStatus.ACCEPTED)
   @PreAuthorize("hasRole('ADMIN')")
   @PostMapping("/{id}")
-  public void startContestEvent(@PathVariable Long id) {
+  public ApiResult<Void> startContestEvent(@PathVariable Long id) {
     contestEventService.startContestEvent(id);
+    return ApiResult.succeed(null);
   }
 
   @Operation(summary = "라운드 넘기기", description = "선택된 종목의 라운드를 다음으로 넘깁니다")
   @ResponseStatus(HttpStatus.ACCEPTED)
   @PreAuthorize("hasRole('ADMIN')")
   @PostMapping("/{id}/rounds/next")
-  public void proceedRound(@PathVariable Long id) {
+  public ApiResult<Void> proceedRound(@PathVariable Long id) {
     contestEventService.proceedRound(id);
+    return ApiResult.succeed(null);
   }
 
   @Operation(summary = "시도 넘기기", description = "선택된 종목의 시도를 다음으로 넘깁니다")
   @ResponseStatus(HttpStatus.ACCEPTED)
   @PreAuthorize("hasRole('ADMIN')")
   @PostMapping("/{id}/runs")
-  public void proceedRun(@PathVariable Long id) {
+  public ApiResult<Void> proceedRun(@PathVariable Long id) {
     contestEventService.proceedRun(id);
+    return ApiResult.succeed(null);
   }
 
   @Operation(summary = "종목 정보 반환", description = "선택된 종목의 정보를 반환합니다")
   @ResponseStatus(HttpStatus.ACCEPTED)
   @GetMapping("/{id}")
-  public void getContestEvent(@PathVariable Long id) {//TODO: DTO 만들기
-    contestEventService.getContestEventById(id);
+  public ApiResult<ContestEventResponse> getContestEvent(@PathVariable Long id) {//TODO: DTO 만들기
+    return ApiResult.succeed(contestEventService.getContestEventById(id));
   }
 
   @Operation(summary = "채점 정보 제출", description = "특정 시도에 대한 채점 정보를 제출합니다")
   @ResponseStatus(HttpStatus.ACCEPTED)
   @PreAuthorize("hasRole('JUDGE')")
   @PostMapping("/runs/{runId}")
-  public void submitScore(@PathVariable Long runId, @RequestBody SubmitScoreRequest request) {
+  public ApiResult<Void> submitScore(@PathVariable Long runId, @RequestBody SubmitScoreRequest request) {
     judgeService.submitScore(runId, request.getJudgeId(), request.getScoreTotal(), request.getBreakdownJson());
+    return ApiResult.succeed(null);
   }
 }
 
