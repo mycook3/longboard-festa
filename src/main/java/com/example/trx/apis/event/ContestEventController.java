@@ -62,7 +62,6 @@ public class ContestEventController {
 
   @Operation(summary = "종목 정보 반환", description = "선택된 종목의 정보를 반환합니다")
   @ResponseStatus(HttpStatus.ACCEPTED)
-  @PreAuthorize("hasRole('ADMIN')")
   @GetMapping("/{id}")
   public void getContestEvent(@PathVariable Long id) {//TODO: DTO 만들기
     contestEventService.getContestEventById(id);
