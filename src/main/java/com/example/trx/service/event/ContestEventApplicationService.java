@@ -1,10 +1,10 @@
 package com.example.trx.service.event;
 
-import com.example.trx.apis.event.dto.ContestEventResponse;
-import com.example.trx.apis.event.dto.EditScoreRequest;
-import com.example.trx.apis.event.dto.RunResponse;
-import com.example.trx.apis.event.dto.ScoreResponse;
-import com.example.trx.apis.event.dto.SubmitScoreRequest;
+import com.example.trx.apis.event.dto.response.ContestEventResponse;
+import com.example.trx.apis.event.dto.request.EditScoreRequest;
+import com.example.trx.apis.event.dto.response.RunResponse;
+import com.example.trx.apis.event.dto.response.ScoreResponse;
+import com.example.trx.apis.event.dto.request.SubmitScoreRequest;
 import com.example.trx.domain.event.ContestEvent;
 import com.example.trx.domain.run.Run;
 import com.example.trx.domain.score.ScoreTotal;

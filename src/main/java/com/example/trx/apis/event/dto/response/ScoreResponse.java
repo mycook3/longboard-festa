@@ -1,4 +1,4 @@
-package com.example.trx.apis.event.dto;
+package com.example.trx.apis.event.dto.response;
 
 import java.math.BigDecimal;
 import lombok.Builder;
