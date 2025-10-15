@@ -32,6 +32,12 @@ public class ContestEventService {
         .orElse(null);
   }
 
+  public ContestEvent getContestEventById(Long contestEventId) {
+    return contestEventRepository
+        .findById(contestEventId)
+        .orElseThrow(() -> new ContestEventNotFound(contestEventId));
+  }
+
   @Transactional
   public ContestEvent createContestEvent(String divisionName, String eventName) {//TODO: 응답 DTO로 변경하기
     Division division = Division.valueOf(divisionName);
@@ -45,11 +51,6 @@ public class ContestEventService {
         .build();
 
     return contestEventRepository.save(contestEvent);
-  }
-
-  private ContestEvent getContestEventById(Long eventId) {
-    return contestEventRepository.findById(eventId)
-        .orElseThrow(() -> new ContestEventNotFound(eventId));
   }
 
   @Transactional
