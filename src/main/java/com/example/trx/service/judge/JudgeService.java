@@ -1,13 +1,22 @@
 package com.example.trx.service.judge;
 
+import com.example.trx.apis.admin.dto.AdminTokenResponse;
 import com.example.trx.apis.judge.dto.JudgeCreateRequest;
 import com.example.trx.apis.judge.dto.JudgeResponse;
 import com.example.trx.apis.judge.dto.JudgeUpdateRequest;
 import com.example.trx.domain.judge.Judge;
 import com.example.trx.domain.judge.JudgeStatus;
 import com.example.trx.domain.judge.exception.JudgeAlreadyExistsException;
+import com.example.trx.domain.judge.exception.JudgeInvalidCredentialsException;
 import com.example.trx.domain.judge.exception.JudgeNotFoundException;
+import com.example.trx.domain.run.Run;
+import com.example.trx.domain.run.exception.RunNotFoundException;
+import com.example.trx.repository.event.ContestEventRepository;
+import com.example.trx.repository.run.RunRepository;
 import com.example.trx.repository.judge.JudgeRepository;
+import com.example.trx.repository.run.RunRepository;
+import com.example.trx.support.security.JwtTokenProvider;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +30,7 @@ public class JudgeService {
 
     private final JudgeRepository judgeRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Transactional
     public JudgeResponse createJudge(JudgeCreateRequest request) {
@@ -32,7 +42,6 @@ public class JudgeService {
             .name(request.getName())
             .username(request.getUsername())
             .password(passwordEncoder.encode(request.getPassword()))
-            .disciplineCode(request.getDisciplineCode())
             .judgeNumber(request.getJudgeNumber())
             .status(JudgeStatus.ACTIVE)
             .build();
@@ -44,7 +53,6 @@ public class JudgeService {
             .name(saved.getName())
             .username(saved.getUsername())
             .judgeNumber(saved.getJudgeNumber())
-            .disciplineCode(saved.getDisciplineCode())
             .status(saved.getStatus())
             .build();
     }
@@ -57,7 +65,6 @@ public class JudgeService {
                 .name(judge.getName())
                 .username(judge.getUsername())
                 .judgeNumber(judge.getJudgeNumber())
-                .disciplineCode(judge.getDisciplineCode())
                 .status(judge.getStatus())
                 .build())
             .collect(Collectors.toList());
@@ -69,7 +76,6 @@ public class JudgeService {
             .orElseThrow(() -> new JudgeNotFoundException(judgeId));
 
         judge.setName(request.getName());
-        judge.setDisciplineCode(request.getDisciplineCode());
         judge.setStatus(request.getStatus());
 
         return JudgeResponse.builder()
@@ -77,7 +83,6 @@ public class JudgeService {
             .name(judge.getName())
             .username(judge.getUsername())
             .judgeNumber(judge.getJudgeNumber())
-            .disciplineCode(judge.getDisciplineCode())
             .status(judge.getStatus())
             .build();
     }
@@ -89,4 +94,22 @@ public class JudgeService {
         judge.setStatus(JudgeStatus.INACTIVE);
         judge.markDeleted();
     }
+
+    @Transactional(readOnly = true)
+    public AdminTokenResponse loginJudge(String username, String rawPassword) {
+        Judge judge = judgeRepository.findByUsernameAndDeletedFalse(username)
+            .orElseThrow(() -> new JudgeNotFoundException(username));
+
+        if (!passwordEncoder.matches(rawPassword, judge.getPassword())) {
+            throw new JudgeInvalidCredentialsException();
+        }
+
+        String token = jwtTokenProvider.generateToken(judge.getUsername(), List.of("ROLE_JUDGE"));
+
+        return AdminTokenResponse.builder()
+            .token(token)
+            .tokenType(AdminTokenResponse.TokenType.BEARER)
+            .build();
+    }
+
 }

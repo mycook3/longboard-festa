@@ -26,10 +26,6 @@ public class Judge extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "contest_event_id")
-    private ContestEvent contestEvent;
-
     @Column(name = "judge_number", nullable = false)
     private Integer judgeNumber;
 
@@ -43,10 +39,6 @@ public class Judge extends BaseTimeEntity {
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "discipline_code", nullable = false, length = 32)
-    private DisciplineCode disciplineCode;
-
-    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 16)
     @Builder.Default
     private JudgeStatus status = JudgeStatus.ACTIVE;
@@ -58,7 +50,14 @@ public class Judge extends BaseTimeEntity {
 
     // 채점
     public void submitScore(Run run, BigDecimal score, String breakDownJson) {
-      ScoreTotal submitted = new ScoreTotal(run, this, score, breakDownJson);
+      ScoreTotal submitted = ScoreTotal.builder()
+          .run(run)
+          .judge(this)
+          .total(score)
+          .breakdownJson(breakDownJson)
+          .build();
+
+      run.addScore(submitted);
       scores.add(submitted);
     }
 }

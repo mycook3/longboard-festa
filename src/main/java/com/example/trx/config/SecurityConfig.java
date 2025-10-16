@@ -8,6 +8,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,12 +33,14 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
+            .httpBasic(AbstractHttpConfigurer::disable)
+            .formLogin(formLogin -> formLogin.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.POST, "/api/v1/admins", "/api/v1/admins/login").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/v1/admins", "/api/v1/admins/login", "/api/v1/judges/login").permitAll()
                 .requestMatchers(HttpMethod.GET,
                     "/api/v1/notices/**",
-                    "/api",
+                    "/api/api",
                     "/api/swagger-config",
                     "/api/swagger-ui.html",
                     "/api/swagger-ui/**",
@@ -48,6 +51,7 @@ public class SecurityConfig {
                     "/api/v3/api-docs",
                     "/api/v3/api-docs/**"
                 ).permitAll()
+                .requestMatchers("/api/v1/judges/**").hasRole("ADMIN")
                 .anyRequest().authenticated())
             .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

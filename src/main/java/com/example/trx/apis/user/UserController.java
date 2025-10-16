@@ -1,14 +1,8 @@
 package com.example.trx.apis.user;
 
-import com.example.trx.apis.dto.ApiResult;
-import com.example.trx.dto.user.UserDto;
-import com.example.trx.service.user.UserService;
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
@@ -16,7 +10,6 @@ import java.util.List;
 @Tag(name = "User Management", description = "Operations for creating, retrieving and updating users")
 public class UserController {
 
-  private final UserService userService;
 
 //  @Operation(summary = "List users", description = "Retrieve all registered users")
 //  @GetMapping

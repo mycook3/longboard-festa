@@ -26,12 +26,6 @@ import lombok.Setter;
 @Entity
 public class Run extends BaseTimeEntity {
 
-    public Run(Participant participant, Round round, ContestEvent contestEvent) {
-      this.participant = participant;
-      this.round = round;
-      this.contestEvent = contestEvent;
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -42,13 +36,8 @@ public class Run extends BaseTimeEntity {
             foreignKey = @ForeignKey(name = "fk_run_participant"))
     private Participant participant;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "contest_event_id", nullable = false)
-    private ContestEvent contestEvent;
-
-    // 라운드 번호
-    @Enumerated(EnumType.STRING)
-    @Column(name = "round", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "round_id", nullable = false)
     private Round round;
 
     @Enumerated(EnumType.STRING)
@@ -64,5 +53,17 @@ public class Run extends BaseTimeEntity {
     public void addScore(ScoreTotal score) {
         scores.add(score);
         score.setRun(this);
+    }
+
+    public void markAsDone() {
+        this.userStatus = UserStatus.DONE;
+    }
+
+    public void markAsOngoing() {
+        this.userStatus = UserStatus.ONGOING;
+    }
+
+    public boolean canBeCompleted(int judgeCount) {
+      return scores.size() == judgeCount;
     }
 }

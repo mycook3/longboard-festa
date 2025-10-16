@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @Getter
@@ -18,13 +19,6 @@ import lombok.Setter;
 @Builder
 @Entity
 public class ScoreTotal extends BaseTimeEntity {
-
-    public ScoreTotal(Run run, Judge judge, BigDecimal total, String breakdownJson) {
-      this.judge = judge;
-      this.run = run;
-      this.total = total;
-      this.breakdownJson = breakdownJson;
-    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,7 +39,7 @@ public class ScoreTotal extends BaseTimeEntity {
     @Column(name = "total", nullable = false, precision = 8, scale = 2)
     private BigDecimal total;
 
-    @Column(name = "breakdown_json", columnDefinition = "jsonb")
+    @Column(name = "breakdown_json")//, columnDefinition = "jsonb")
     private String breakdownJson;
 
     @Column(name = "is_locked", nullable = false)
