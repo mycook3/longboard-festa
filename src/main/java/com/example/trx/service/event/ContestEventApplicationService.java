@@ -6,8 +6,10 @@ import com.example.trx.apis.event.dto.response.RunResponse;
 import com.example.trx.apis.event.dto.response.ScoreResponse;
 import com.example.trx.apis.event.dto.request.SubmitScoreRequest;
 import com.example.trx.domain.event.ContestEvent;
+import com.example.trx.domain.event.Round;
 import com.example.trx.domain.run.Run;
 import com.example.trx.domain.score.ScoreTotal;
+import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -55,8 +57,13 @@ public class ContestEventApplicationService {
         .eventName(contestEvent.getDisciplineCode().name())
         .status(contestEvent.getContestEventStatus().name())
         .division(contestEvent.getDivision().name())
-        .currentRound(contestEvent.getCurrentRound().getName())
-        .runs(makeRunResponseList(contestEvent.getCurrentRound().getRuns()))
+        .currentRound(contestEvent.getCurrentRound() != null
+            ? contestEvent.getCurrentRound().getName()
+            : "")
+        .runs(makeRunResponseList(
+            contestEvent.getCurrentRound() != null
+            ? contestEvent.getCurrentRound().getRuns()
+            : Collections.emptyList()))
         .build();
   }
 
