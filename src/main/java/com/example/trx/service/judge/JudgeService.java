@@ -30,7 +30,6 @@ public class JudgeService {
 
     private final JudgeRepository judgeRepository;
     private final PasswordEncoder passwordEncoder;
-    private final RunRepository runRepository;
     private final JwtTokenProvider jwtTokenProvider;
 
     @Transactional
@@ -113,10 +112,4 @@ public class JudgeService {
             .build();
     }
 
-    @Transactional
-    public void submitScore(Long runId, Long judgeId, BigDecimal score, String breakdownJson) {
-      Run run = runRepository.findById(runId).orElseThrow(() -> new RunNotFoundException(runId));
-      Judge judge = judgeRepository.findById(judgeId).orElseThrow(() -> new JudgeNotFoundException(judgeId));
-      judge.submitScore(run, score, breakdownJson);
-    }
 }
