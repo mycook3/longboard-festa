@@ -7,7 +7,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class EditScoreRequest {
-  private Long judgeId;
   private BigDecimal scoreTotal;
   private String breakdownJson;
   private String editedBy;
