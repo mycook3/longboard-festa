@@ -28,9 +28,9 @@ public class ContestEventApplicationService {
     return makeContestEventResponse(contestEvent);
   }
 
-  public ContestEventResponse getContestEventByEventNameAndDivision(String eventName, String division) {
+  public ContestEventResponse getContestEventByEventNameAndDivision(String eventName, String division, List<String> roundNames) {
     ContestEvent contestEvent  = contestEventDomainService.getContestEventByDivisionAndDisciplineCode(eventName, division);
-    return makeContestEventResponse(contestEvent);
+    return makeContestEventResponse(contestEvent, roundNames);
   }
 
   public void initContest(Long eventId) {
@@ -57,7 +57,7 @@ public class ContestEventApplicationService {
     contestEventDomainService.editScore(scoreId, request.getScoreTotal(), request.getBreakdownJson(), request.getEditedBy(), request.getEditReason());
   }
 
-  private ContestEventResponse makeContestEventResponse(ContestEvent contestEvent) {
+  private ContestEventResponse makeContestEventResponse(ContestEvent contestEvent, List<String> roundNames) {
     return ContestEventResponse.builder()
         .id(contestEvent.getId())
         .eventName(contestEvent.getDisciplineCode().name())
@@ -66,12 +66,16 @@ public class ContestEventApplicationService {
         .currentRound(contestEvent.getCurrentRound() != null
             ? contestEvent.getCurrentRound().getName()
             : "")
-        .rounds(makeRoundResponseList(contestEvent.getRounds()))
+        .rounds(makeRoundResponseList(contestEvent.getRounds(), roundNames))
         .build();
   }
 
-  private List<RoundResponse> makeRoundResponseList(List<Round> rounds) {
+  private List<RoundResponse> makeRoundResponseList(List<Round> rounds, List<String> roundNames) {
     return rounds.stream()
+        .filter(
+            round -> roundNames.isEmpty() ||
+            roundNames.contains(round.getName())
+        )
         .map( round ->
             RoundResponse.builder()
                 .id(round.getId())

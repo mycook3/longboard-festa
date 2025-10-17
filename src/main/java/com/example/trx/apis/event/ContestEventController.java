@@ -63,14 +63,15 @@ public class ContestEventController {
     return ApiResult.succeed(contestEventService.getContestEventById(id));
   }
 
-  @Operation(summary = "종목명 & Division 기반 종목 정보 반환", description = "선택된 종목의 정보를 반환합니다")
+  @Operation(summary = "종목별 라운드 정보 반환", description = "선택된 종목의 정보를 반환합니다")
   @ResponseStatus(HttpStatus.OK)
   @GetMapping("/")
   public ApiResult<ContestEventResponse> getContestEventByTypeAndDivision(
       @RequestParam(required = true) String eventName,
-      @RequestParam(required = true) String division
+      @RequestParam(required = true) String division,
+      @RequestParam(required = false) List<String> roundNames
   ) {
-    return ApiResult.succeed(contestEventService.getContestEventByEventNameAndDivision(eventName, division));
+    return ApiResult.succeed(contestEventService.getContestEventByEventNameAndDivision(eventName, division, roundNames));
   }
 
   @Operation(summary = "채점 정보 제출", description = "특정 시도에 대한 채점 정보를 제출합니다")
