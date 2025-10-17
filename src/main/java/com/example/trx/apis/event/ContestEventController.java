@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -55,11 +56,21 @@ public class ContestEventController {
     return ApiResult.succeed(null);
   }
 
-  @Operation(summary = "종목 정보 반환", description = "선택된 종목의 정보를 반환합니다")
+  @Operation(summary = "ID 기반 종목 정보 반환", description = "선택된 종목의 정보를 반환합니다")
   @ResponseStatus(HttpStatus.OK)
   @GetMapping("/{id}")
-  public ApiResult<ContestEventResponse> getContestEvent(@PathVariable Long id) {//TODO: DTO 만들기
+  public ApiResult<ContestEventResponse> getContestEvent(@PathVariable Long id) {
     return ApiResult.succeed(contestEventService.getContestEventById(id));
+  }
+
+  @Operation(summary = "종목명 & Division 기반 종목 정보 반환", description = "선택된 종목의 정보를 반환합니다")
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping("/")
+  public ApiResult<ContestEventResponse> getContestEventByTypeAndDivision(
+      @RequestParam(required = true) String eventName,
+      @RequestParam(required = true) String division
+  ) {
+    return ApiResult.succeed(contestEventService.getContestEventByEventNameAndDivision(eventName, division));
   }
 
   @Operation(summary = "채점 정보 제출", description = "특정 시도에 대한 채점 정보를 제출합니다")

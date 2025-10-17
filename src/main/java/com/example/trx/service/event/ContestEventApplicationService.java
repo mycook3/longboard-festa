@@ -2,6 +2,7 @@ package com.example.trx.service.event;
 
 import com.example.trx.apis.event.dto.response.ContestEventResponse;
 import com.example.trx.apis.event.dto.request.EditScoreRequest;
+import com.example.trx.apis.event.dto.response.RoundResponse;
 import com.example.trx.apis.event.dto.response.RunResponse;
 import com.example.trx.apis.event.dto.response.ScoreResponse;
 import com.example.trx.apis.event.dto.request.SubmitScoreRequest;
@@ -24,6 +25,11 @@ public class ContestEventApplicationService {
 
   public ContestEventResponse getContestEventById(Long contestEventId) {
     ContestEvent contestEvent  = contestEventDomainService.getContestEventById(contestEventId);
+    return makeContestEventResponse(contestEvent);
+  }
+
+  public ContestEventResponse getContestEventByEventNameAndDivision(String eventName, String division) {
+    ContestEvent contestEvent  = contestEventDomainService.getContestEventByDivisionAndDisciplineCode(eventName, division);
     return makeContestEventResponse(contestEvent);
   }
 
@@ -60,11 +66,26 @@ public class ContestEventApplicationService {
         .currentRound(contestEvent.getCurrentRound() != null
             ? contestEvent.getCurrentRound().getName()
             : "")
-        .runs(makeRunResponseList(
-            contestEvent.getCurrentRound() != null
-            ? contestEvent.getCurrentRound().getRuns()
-            : Collections.emptyList()))
+        .rounds(makeRoundResponseList(contestEvent.getRounds()))
         .build();
+  }
+
+  private List<RoundResponse> makeRoundResponseList(List<Round> rounds) {
+    return rounds.stream()
+        .map( round ->
+            RoundResponse.builder()
+                .id(round.getId())
+                .name(round.getName())
+                .participantLimit(round.getParticipantLimit())
+                .status(round.getStatus().name())
+                .currentRunId(round.getCurrentRun() != null
+                    ? round.getCurrentRun().getId()
+                    : null
+                )
+                .runs(makeRunResponseList(round.getRuns()))
+                .build()
+        )
+        .toList();
   }
 
   private List<RunResponse> makeRunResponseList(List<Run> runs) {
