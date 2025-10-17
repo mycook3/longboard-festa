@@ -1,6 +1,8 @@
 package com.example.trx.apis.event;
 
 import com.example.trx.apis.dto.ApiResult;
+import com.example.trx.apis.event.dto.request.AddRoundRequest;
+import com.example.trx.apis.event.dto.request.EditRoundRequest;
 import com.example.trx.apis.event.dto.response.ContestEventResponse;
 import com.example.trx.apis.event.dto.request.EditScoreRequest;
 import com.example.trx.apis.event.dto.request.SubmitScoreRequest;
@@ -11,6 +13,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -99,6 +102,33 @@ public class ContestEventController {
   @PutMapping("/scores/{scoreId}")
   public ApiResult<Void> editScore(@PathVariable Long scoreId, @RequestBody EditScoreRequest request) {
     contestEventService.editScore(scoreId, request);
+    return ApiResult.succeed(null);
+  }
+
+  @Operation(summary = "라운드 생성", description = "새 라운드를 생성합니다")
+  @PreAuthorize("hasRole('ADMIN')")
+  @ResponseStatus(HttpStatus.OK)
+  @PostMapping("/{id}/rounds")
+  public ApiResult<Void> addRound(@PathVariable Long id, @RequestBody AddRoundRequest request) {
+    contestEventService.addRound(id, request);
+    return ApiResult.succeed(null);
+  }
+
+  @Operation(summary = "라운드 정보 변경", description = "해당 라운드의 정보를 변경합니다")
+  @PreAuthorize("hasRole('ADMIN')")
+  @ResponseStatus(HttpStatus.OK)
+  @PostMapping("/rounds/{id}")
+  public ApiResult<Void> addRound(@PathVariable Long id, @RequestBody EditRoundRequest request) {
+    contestEventService.editRound(id, request);
+    return ApiResult.succeed(null);
+  }
+
+  @Operation(summary = "라운드 삭제", description = "라운드 정보를 삭제합니다.")
+  @PreAuthorize("hasRole('ADMIN')")
+  @ResponseStatus(HttpStatus.OK)
+  @DeleteMapping("/rounds/{id}")
+  public ApiResult<Void> deleteRound(@PathVariable Long id) {
+    contestEventService.deleteRound(id);
     return ApiResult.succeed(null);
   }
 }

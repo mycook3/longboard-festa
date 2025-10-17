@@ -1,5 +1,7 @@
 package com.example.trx.service.event;
 
+import com.example.trx.apis.event.dto.request.AddRoundRequest;
+import com.example.trx.apis.event.dto.request.EditRoundRequest;
 import com.example.trx.apis.event.dto.response.ContestEventResponse;
 import com.example.trx.apis.event.dto.request.EditScoreRequest;
 import com.example.trx.apis.event.dto.response.RoundResponse;
@@ -51,6 +53,18 @@ public class ContestEventApplicationService {
 
   public void proceedRound(Long eventId) {
     contestEventDomainService.proceedRound(eventId);
+  }
+
+  public void addRound(Long contestId, AddRoundRequest request){
+    contestEventDomainService.addRound(contestId, request.getRoundName(), request.getLimit());
+  }
+
+  public void editRound(Long roundId, EditRoundRequest request){
+    contestEventDomainService.editRound(roundId, request.getRoundName(), request.getLimit());
+  }
+
+  public void deleteRound(Long roundId) {
+    contestEventDomainService.deleteRound(roundId);
   }
 
   public void submitScore(Long runId, SubmitScoreRequest request) {

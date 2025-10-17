@@ -3,6 +3,7 @@ package com.example.trx.service.event;
 import com.example.trx.domain.event.ContestEvent;
 import com.example.trx.domain.event.DisciplineCode;
 import com.example.trx.domain.event.Division;
+import com.example.trx.domain.event.Round;
 import com.example.trx.domain.event.exception.ContestEventNotFound;
 import com.example.trx.domain.judge.Judge;
 import com.example.trx.domain.judge.exception.JudgeNotFoundException;
@@ -10,6 +11,7 @@ import com.example.trx.domain.run.Run;
 import com.example.trx.domain.run.exception.RunNotFoundException;
 import com.example.trx.domain.score.ScoreTotal;
 import com.example.trx.repository.event.ContestEventRepository;
+import com.example.trx.repository.event.RoundRepository;
 import com.example.trx.repository.judge.JudgeRepository;
 import com.example.trx.repository.run.RunRepository;
 import com.example.trx.repository.score.ScoreTotalRepository;
@@ -25,6 +27,7 @@ public class ContestEventDomainService {
   private final ContestEventRepository contestEventRepository;
   private final JudgeRepository judgeRepository;
   private final RunRepository runRepository;
+  private final RoundRepository roundRepository;
   private final ScoreTotalRepository scoreTotalRepository;
 
   public ContestEvent getContestEventByDivisionAndDisciplineCode(String divisionName, String eventName) {
@@ -46,6 +49,18 @@ public class ContestEventDomainService {
   public void addRound(Long eventId, String roundName, Integer limit) {
     ContestEvent contestEvent = getContestEventById(eventId);
     contestEvent.addRound(roundName, limit);
+  }
+
+  @Transactional
+  public void editRound(Long roundId, String roundName, Integer limit) {
+    Round round = roundRepository.findById(roundId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 라운드 id입니다."));
+    round.setName(roundName);
+    round.setParticipantLimit(limit);
+  }
+
+  @Transactional
+  public void deleteRound(Long roundId) {
+    roundRepository.deleteById(roundId);
   }
 
   @Transactional
