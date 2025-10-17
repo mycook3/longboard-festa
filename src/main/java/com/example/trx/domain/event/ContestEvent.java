@@ -92,6 +92,13 @@ public class ContestEvent {//Aggregate Root
     currentRound.start();
   }
 
+  public void end() {
+    if (currentRound == rounds.get(rounds.size() - 1) && currentRound.canBeCompleted()) {
+      currentRound.markAsCompleted();
+      this.contestEventStatus = ContestEventStatus.COMPLETED;
+    }
+  }
+
   public Run getCurrentRun() {
     if (currentRound != null && currentRound.getCurrentRun() != null) return currentRound.getCurrentRun();
     if (currentRound == null) throw new IllegalStateException("no currentRound set");
@@ -138,4 +145,5 @@ public class ContestEvent {//Aggregate Root
           .filter(round -> round.getStatus().equals(RoundStatus.BEFORE))
           .findFirst();
   }
+
 }
