@@ -4,13 +4,13 @@ import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 
-@Getter
 @Builder
-public class ContestEventResponse {
+@Getter
+public class RoundResponse {
   private Long id;
-  private String eventName;
-  private String division;
+  private String name;
+  private Integer participantLimit;
   private String status;
-  private String currentRound;
-  private List<RoundResponse> rounds;
+  private Long currentRunId;
+  private List<RunResponse> runs;
 }

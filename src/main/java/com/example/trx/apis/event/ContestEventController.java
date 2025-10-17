@@ -7,6 +7,7 @@ import com.example.trx.apis.event.dto.request.SubmitScoreRequest;
 import com.example.trx.service.event.ContestEventApplicationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,12 +30,21 @@ public class ContestEventController {
   private final ContestEventApplicationService contestEventService;
 
   @Operation(summary = "종목 시작", description = "선택된 종목을 시작합니다")
-  @ResponseStatus(HttpStatus.ACCEPTED)
+  @ResponseStatus(HttpStatus.OK)
   @PreAuthorize("hasRole('ADMIN')")
   @PostMapping("/{id}")
   public ApiResult<Void> startContestEvent(@PathVariable Long id) {
     contestEventService.initContest(id);
     contestEventService.startContestEvent(id);
+    return ApiResult.succeed(null);
+  }
+
+  @Operation(summary = "종목 종료", description = "선택된 종목을 종료합니다")
+  @ResponseStatus(HttpStatus.OK)
+  @PreAuthorize("hasRole('ADMIN')")
+  @PostMapping("/{id}/end")
+  public ApiResult<Void> endContestEvent(@PathVariable Long id) {
+    contestEventService.endContestEvent(id);
     return ApiResult.succeed(null);
   }
 
@@ -55,11 +66,22 @@ public class ContestEventController {
     return ApiResult.succeed(null);
   }
 
-  @Operation(summary = "종목 정보 반환", description = "선택된 종목의 정보를 반환합니다")
+  @Operation(summary = "ID 기반 종목 정보 반환", description = "선택된 종목의 정보를 반환합니다")
   @ResponseStatus(HttpStatus.OK)
   @GetMapping("/{id}")
-  public ApiResult<ContestEventResponse> getContestEvent(@PathVariable Long id) {//TODO: DTO 만들기
+  public ApiResult<ContestEventResponse> getContestEvent(@PathVariable Long id) {
     return ApiResult.succeed(contestEventService.getContestEventById(id));
+  }
+
+  @Operation(summary = "종목명, division, 라운드명 기반 종목 정보 반환", description = "선택된 종목의 정보를 반환합니다")
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping("/")
+  public ApiResult<ContestEventResponse> getContestEventByTypeAndDivision(
+      @RequestParam(required = true) String event,
+      @RequestParam(required = true) String division,
+      @RequestParam(required = false) List<String> round
+  ) {
+    return ApiResult.succeed(contestEventService.getContestEventByEventNameAndDivision(event, division, round));
   }
 
   @Operation(summary = "채점 정보 제출", description = "특정 시도에 대한 채점 정보를 제출합니다")
