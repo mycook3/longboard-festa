@@ -25,7 +25,7 @@ public class ContestEventApplicationService {
 
   public ContestEventResponse getContestEventById(Long contestEventId) {
     ContestEvent contestEvent  = contestEventDomainService.getContestEventById(contestEventId);
-    return makeContestEventResponse(contestEvent);
+    return makeContestEventResponse(contestEvent, Collections.emptyList());
   }
 
   public ContestEventResponse getContestEventByEventNameAndDivision(String eventName, String division, List<String> roundNames) {
@@ -39,6 +39,10 @@ public class ContestEventApplicationService {
 
   public void startContestEvent(Long eventId) {
     contestEventDomainService.startContestEvent(eventId);
+  }
+
+  public void endContestEvent(Long eventId) {
+    contestEventDomainService.endContestEvent(eventId);
   }
 
   public void proceedRun(Long eventId) {
