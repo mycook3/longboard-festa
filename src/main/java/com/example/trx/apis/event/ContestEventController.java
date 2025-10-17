@@ -30,12 +30,21 @@ public class ContestEventController {
   private final ContestEventApplicationService contestEventService;
 
   @Operation(summary = "종목 시작", description = "선택된 종목을 시작합니다")
-  @ResponseStatus(HttpStatus.ACCEPTED)
+  @ResponseStatus(HttpStatus.OK)
   @PreAuthorize("hasRole('ADMIN')")
   @PostMapping("/{id}")
   public ApiResult<Void> startContestEvent(@PathVariable Long id) {
     contestEventService.initContest(id);
     contestEventService.startContestEvent(id);
+    return ApiResult.succeed(null);
+  }
+
+  @Operation(summary = "종목 종료", description = "선택된 종목을 종료합니다")
+  @ResponseStatus(HttpStatus.OK)
+  @PreAuthorize("hasRole('ADMIN')")
+  @PostMapping("/{id}/end")
+  public ApiResult<Void> endContestEvent(@PathVariable Long id) {
+    contestEventService.endContestEvent(id);
     return ApiResult.succeed(null);
   }
 

@@ -61,6 +61,12 @@ public class ContestEventDomainService {
   }
 
   @Transactional
+  public void endContestEvent (Long eventId) {
+    ContestEvent contestEvent = getContestEventById(eventId);
+    contestEvent.end();
+  }
+
+  @Transactional
   public void proceedRun(Long eventId) {
     ContestEvent contestEvent = getContestEventById(eventId);
     int activeJudgesCount = judgeRepository.findAllByDeletedFalse().size();
