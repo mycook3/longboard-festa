@@ -14,7 +14,6 @@ import com.example.trx.repository.judge.JudgeRepository;
 import com.example.trx.repository.run.RunRepository;
 import com.example.trx.repository.score.ScoreTotalRepository;
 import java.math.BigDecimal;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +27,7 @@ public class ContestEventDomainService {
   private final RunRepository runRepository;
   private final ScoreTotalRepository scoreTotalRepository;
 
-  public ContestEvent getContestEventByDivisionAndDisciplineCode(String divisionName, String eventName, List<String> roundNames) {
+  public ContestEvent getContestEventByDivisionAndDisciplineCode(String divisionName, String eventName) {
     Division division = Division.valueOf(divisionName);
     DisciplineCode disciplineCode = DisciplineCode.valueOf(eventName);
 
