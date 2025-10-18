@@ -12,9 +12,11 @@ import com.example.trx.domain.event.ContestEvent;
 import com.example.trx.domain.event.Round;
 import com.example.trx.domain.run.Run;
 import com.example.trx.domain.score.ScoreTotal;
+import com.example.trx.support.util.SseEvent;
 import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ContestEventApplicationService {
 
   private final ContestEventDomainService contestEventDomainService;
+  private final ApplicationEventPublisher eventPublisher;
 
   public ContestEventResponse getContestEventById(Long contestEventId) {
     ContestEvent contestEvent  = contestEventDomainService.getContestEventById(contestEventId);
