@@ -41,13 +41,17 @@ public class ContestEvent {//Aggregate Root
   @Enumerated(EnumType.STRING)
   private Division division;
 
-  // 종목 정보
+  // 종목명
   @Enumerated(EnumType.STRING)
   private DisciplineCode disciplineCode;
 
   @Enumerated(EnumType.STRING)
   @Builder.Default
   private ContestEventStatus contestEventStatus = ContestEventStatus.READY;
+
+  @Enumerated(EnumType.STRING)
+  @Builder.Default
+  private RoundProgressionType progressionType = RoundProgressionType.SCORE_BASED;
 
   // 현재 진행 중인 라운드
   @OneToOne(fetch = FetchType.LAZY)
