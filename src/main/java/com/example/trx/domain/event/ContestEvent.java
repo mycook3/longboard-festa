@@ -1,7 +1,9 @@
 package com.example.trx.domain.event;
 
+import com.example.trx.domain.event.round.Round;
+import com.example.trx.domain.event.round.RoundStatus;
 import com.example.trx.domain.judge.Judge;
-import com.example.trx.domain.run.Run;
+import com.example.trx.domain.event.round.run.Run;
 import com.example.trx.domain.user.Participant;
 import com.example.trx.domain.user.Participation;
 import com.example.trx.domain.user.ParticipationStatus;

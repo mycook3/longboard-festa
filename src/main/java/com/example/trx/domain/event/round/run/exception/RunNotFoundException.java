@@ -1,4 +1,4 @@
-package com.example.trx.domain.run.exception;
+package com.example.trx.domain.event.round.run.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

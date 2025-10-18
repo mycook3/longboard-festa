@@ -1,4 +1,4 @@
-package com.example.trx.domain.score;
+package com.example.trx.domain.event.round.run.score;
 
 public enum ScoreStatus {
   SUBMITTED,

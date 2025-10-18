@@ -1,9 +1,10 @@
-package com.example.trx.domain.event;
+package com.example.trx.domain.event.round;
 
+import com.example.trx.domain.event.ContestEvent;
+import com.example.trx.domain.event.round.run.Run;
 import com.example.trx.domain.judge.Judge;
-import com.example.trx.domain.run.Run;
-import com.example.trx.domain.score.ScoreStatus;
-import com.example.trx.domain.score.ScoreTotal;
+import com.example.trx.domain.event.round.run.score.ScoreStatus;
+import com.example.trx.domain.event.round.run.score.ScoreTotal;
 import com.example.trx.domain.user.Participant;
 import com.example.trx.domain.user.UserStatus;
 import jakarta.persistence.CascadeType;
@@ -70,7 +71,7 @@ public class Round {
 
   public Optional<Run> findNextRun() {
    return runs.stream()
-        .filter(run -> run.getUserStatus().equals(UserStatus.WAITING))
+        .filter(run -> run.getStatus().equals(UserStatus.WAITING))
         .findFirst();
   }
 
@@ -108,7 +109,7 @@ public class Round {
   }
 
   public boolean canBeCompleted() {
-    return this.currentRun == runs.get(runs.size() - 1) && this.currentRun.getUserStatus() == UserStatus.DONE;
+    return this.currentRun == runs.get(runs.size() - 1) && this.currentRun.getStatus() == UserStatus.DONE;
   }
 
   //TODO 토너먼트 / 점수 기반에 따라 구분 필요

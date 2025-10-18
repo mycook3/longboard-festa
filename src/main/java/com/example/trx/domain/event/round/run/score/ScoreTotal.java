@@ -1,7 +1,7 @@
-package com.example.trx.domain.score;
+package com.example.trx.domain.event.round.run.score;
 
 import com.example.trx.domain.judge.Judge;
-import com.example.trx.domain.run.Run;
+import com.example.trx.domain.event.round.run.Run;
 import com.example.trx.support.util.BaseTimeEntity;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
@@ -9,7 +9,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @Getter

@@ -9,9 +9,9 @@ import com.example.trx.apis.event.dto.response.RunResponse;
 import com.example.trx.apis.event.dto.response.ScoreResponse;
 import com.example.trx.apis.event.dto.request.SubmitScoreRequest;
 import com.example.trx.domain.event.ContestEvent;
-import com.example.trx.domain.event.Round;
-import com.example.trx.domain.run.Run;
-import com.example.trx.domain.score.ScoreTotal;
+import com.example.trx.domain.event.round.Round;
+import com.example.trx.domain.event.round.run.Run;
+import com.example.trx.domain.event.round.run.score.ScoreTotal;
 import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -116,7 +116,7 @@ public class ContestEventApplicationService {
             RunResponse.builder()
                 .id(run.getId())
                 .participantName(run.getParticipant().getNameKr())
-                .status(run.getUserStatus().name())
+                .status(run.getStatus().name())
                 .scores(makeScoreResponseList(run.getScores()))
                 .build()
         )
