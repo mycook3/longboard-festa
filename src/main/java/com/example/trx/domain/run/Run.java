@@ -2,6 +2,7 @@ package com.example.trx.domain.run;
 
 import com.example.trx.domain.event.ContestEvent;
 import com.example.trx.domain.event.Round;
+import com.example.trx.domain.score.ScoreStatus;
 import com.example.trx.domain.score.ScoreTotal;
 import com.example.trx.domain.event.DisciplineCode;
 import com.example.trx.domain.user.Participant;
@@ -64,6 +65,7 @@ public class Run extends BaseTimeEntity {
     }
 
     public boolean canBeCompleted(int judgeCount) {
-      return scores.size() == judgeCount;
+      long submittedCount = scores.stream().filter(score -> score.getStatus() == ScoreStatus.SUBMITTED).count();
+      return submittedCount == judgeCount;
     }
 }

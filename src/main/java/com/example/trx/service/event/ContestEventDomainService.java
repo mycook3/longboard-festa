@@ -16,6 +16,7 @@ import com.example.trx.repository.judge.JudgeRepository;
 import com.example.trx.repository.run.RunRepository;
 import com.example.trx.repository.score.ScoreTotalRepository;
 import java.math.BigDecimal;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -72,7 +73,8 @@ public class ContestEventDomainService {
   @Transactional
   public void startContestEvent(Long eventId) {
     ContestEvent contestEvent = getContestEventById(eventId);
-    contestEvent.startFirstRound();
+    List<Judge> activeJudges = judgeRepository.findAllByDeletedFalse();
+    contestEvent.start(activeJudges);
   }
 
   @Transactional
