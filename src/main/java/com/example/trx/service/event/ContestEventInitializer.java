@@ -3,6 +3,8 @@ package com.example.trx.service.event;
 import com.example.trx.domain.event.ContestEvent;
 import com.example.trx.domain.event.DisciplineCode;
 import com.example.trx.domain.event.Division;
+import com.example.trx.domain.event.RoundProgressionType;
+import com.example.trx.domain.event.exception.ContestEventNotFound;
 import com.example.trx.repository.event.ContestEventRepository;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -64,7 +66,9 @@ public class ContestEventInitializer implements ApplicationRunner {
       }});
 
     for (Division division : Division.values()) {
-      ContestEvent cev = contestEventRepository.findContestEventByDivisionAndDisciplineCode(division, DisciplineCode.FREESTYLE).orElse(null);
+      ContestEvent cev = contestEventRepository.findContestEventByDivisionAndDisciplineCode(division, DisciplineCode.SLALOM)
+          .orElseThrow(() -> new ContestEventNotFound(division, DisciplineCode.FREESTYLE));
+
       if (cev != null) {
         switch (division) {
           case BEGINNER -> addRounds(cev, beginner);
@@ -96,17 +100,20 @@ public class ContestEventInitializer implements ApplicationRunner {
     }});
 
     for (Division division : Division.values()) {
-      ContestEvent cev = contestEventRepository.findContestEventByDivisionAndDisciplineCode(division, DisciplineCode.SLALOM).orElse(null);
-      if (cev != null) {
-        switch (division) {
-          case BEGINNER -> addRounds(cev, beginner);
-          case OPEN -> addRounds(cev, open);
-          case PRO -> addRounds(cev, pro);
-        }
+      ContestEvent cev = contestEventRepository.findContestEventByDivisionAndDisciplineCode(division, DisciplineCode.SLALOM)
+          .orElseThrow(() -> new ContestEventNotFound(division, DisciplineCode.SLALOM));
+
+      cev.setProgressionType(RoundProgressionType.TOURNAMENT);
+
+      switch (division) {
+        case BEGINNER -> addRounds(cev, beginner);
+        case OPEN -> addRounds(cev, open);
+        case PRO -> addRounds(cev, pro);
       }
     }
   }
 
+  //TODO
   private void initDancingRounds() {
     Map<String, Integer> beginner = Map.copyOf(new LinkedHashMap<>() {{
       put("final", 5);
@@ -119,6 +126,7 @@ public class ContestEventInitializer implements ApplicationRunner {
     Map<String, Integer> pro = Map.copyOf(new LinkedHashMap<>() {{
       put("final", 12);
     }});
+
   }
 
   private void addRounds(ContestEvent contestEvent, Map<String, Integer> rounds) {

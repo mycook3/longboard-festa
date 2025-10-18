@@ -1,12 +1,9 @@
-package com.example.trx.domain.run;
+package com.example.trx.domain.event.round.run;
 
-import com.example.trx.domain.event.ContestEvent;
-import com.example.trx.domain.event.Round;
-import com.example.trx.domain.score.ScoreStatus;
-import com.example.trx.domain.score.ScoreTotal;
-import com.example.trx.domain.event.DisciplineCode;
+import com.example.trx.domain.event.round.Round;
+import com.example.trx.domain.event.round.run.score.ScoreStatus;
+import com.example.trx.domain.event.round.run.score.ScoreTotal;
 import com.example.trx.domain.user.Participant;
-import com.example.trx.domain.user.UserStatus;
 import com.example.trx.support.util.BaseTimeEntity;
 import jakarta.persistence.*;
 import java.util.*;
@@ -43,7 +40,7 @@ public class Run extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 16)
-    private UserStatus userStatus = UserStatus.WAITING;
+    private RunStatus status = RunStatus.WAITING;
 
     // 관계: Run 1 : N ScoreTotal
     @OneToMany(mappedBy = "run", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -57,11 +54,11 @@ public class Run extends BaseTimeEntity {
     }
 
     public void markAsDone() {
-        this.userStatus = UserStatus.DONE;
+        this.status = RunStatus.DONE;
     }
 
     public void markAsOngoing() {
-        this.userStatus = UserStatus.ONGOING;
+        this.status = RunStatus.ONGOING;
     }
 
     public boolean canBeCompleted(int judgeCount) {

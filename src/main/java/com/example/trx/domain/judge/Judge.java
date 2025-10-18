@@ -1,10 +1,8 @@
 package com.example.trx.domain.judge;
 
-import com.example.trx.domain.event.ContestEvent;
-import com.example.trx.domain.event.DisciplineCode;
-import com.example.trx.domain.run.Run;
-import com.example.trx.domain.score.ScoreStatus;
-import com.example.trx.domain.score.ScoreTotal;
+import com.example.trx.domain.event.round.run.Run;
+import com.example.trx.domain.event.round.run.score.ScoreStatus;
+import com.example.trx.domain.event.round.run.score.ScoreTotal;
 import com.example.trx.support.util.BaseTimeEntity;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
