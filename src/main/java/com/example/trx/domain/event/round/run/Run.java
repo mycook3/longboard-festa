@@ -1,11 +1,13 @@
 package com.example.trx.domain.event.round.run;
 
+import com.example.trx.domain.event.round.match.Match;
 import com.example.trx.domain.event.round.Round;
 import com.example.trx.domain.event.round.run.score.ScoreStatus;
 import com.example.trx.domain.event.round.run.score.ScoreTotal;
 import com.example.trx.domain.user.Participant;
 import com.example.trx.support.util.BaseTimeEntity;
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.util.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,6 +30,11 @@ public class Run extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    //라운드 내에서 한 참가자의 몇 번째 시도인지
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer attemptNumber = 1;
+
     // 참가자
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "participant_id", nullable = false,
@@ -37,6 +44,10 @@ public class Run extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "round_id", nullable = false)
     private Round round;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "match_id", nullable = true)
+    private Match match = null;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 16)
@@ -64,5 +75,22 @@ public class Run extends BaseTimeEntity {
     public boolean canBeCompleted(int judgeCount) {
       long submittedCount = scores.stream().filter(score -> score.getStatus() == ScoreStatus.SUBMITTED).count();
       return submittedCount == judgeCount;
+    }
+
+    public BigDecimal getScore() {
+      List<BigDecimal> scores = this.scores
+          .stream()
+          .filter(score -> score.getStatus() == ScoreStatus.SUBMITTED)
+          .map(ScoreTotal::getTotal)
+          .sorted()
+          .toList();
+
+      if (scores.size() > 2) {//3인 이상. 최고점/최저점을 제외
+        return scores.subList(1, scores.size() - 1)
+            .stream()
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+      }
+
+      return scores.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }
