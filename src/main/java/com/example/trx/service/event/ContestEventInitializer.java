@@ -66,15 +66,13 @@ public class ContestEventInitializer implements ApplicationRunner {
       }});
 
     for (Division division : Division.values()) {
-      ContestEvent cev = contestEventRepository.findContestEventByDivisionAndDisciplineCode(division, DisciplineCode.SLALOM)
+      ContestEvent cev = contestEventRepository.findContestEventByDivisionAndDisciplineCode(division, DisciplineCode.FREESTYLE)
           .orElseThrow(() -> new ContestEventNotFound(division, DisciplineCode.FREESTYLE));
 
-      if (cev != null) {
-        switch (division) {
-          case BEGINNER -> addRounds(cev, beginner);
-          case OPEN -> addRounds(cev, open);
-          case PRO -> addRounds(cev, pro);
-        }
+      switch (division) {
+        case BEGINNER -> addRounds(cev, beginner);
+        case OPEN -> addRounds(cev, open);
+        case PRO -> addRounds(cev, pro);
       }
     }
   }
@@ -127,6 +125,16 @@ public class ContestEventInitializer implements ApplicationRunner {
       put("final", 12);
     }});
 
+    for (Division division : Division.values()) {
+      ContestEvent cev = contestEventRepository.findContestEventByDivisionAndDisciplineCode(division, DisciplineCode.DANCING)
+          .orElseThrow(() -> new ContestEventNotFound(division, DisciplineCode.DANCING));
+
+      switch (division) {
+        case BEGINNER -> addRounds(cev, beginner);
+        case OPEN -> addRounds(cev, open);
+        case PRO -> addRounds(cev, pro);
+      }
+    }
   }
 
   private void addRounds(ContestEvent contestEvent, Map<String, Integer> rounds) {
