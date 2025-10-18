@@ -11,6 +11,7 @@ public class ContestEventResponse {
   private String eventName;
   private String division;
   private String status;
+  private String roundProgressionType;
   private String currentRound;
   private List<RoundResponse> rounds;
 }

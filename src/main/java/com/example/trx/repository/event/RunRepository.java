@@ -1,4 +1,4 @@
-package com.example.trx.repository.run;
+package com.example.trx.repository.event;
 
 import com.example.trx.domain.event.round.run.Run;
 import org.springframework.data.jpa.repository.JpaRepository;

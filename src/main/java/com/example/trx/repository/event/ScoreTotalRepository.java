@@ -1,4 +1,4 @@
-package com.example.trx.repository.score;
+package com.example.trx.repository.event;
 
 import com.example.trx.domain.event.round.run.score.ScoreTotal;
 import org.springframework.data.jpa.repository.JpaRepository;
