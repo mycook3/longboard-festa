@@ -1,12 +1,15 @@
 package com.example.trx.domain.event.round;
 
 import com.example.trx.domain.event.ContestEvent;
+import com.example.trx.domain.event.RoundProgressionType;
+import com.example.trx.domain.event.round.match.Match;
+import com.example.trx.domain.event.round.match.MatchType;
 import com.example.trx.domain.event.round.run.Run;
+import com.example.trx.domain.event.round.run.RunStatus;
 import com.example.trx.domain.judge.Judge;
 import com.example.trx.domain.event.round.run.score.ScoreStatus;
 import com.example.trx.domain.event.round.run.score.ScoreTotal;
 import com.example.trx.domain.user.Participant;
-import com.example.trx.domain.user.UserStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -23,7 +26,9 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -42,6 +47,12 @@ public class Round {
   @ManyToOne(fetch = FetchType.LAZY)
   private ContestEvent contestEvent;
 
+  private String name;
+  private Integer participantLimit;
+
+  @Builder.Default
+  private Integer runsPerParticipant = 1;
+
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "current_run_id")
   private Run currentRun;
@@ -53,25 +64,72 @@ public class Round {
   @Builder.Default
   private List<Run> runs =  new ArrayList<>();
 
-  private String name;
-
-  private Integer participantLimit;
+  @OneToMany(mappedBy = "round", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @Builder.Default
+  private List<Match> matches =  new ArrayList<>();
 
   public void addParticipants(List<Participant> participants) {
     if (participants.size() > participantLimit) throw new IllegalArgumentException("참가자 제한 수 초과");
-    for (Participant participant : participants) {
-      Run run = Run.builder()
+    RoundProgressionType progressionType = contestEvent.getProgressionType();
+
+    switch (progressionType) {
+      case TOURNAMENT -> addTournamentMatchesAndRuns(participants);
+      case SCORE_BASED -> addScoreBasedRuns(participants);
+    }
+  }
+
+  private void addScoreBasedRuns(List<Participant> participants) {
+    for (int attempt = 1; attempt <= runsPerParticipant; attempt++) {
+      for (Participant participant : participants) {
+        Run run = Run.builder()
+            .round(this)
+            .attemptNumber(attempt)
+            .participant(participant)
+            .build();
+        runs.add(run);
+      }
+    }
+  }
+
+  private void addTournamentMatchesAndRuns(List<Participant> participants) {
+    for (int i = 0; i < participants.size(); i += 2) {
+      Participant p1 = participants.get(i);
+      Participant p2 = (i + 1 < participants.size() ? participants.get(i + 1) : null);
+
+      Match match = Match.builder()
           .round(this)
-          .participant(participant)
-          .userStatus(UserStatus.WAITING)
+          .matchType(p2 == null ? MatchType.BYE : MatchType.NORMAL)
           .build();
-      runs.add(run);
+
+      matches.add(match);
+
+      for (int attempt = 1; attempt <= runsPerParticipant; attempt++) {
+        Run run1 = Run.builder()
+              .round(this)
+              .match(match)
+              .participant(p1)
+              .attemptNumber(i)
+              .build();
+
+        Run run2 = Run.builder()
+              .round(this)
+              .match(match)
+              .participant(p2)
+              .attemptNumber(i)
+              .build();
+
+        runs.add(run1);
+        runs.add(run2);
+
+        match.addRun(run1);
+        match.addRun(run2);
+      }
     }
   }
 
   public Optional<Run> findNextRun() {
    return runs.stream()
-        .filter(run -> run.getStatus().equals(UserStatus.WAITING))
+        .filter(run -> run.getStatus().equals(RunStatus.WAITING))
         .findFirst();
   }
 
@@ -109,30 +167,48 @@ public class Round {
   }
 
   public boolean canBeCompleted() {
-    return this.currentRun == runs.get(runs.size() - 1) && this.currentRun.getStatus() == UserStatus.DONE;
+    return this.currentRun == runs.get(runs.size() - 1) && this.currentRun.getStatus() == RunStatus.DONE;
   }
 
-  //TODO 토너먼트 / 점수 기반에 따라 구분 필요
   public List<Participant> getSurvivors(Round nextRound) {
-    return runs.stream()
-        .sorted(
-            Comparator.comparing((Run run) -> {
-              List<BigDecimal> scores = run.getScores()
-                  .stream()
-                  .map(ScoreTotal::getTotal)
-                  .sorted()
-                  .toList();
+    RoundProgressionType progressionType = contestEvent.getProgressionType();
 
-              if (scores.size() > 2) {//3인 이상
-                return scores.subList(1, scores.size() - 1)
-                    .stream()
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-              }
-              return scores.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
-            }).reversed()
-        )
+    return switch (progressionType) {
+      case TOURNAMENT -> getTournamentWinners(nextRound);
+      case SCORE_BASED -> getScoreBasedWinners(nextRound);
+    };
+  }
+
+  private List<Participant> getTournamentWinners(Round nextRound) {
+    List<Participant> tournamentWinners = new ArrayList<>();
+
+    for (Match match: matches) {
+      tournamentWinners.addAll(match.getWinners());
+    }
+
+    if (tournamentWinners.size() != nextRound.getParticipantLimit()) throw new IllegalStateException();//TODO
+    return tournamentWinners;
+  }
+
+  private List<Participant> getScoreBasedWinners(Round nextRound) {
+    Map<Participant, BigDecimal> bestScores = runs.stream()
+        .collect(Collectors.groupingBy(
+            Run::getParticipant,
+            Collectors.mapping(
+                Run::getScore,
+                Collectors.maxBy(Comparator.naturalOrder())
+            )
+        ))
+        .entrySet().stream()
+        .collect(Collectors.toMap(
+            Map.Entry::getKey,
+            entry -> entry.getValue().orElse(BigDecimal.ZERO)
+        ));
+
+    return bestScores.entrySet().stream()
+        .sorted(Map.Entry.<Participant, BigDecimal> comparingByValue().reversed())
         .limit(nextRound.getParticipantLimit())
-        .map(Run::getParticipant)
+        .map(Map.Entry::getKey)
         .toList();
   }
 }
