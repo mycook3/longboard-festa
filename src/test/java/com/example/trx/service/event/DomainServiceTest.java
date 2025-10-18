@@ -8,6 +8,7 @@ import com.example.trx.domain.event.ContestEvent;
 import com.example.trx.domain.event.ContestEventStatus;
 import com.example.trx.domain.event.DisciplineCode;
 import com.example.trx.domain.event.round.Round;
+import com.example.trx.domain.event.round.run.score.ScoreStatus;
 import com.example.trx.domain.user.Participant;
 import com.example.trx.repository.event.ContestEventRepository;
 import com.example.trx.service.judge.JudgeService;
@@ -173,6 +174,61 @@ class DomainServiceTest {
 
     assertTrue(BigDecimal.valueOf(100).compareTo(saved.getCurrentRun().getScores().get(0).getTotal()) == 0);
     assertEquals(1, saved.getCurrentRound().getRuns().size());
+  }
+
+  @Test
+  public void addJudgeOnceMoreTest() {
+    ParticipantCreateRequest request = ParticipantCreateRequest.builder()
+        .nameKr("박영서")
+        .phone("010-0000-0000")
+        .emergencyContact("010-1111-1111")
+        .gender("MALE")
+        .birth(LocalDate.of(1995, 6, 8))
+        .email("pj0642@gmail.com")
+        .division("BEGINNER")
+        .residence("서울특별시 관악구")
+        .eventToParticipate(List.of("FREESTYLE"))
+        .oneLiner("ㅎㅇㅎㅇ")
+        .build();
+
+    Participant participant = participantService.createParticipantAndParticipate(request);
+    ///////////////////////////////////////////
+
+    JudgeCreateRequest judgeCreateReq1 = JudgeCreateRequest.builder()
+        .judgeNumber(1)
+        .name("김심사")
+        .username("judge_kim")
+        .password("1234")
+        .disciplineCode(DisciplineCode.FREESTYLE)
+        .build();
+
+    JudgeCreateRequest judgeCreateReq2 = JudgeCreateRequest.builder()
+        .judgeNumber(2)
+        .name("박심사")
+        .username("judge_park")
+        .password("1234")
+        .disciplineCode(DisciplineCode.FREESTYLE)
+        .build();
+
+    judgeService.createJudge(judgeCreateReq1);
+    judgeService.createJudge(judgeCreateReq2);
+
+    contestEventDomainService.initContest(1L);
+    contestEventDomainService.startCurrentRound(1L);
+    contestEventDomainService.submitScore(1L, 1L, BigDecimal.valueOf(100), "어쩌고저쩌고");
+
+    ContestEvent saved = transactionTemplate.execute(status -> {
+      ContestEvent ev = contestEventRepository.findById(1L).orElse(null);
+      ev.getCurrentRound().getRuns().size();
+      ev.getCurrentRun().getScores().get(0);
+      ev.getCurrentRun().getScores().get(1);
+      return ev;
+    });
+
+    assertTrue(BigDecimal.valueOf(100).compareTo(saved.getCurrentRun().getScores().get(0).getTotal()) == 0);
+    assertEquals(2, saved.getCurrentRun().getScores().size());
+    assertEquals(ScoreStatus.SUBMITTED, saved.getCurrentRun().getScores().get(0).getStatus());
+    assertEquals(ScoreStatus.NOT_SUBMITTED, saved.getCurrentRun().getScores().get(1).getStatus());
   }
 
   @Test
