@@ -5,6 +5,7 @@ import com.example.trx.domain.event.DisciplineCode;
 import com.example.trx.domain.event.Division;
 import com.example.trx.domain.event.round.Round;
 import com.example.trx.domain.event.exception.ContestEventNotFound;
+import com.example.trx.domain.event.round.RoundStatus;
 import com.example.trx.domain.judge.Judge;
 import com.example.trx.domain.judge.exception.JudgeNotFoundException;
 import com.example.trx.domain.event.round.run.Run;
@@ -73,7 +74,7 @@ public class ContestEventDomainService {
   }
 
   @Transactional
-  public void startContestEvent(Long eventId) {
+  public void startCurrentRound(Long eventId) {
     ContestEvent contestEvent = getContestEventById(eventId);
     List<Judge> activeJudges = judgeRepository.findAllByDeletedFalse();
     contestEvent.startCurrentRound(activeJudges);
@@ -96,6 +97,10 @@ public class ContestEventDomainService {
   public void proceedRound(Long eventId) {
     ContestEvent contestEvent = getContestEventById(eventId);
     contestEvent.proceedRound();
+
+    if (contestEvent.getCurrentRound().getStatus() == RoundStatus.IN_PROGRESS) {//다음 라운드로 넘긴 후 진행할 수 있다면
+      startCurrentRound(eventId);
+    }
   }
 
   @Transactional

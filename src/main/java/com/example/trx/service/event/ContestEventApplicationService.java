@@ -40,7 +40,7 @@ public class ContestEventApplicationService {
   }
 
   public void startContestEvent(Long eventId) {
-    contestEventDomainService.startContestEvent(eventId);
+    contestEventDomainService.startCurrentRound(eventId);
   }
 
   public void endContestEvent(Long eventId) {
