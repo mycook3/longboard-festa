@@ -124,7 +124,7 @@ class DomainServiceTest {
     ////////////////////////////////////////////////////////
 
     contestEventDomainService.initContest(1L);
-    contestEventDomainService.startContestEvent(1L);
+    contestEventDomainService.startCurrentRound(1L);
 
     ContestEvent saved = contestEventRepository.findById(1L).orElse(null);
     assertEquals(ContestEventStatus.IN_PROGRESS, saved.getContestEventStatus());
@@ -161,7 +161,7 @@ class DomainServiceTest {
     judgeService.createJudge(judgeCreateReq);
 
     contestEventDomainService.initContest(1L);
-    contestEventDomainService.startContestEvent(1L);
+    contestEventDomainService.startCurrentRound(1L);
     contestEventDomainService.submitScore(1L, 1L, BigDecimal.valueOf(100), "어쩌고저쩌고");
 
     ContestEvent saved = transactionTemplate.execute(status -> {
@@ -218,7 +218,7 @@ class DomainServiceTest {
     judgeService.createJudge(judgeCreateReq);
 
     contestEventDomainService.initContest(1L);
-    contestEventDomainService.startContestEvent(1L);
+    contestEventDomainService.startCurrentRound(1L);
     contestEventDomainService.submitScore(1L, 1L, BigDecimal.valueOf(100), "어쩌고저쩌고");
 
     contestEventDomainService.proceedRun(1L);
