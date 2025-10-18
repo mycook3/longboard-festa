@@ -76,7 +76,7 @@ public class ContestEventDomainService {
   public void startContestEvent(Long eventId) {
     ContestEvent contestEvent = getContestEventById(eventId);
     List<Judge> activeJudges = judgeRepository.findAllByDeletedFalse();
-    contestEvent.startFirstRound(activeJudges);
+    contestEvent.startCurrentRound(activeJudges);
   }
 
   @Transactional
