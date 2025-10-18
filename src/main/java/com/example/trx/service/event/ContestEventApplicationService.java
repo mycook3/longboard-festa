@@ -4,12 +4,15 @@ import com.example.trx.apis.event.dto.request.AddRoundRequest;
 import com.example.trx.apis.event.dto.request.EditRoundRequest;
 import com.example.trx.apis.event.dto.response.ContestEventResponse;
 import com.example.trx.apis.event.dto.request.EditScoreRequest;
+import com.example.trx.apis.event.dto.response.MatchResponse;
 import com.example.trx.apis.event.dto.response.RoundResponse;
 import com.example.trx.apis.event.dto.response.RunResponse;
 import com.example.trx.apis.event.dto.response.ScoreResponse;
 import com.example.trx.apis.event.dto.request.SubmitScoreRequest;
 import com.example.trx.domain.event.ContestEvent;
+import com.example.trx.domain.event.RoundProgressionType;
 import com.example.trx.domain.event.round.Round;
+import com.example.trx.domain.event.round.match.Match;
 import com.example.trx.domain.event.round.run.Run;
 import com.example.trx.domain.event.round.run.score.ScoreTotal;
 import java.util.Collections;
@@ -62,6 +65,14 @@ public class ContestEventApplicationService {
     domainService.editRound(roundId, request.getRoundName(), request.getLimit());
   }
 
+  public void makeMatchBye(Long matchId) {
+    domainService.makeMatchBye(matchId);
+  }
+
+  public void makeManualParticipant(Long matchId, Long participantId) {
+    domainService.makeManualParticipant(matchId, participantId);
+  }
+
   public void deleteRound(Long roundId) {
     domainService.deleteRound(roundId);
   }
@@ -79,6 +90,7 @@ public class ContestEventApplicationService {
         .id(contestEvent.getId())
         .eventName(contestEvent.getDisciplineCode().name())
         .status(contestEvent.getContestEventStatus().name())
+        .roundProgressionType(contestEvent.getProgressionType().name())
         .division(contestEvent.getDivision().name())
         .currentRound(contestEvent.getCurrentRound() != null
             ? contestEvent.getCurrentRound().getName()
@@ -88,6 +100,10 @@ public class ContestEventApplicationService {
   }
 
   private List<RoundResponse> makeRoundResponseList(List<Round> rounds, List<String> roundNames) {
+    if (rounds.isEmpty()) return Collections.emptyList();
+
+    boolean isTournament = rounds.get(0).getContestEvent().getProgressionType() == RoundProgressionType.TOURNAMENT;
+
     return rounds.stream()
         .filter(
             round -> roundNames.isEmpty() ||
@@ -103,7 +119,24 @@ public class ContestEventApplicationService {
                     ? round.getCurrentRun().getId()
                     : null
                 )
-                .runs(makeRunResponseList(round.getRuns()))
+                .matches(isTournament ? makeMatchResponseList(round.getMatches()) : null)
+                .runs(!isTournament ? makeRunResponseList(round.getRuns()) : null)
+                .build()
+        )
+        .toList();
+  }
+
+  private List<MatchResponse> makeMatchResponseList(List<Match> matches) {
+    return matches.stream()
+        .map( match ->
+            MatchResponse.builder()
+                .id(match.getId())
+                .type(match.getMatchType().name())
+                .participant1Id(match.getParticipant1().getId())
+                .participant1Name(match.getParticipant1().getNameKr())
+                .participant2Id(match.getParticipant2() == null? null : match.getParticipant2().getId())
+                .participant2Name(match.getParticipant2() == null? null : match.getParticipant2().getNameKr())
+                .runs(makeRunResponseList(match.getRuns()))
                 .build()
         )
         .toList();
@@ -114,6 +147,8 @@ public class ContestEventApplicationService {
         .map(run ->
             RunResponse.builder()
                 .id(run.getId())
+                .attemptNumber(run.getAttemptNumber())
+                .participantId(run.getParticipant().getId())
                 .participantName(run.getParticipant().getNameKr())
                 .status(run.getStatus().name())
                 .scores(makeScoreResponseList(run.getScores()))
@@ -128,8 +163,10 @@ public class ContestEventApplicationService {
             ScoreResponse.builder()
                 .id(score.getId())
                 .score(score.getTotal())
+                .status(score.getStatus().name())
                 .judgeId(score.getJudge().getId())
                 .judgeName(score.getJudge().getName())
+                .breakdownJson(score.getBreakdownJson())
                 .build()
             )
         .toList();

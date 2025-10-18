@@ -4,6 +4,7 @@ import com.example.trx.domain.event.round.Round;
 import com.example.trx.domain.event.round.run.Run;
 import com.example.trx.domain.user.Participant;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -41,6 +42,9 @@ public class Match {
   @ManyToOne(fetch = FetchType.LAZY)
   private Participant participant2;
 
+  @ManyToOne(fetch = FetchType.LAZY)
+  private Participant winner;//동점자 처리가 필요한 경우 수동으로 정해야합니다.
+
   @OneToMany (mappedBy = "match", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
   @Builder.Default
   private List<Run> runs = new ArrayList<>();
@@ -62,6 +66,10 @@ public class Match {
       if (participant2 != null) winners.add(participant2);
       return winners;
     }
+    else if (winner != null) {
+      winners.add(winner);
+      return winners;
+    }
 
     BigDecimal bestScore1 = runs.stream()
         .filter(run -> run.getParticipant().equals(participant1))
@@ -77,12 +85,13 @@ public class Match {
 
     if (bestScore1.compareTo(bestScore2) > 0) {
       winners.add(participant1);
-    } else if (bestScore2.compareTo(bestScore1) > 0) {
-      winners.add(participant2);
-    } else {//동점자 처리 필요
-      if (participant1 != null) winners.add(participant1);
-      if (participant2 != null) winners.add(participant2);
+      this.winner = participant1;
     }
+    else if (bestScore2.compareTo(bestScore1) > 0) {
+      winners.add(participant2);
+      this.winner = participant2;
+    }
+    else throw new IllegalStateException("동점자 발생");
 
     return winners;
   }
