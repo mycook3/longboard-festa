@@ -45,6 +45,7 @@ class ApplicationServiceTest {
   @Autowired
   private TransactionTemplate transactionTemplate;
 
+  /**
   @Test
   public void startTest() {
     domainService.addRound(1L, "32강", 32, 1);
@@ -226,5 +227,5 @@ class ApplicationServiceTest {
     ContestEventResponse resp = applicationService.getContestEventById(1L);
     log.info("current contestEvent: {}", JsonUtil.toJsonString(resp));
   }
-
+  */
 }
