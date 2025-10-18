@@ -1,5 +1,6 @@
 package com.example.trx.domain.event;
 
+import com.example.trx.domain.judge.Judge;
 import com.example.trx.domain.run.Run;
 import com.example.trx.domain.user.Participant;
 import com.example.trx.domain.user.Participation;
@@ -88,8 +89,8 @@ public class ContestEvent {//Aggregate Root
     currentRound.addParticipants(activeParticipants);
   }
 
-  public void startFirstRound() {
-    currentRound.start();
+  public void start(List<Judge> judges) {
+    currentRound.start(judges);
   }
 
   public void end() {

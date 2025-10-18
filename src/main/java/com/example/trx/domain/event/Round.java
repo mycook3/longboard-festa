@@ -1,6 +1,8 @@
 package com.example.trx.domain.event;
 
+import com.example.trx.domain.judge.Judge;
 import com.example.trx.domain.run.Run;
+import com.example.trx.domain.score.ScoreStatus;
 import com.example.trx.domain.score.ScoreTotal;
 import com.example.trx.domain.user.Participant;
 import com.example.trx.domain.user.UserStatus;
@@ -72,8 +74,21 @@ public class Round {
         .findFirst();
   }
 
-  public void start() {
+  public void start(List<Judge> judges) {
     if (runs.isEmpty()) throw new IllegalStateException("no runs added");
+    for (Run run: runs) {
+      for (Judge judge: judges) {
+        run.addScore(
+            ScoreTotal.builder()
+                .status(ScoreStatus.NOT_SUBMITTED)
+                .judge(judge)
+                .breakdownJson("")
+                .total(BigDecimal.ZERO)
+                .build()
+        );
+      }
+    }
+
     currentRun = runs.get(0);
     currentRun.markAsOngoing();
   }
@@ -96,6 +111,7 @@ public class Round {
     return this.currentRun == runs.get(runs.size() - 1) && this.currentRun.getUserStatus() == UserStatus.DONE;
   }
 
+  //TODO 토너먼트 / 점수 기반에 따라 구분 필요
   public List<Participant> getSurvivors(Round nextRound) {
     return runs.stream()
         .sorted(
