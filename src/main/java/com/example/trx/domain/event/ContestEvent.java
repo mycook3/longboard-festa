@@ -68,15 +68,17 @@ public class ContestEvent {//Aggregate Root
   @Builder.Default
   private List<Participation> participations = new ArrayList<>();
 
-  public void addRound(String roundName, Integer limit) {
+  public Round addRound(String roundName, Integer limit, Integer runPerParticipant) {
     Round round = Round.builder()
         .contestEvent(this)
         .name(roundName)
         .status(RoundStatus.BEFORE)
         .participantLimit(limit)
+        .runsPerParticipant(runPerParticipant)
         .build();
 
     rounds.add(round);
+    return round;
   }
 
   public void init() {
@@ -95,7 +97,7 @@ public class ContestEvent {//Aggregate Root
     currentRound.addParticipants(activeParticipants);
   }
 
-  public void start(List<Judge> judges) {
+  public void startFirstRound(List<Judge> judges) {
     currentRound.start(judges);
   }
 
@@ -114,14 +116,14 @@ public class ContestEvent {//Aggregate Root
 
   public void proceedRun(int activeJudgesCount) {
     if (contestEventStatus != ContestEventStatus.IN_PROGRESS) throw new IllegalStateException("시작하지 않았거나 종료된 종목입니다.");
-    if (rounds.isEmpty()) throw new IllegalStateException("No round has been started");
+    if (rounds.isEmpty()) throw new IllegalStateException("No round has been set");
 
     Run currentRun = this.getCurrentRun();
 
     if (currentRun.canBeCompleted(activeJudgesCount)) {
       currentRun.markAsDone();
       Run nextRun = currentRound.findNextRun()
-          .orElseThrow(() -> new IllegalStateException("해당 라운드의 마지막 참가자입니다."));
+          .orElseThrow(() -> new IllegalStateException("해당 라운드의 마지막 시도입니다."));
 
       currentRound.moveToRun(nextRun);
     }

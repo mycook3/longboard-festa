@@ -70,9 +70,9 @@ public class ContestEventInitializer implements ApplicationRunner {
           .orElseThrow(() -> new ContestEventNotFound(division, DisciplineCode.FREESTYLE));
 
       switch (division) {
-        case BEGINNER -> addRounds(cev, beginner);
-        case OPEN -> addRounds(cev, open);
-        case PRO -> addRounds(cev, pro);
+        case BEGINNER -> addRounds(cev, beginner, 1);
+        case OPEN -> addRounds(cev, open, 1);
+        case PRO -> addRounds(cev, pro, 1);
       }
     }
   }
@@ -104,14 +104,13 @@ public class ContestEventInitializer implements ApplicationRunner {
       cev.setProgressionType(RoundProgressionType.TOURNAMENT);
 
       switch (division) {
-        case BEGINNER -> addRounds(cev, beginner);
-        case OPEN -> addRounds(cev, open);
-        case PRO -> addRounds(cev, pro);
+        case BEGINNER -> addRounds(cev, beginner, 1);
+        case OPEN -> addRounds(cev, open, 1);
+        case PRO -> addRounds(cev, pro, 1);
       }
     }
   }
 
-  //TODO
   private void initDancingRounds() {
     Map<String, Integer> beginner = Map.copyOf(new LinkedHashMap<>() {{
       put("final", 5);
@@ -130,14 +129,14 @@ public class ContestEventInitializer implements ApplicationRunner {
           .orElseThrow(() -> new ContestEventNotFound(division, DisciplineCode.DANCING));
 
       switch (division) {
-        case BEGINNER -> addRounds(cev, beginner);
-        case OPEN -> addRounds(cev, open);
-        case PRO -> addRounds(cev, pro);
+        case BEGINNER -> addRounds(cev, beginner, 2);
+        case OPEN -> addRounds(cev, open, 2);
+        case PRO -> addRounds(cev, pro, 2);
       }
     }
   }
 
-  private void addRounds(ContestEvent contestEvent, Map<String, Integer> rounds) {
-    rounds.forEach((key, value) -> domainService.addRound(contestEvent.getId(), key, value));
+  private void addRounds(ContestEvent contestEvent, Map<String, Integer> rounds, Integer runPerParticipant) {
+    rounds.forEach((name, limit) -> domainService.addRound(contestEvent.getId(), name, limit, runPerParticipant));
   }
 }

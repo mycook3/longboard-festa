@@ -9,4 +9,5 @@ public class AddRoundRequest {
   private Long contestId;
   private String roundName;
   private Integer limit;
+  private Integer runPerParticipant;
 }

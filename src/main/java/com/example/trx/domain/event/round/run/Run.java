@@ -14,10 +14,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 각 참가자들의 퍼포먼스 1회
  */
+@Slf4j
 @Getter
 @Setter
 @NoArgsConstructor
@@ -51,6 +53,7 @@ public class Run extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 16)
+    @Builder.Default
     private RunStatus status = RunStatus.WAITING;
 
     // 관계: Run 1 : N ScoreTotal
@@ -60,8 +63,9 @@ public class Run extends BaseTimeEntity {
 
     // 편의 메서드
     public void addScore(ScoreTotal score) {
-        scores.add(score);
-        score.setRun(this);
+      score.setRun(this);
+      score.getJudge().addScore(score);
+      scores.add(score);
     }
 
     public void markAsDone() {

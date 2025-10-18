@@ -18,9 +18,11 @@ import com.example.trx.repository.score.ScoreTotalRepository;
 import java.math.BigDecimal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ContestEventDomainService {
@@ -47,9 +49,9 @@ public class ContestEventDomainService {
   }
 
   @Transactional
-  public void addRound(Long eventId, String roundName, Integer limit) {
+  public Round addRound(Long eventId, String roundName, Integer limit, Integer runPerParticipant) {
     ContestEvent contestEvent = getContestEventById(eventId);
-    contestEvent.addRound(roundName, limit);
+    return contestEvent.addRound(roundName, limit, runPerParticipant);
   }
 
   @Transactional
@@ -74,7 +76,7 @@ public class ContestEventDomainService {
   public void startContestEvent(Long eventId) {
     ContestEvent contestEvent = getContestEventById(eventId);
     List<Judge> activeJudges = judgeRepository.findAllByDeletedFalse();
-    contestEvent.start(activeJudges);
+    contestEvent.startFirstRound(activeJudges);
   }
 
   @Transactional
