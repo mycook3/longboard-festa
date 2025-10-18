@@ -54,6 +54,34 @@ class DomainServiceTest {
   }
 
   @Test
+  public void deleteRoundTest() {
+    contestEventDomainService.addRound(1L, "32강", 32);
+    contestEventDomainService.deleteRound(1L);
+
+    ContestEvent saved = transactionTemplate.execute(status -> {
+      ContestEvent ev = contestEventRepository.findById(1L).orElse(null);
+      ev.getRounds().size();
+      return ev;
+    });
+
+    assertEquals(0, saved.getRounds().size());
+  }
+
+  @Test
+  public void editRoundTest() {
+    contestEventDomainService.addRound(1L, "32강", 32);
+    contestEventDomainService.editRound(1L, "16강", 16);
+
+    ContestEvent saved = transactionTemplate.execute(status -> {
+      ContestEvent ev = contestEventRepository.findById(1L).orElse(null);
+      ev.getRounds().get(0);
+      return ev;
+    });
+
+    assertEquals("16강", saved.getRounds().get(0).getName());
+  }
+
+  @Test
   @Transactional
   public void addParticipantTest() {
     contestEventDomainService.addRound(1L, "32강", 32);
