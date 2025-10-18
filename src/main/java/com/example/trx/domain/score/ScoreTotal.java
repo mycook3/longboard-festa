@@ -24,6 +24,10 @@ public class ScoreTotal extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private ScoreStatus status = ScoreStatus.NOT_SUBMITTED;
+
     // 무엇에 대한 점수인가? -> Run
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "run_id", nullable = false,
