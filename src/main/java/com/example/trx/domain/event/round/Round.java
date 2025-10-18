@@ -101,31 +101,35 @@ public class Round {
 
       Match match = Match.builder()
           .round(this)
-          .matchType(p2 == null ? MatchType.BYE : MatchType.NORMAL)
+          .participant1(p1)
+          .participant2(p2)
+          .matchType(p2 == null ? MatchType.BYE : MatchType.NORMAL)//짝을 맞출 수 없는 경우 부전승 처리
           .build();
 
       matches.add(match);
 
-      for (int attempt = 1; attempt <= runsPerParticipant; attempt++) {
-        Run run1 = Run.builder()
-              .round(this)
-              .match(match)
-              .participant(p1)
-              .attemptNumber(i)
-              .build();
+      if (match.getMatchType() == MatchType.NORMAL) {//부전승이 아니라면 == p2가 null이 아니라면
+        for (int attempt = 1; attempt <= runsPerParticipant; attempt++) {//라운드 별 시도 제한만큼 Run 만들기
+          Run run1 = Run.builder()
+                .round(this)
+                .match(match)
+                .participant(p1)
+                .attemptNumber(attempt)
+                .build();
 
-        Run run2 = Run.builder()
-              .round(this)
-              .match(match)
-              .participant(p2)
-              .attemptNumber(i)
-              .build();
+          Run run2 = Run.builder()
+                .round(this)
+                .match(match)
+                .participant(p2)
+                .attemptNumber(attempt)
+                .build();
 
-        runs.add(run1);
-        runs.add(run2);
+          runs.add(run1);
+          runs.add(run2);
 
-        match.addRun(run1);
-        match.addRun(run2);
+          match.addRun(run1);
+          match.addRun(run2);
+        }
       }
     }
   }

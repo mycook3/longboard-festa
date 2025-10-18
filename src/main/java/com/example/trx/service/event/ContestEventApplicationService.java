@@ -20,59 +20,58 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional //DTO 매핑을 위한 lazy fetch용 Transaction 유지(osiv off)
 public class ContestEventApplicationService {
 
-  private final ContestEventDomainService contestEventDomainService;
+  private final ContestEventDomainService domainService;
 
+  @Transactional //DTO 매핑을 위한 lazy fetch용 Transaction 유지(osiv off)
   public ContestEventResponse getContestEventById(Long contestEventId) {
-    ContestEvent contestEvent  = contestEventDomainService.getContestEventById(contestEventId);
+    ContestEvent contestEvent  = domainService.getContestEventById(contestEventId);
     return makeContestEventResponse(contestEvent, Collections.emptyList());
   }
 
+  @Transactional //DTO 매핑을 위한 lazy fetch용 Transaction 유지(osiv off)
   public ContestEventResponse getContestEventByEventNameAndDivision(String eventName, String division, List<String> roundNames) {
-    ContestEvent contestEvent  = contestEventDomainService.getContestEventByDivisionAndDisciplineCode(eventName, division);
+    ContestEvent contestEvent  = domainService.getContestEventByDivisionAndDisciplineCode(eventName, division);
     return makeContestEventResponse(contestEvent, roundNames);
   }
 
-  public void initContest(Long eventId) {
-    contestEventDomainService.initContest(eventId);
-  }
-
+  //Transaction 동작 방식에 따라 Transactional을 붙이면 안됩니다
   public void startContestEvent(Long eventId) {
-    contestEventDomainService.startCurrentRound(eventId);
+    domainService.initContest(eventId);
+    domainService.startCurrentRound(eventId);
   }
 
   public void endContestEvent(Long eventId) {
-    contestEventDomainService.endContestEvent(eventId);
+    domainService.endContestEvent(eventId);
   }
 
   public void proceedRun(Long eventId) {
-    contestEventDomainService.proceedRun(eventId);
+    domainService.proceedRun(eventId);
   }
 
   public void proceedRound(Long eventId) {
-    contestEventDomainService.proceedRound(eventId);
+    domainService.proceedRound(eventId);
   }
 
   public void addRound(Long contestId, AddRoundRequest request){
-    contestEventDomainService.addRound(contestId, request.getRoundName(), request.getLimit(), request.getRunPerParticipant());
+    domainService.addRound(contestId, request.getRoundName(), request.getLimit(), request.getRunPerParticipant());
   }
 
   public void editRound(Long roundId, EditRoundRequest request){
-    contestEventDomainService.editRound(roundId, request.getRoundName(), request.getLimit());
+    domainService.editRound(roundId, request.getRoundName(), request.getLimit());
   }
 
   public void deleteRound(Long roundId) {
-    contestEventDomainService.deleteRound(roundId);
+    domainService.deleteRound(roundId);
   }
 
   public void submitScore(Long runId, SubmitScoreRequest request) {
-    contestEventDomainService.submitScore(runId, request.getJudgeId(), request.getScoreTotal(), request.getBreakdownJson());
+    domainService.submitScore(runId, request.getJudgeId(), request.getScoreTotal(), request.getBreakdownJson());
   }
 
   public void editScore(Long scoreId, EditScoreRequest request) {
-    contestEventDomainService.editScore(scoreId, request.getScoreTotal(), request.getBreakdownJson(), request.getEditedBy(), request.getEditReason());
+    domainService.editScore(scoreId, request.getScoreTotal(), request.getBreakdownJson(), request.getEditedBy(), request.getEditReason());
   }
 
   private ContestEventResponse makeContestEventResponse(ContestEvent contestEvent, List<String> roundNames) {
