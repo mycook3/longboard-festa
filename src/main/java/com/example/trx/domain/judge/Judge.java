@@ -12,7 +12,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Getter
 @Setter
 @NoArgsConstructor
@@ -49,12 +51,21 @@ public class Judge extends BaseTimeEntity {
 
     // 채점
     public void submitScore(Run run, BigDecimal score, String breakDownJson) {
-      ScoreTotal notSubmitted = scores.stream().filter(scoreTotal -> scoreTotal.getRun() == run).findFirst().orElse(null);
+      ScoreTotal notSubmitted = scores.stream()
+          .filter(scoreTotal -> scoreTotal.getRun().equals(run)
+                && scoreTotal.getStatus().equals(ScoreStatus.NOT_SUBMITTED))
+          .findFirst()
+          .orElse(null);
 
       if (notSubmitted != null && notSubmitted.getStatus() == ScoreStatus.NOT_SUBMITTED) {
         notSubmitted.setStatus(ScoreStatus.SUBMITTED);
         notSubmitted.setTotal(score);
         notSubmitted.setBreakdownJson(breakDownJson);
       }
+    }
+
+    public void addScore(ScoreTotal scoreTotal) {
+      scoreTotal.setJudge(this);
+      scores.add(scoreTotal);
     }
 }

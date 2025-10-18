@@ -33,7 +33,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -58,7 +60,8 @@ public class Round {
   private Run currentRun;
 
   @Enumerated(EnumType.STRING)
-  private RoundStatus status;
+  @Builder.Default
+  private RoundStatus status = RoundStatus.BEFORE;
 
   @OneToMany(mappedBy = "round", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   @Builder.Default
@@ -137,14 +140,13 @@ public class Round {
     if (runs.isEmpty()) throw new IllegalStateException("no runs added");
     for (Run run: runs) {
       for (Judge judge: judges) {
-        run.addScore(
-            ScoreTotal.builder()
-                .status(ScoreStatus.NOT_SUBMITTED)
-                .judge(judge)
-                .breakdownJson("")
-                .total(BigDecimal.ZERO)
-                .build()
-        );
+        ScoreTotal emptyScoreSheet = ScoreTotal.builder()
+            .judge(judge)
+            .breakdownJson("")
+            .total(BigDecimal.ZERO)
+            .build();
+
+        run.addScore(emptyScoreSheet);
       }
     }
 

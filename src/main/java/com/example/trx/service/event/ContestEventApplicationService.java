@@ -56,7 +56,7 @@ public class ContestEventApplicationService {
   }
 
   public void addRound(Long contestId, AddRoundRequest request){
-    contestEventDomainService.addRound(contestId, request.getRoundName(), request.getLimit());
+    contestEventDomainService.addRound(contestId, request.getRoundName(), request.getLimit(), request.getRunPerParticipant());
   }
 
   public void editRound(Long roundId, EditRoundRequest request){

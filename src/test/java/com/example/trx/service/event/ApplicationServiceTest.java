@@ -47,7 +47,7 @@ class ApplicationServiceTest {
 
   @Test
   public void startTest() {
-    domainService.addRound(1L, "32강", 32);
+    domainService.addRound(1L, "32강", 32, 1);
  ///////////////////////////////////////////
     ParticipantCreateRequest request = ParticipantCreateRequest.builder()
         .nameKr("박영서")
@@ -75,7 +75,7 @@ class ApplicationServiceTest {
 
   @Test
   public void addJudgeAndSubmitScoreTest() {
-    domainService.addRound(1L, "결승", 1);
+    domainService.addRound(1L, "결승", 1, 1);
 
     ///////////////////////////////////////////
     ParticipantCreateRequest request = ParticipantCreateRequest.builder()
@@ -114,7 +114,7 @@ class ApplicationServiceTest {
 
   @Test
   public void proceedRunTest() {
-    domainService.addRound(1L, "결승", 2);
+    domainService.addRound(1L, "결승", 2, 1);
 
     ///////////////////////////////////////////
     ParticipantCreateRequest req1 = ParticipantCreateRequest.builder()
@@ -168,8 +168,8 @@ class ApplicationServiceTest {
 
   @Test
   public void proceedRoundTest() {
-    domainService.addRound(1L, "결승", 2);
-    domainService.addRound(1L, "우승", 1);
+    domainService.addRound(1L, "결승", 2, 1);
+    domainService.addRound(1L, "우승", 1, 1);
 
     ///////////////////////////////////////////
     ParticipantCreateRequest req1 = ParticipantCreateRequest.builder()
