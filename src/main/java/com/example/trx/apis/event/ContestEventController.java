@@ -37,7 +37,6 @@ public class ContestEventController {
   @PreAuthorize("hasRole('ADMIN')")
   @PostMapping("/{id}")
   public ApiResult<Void> startContestEvent(@PathVariable Long id) {
-    contestEventService.initContest(id);
     contestEventService.startContestEvent(id);
     return ApiResult.succeed(null);
   }

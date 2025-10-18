@@ -104,8 +104,6 @@ public class ContestEvent {//Aggregate Root
     currentRound.addParticipants(activeParticipants);
   }
 
-
-
   /**
    * 현재 진행 중인 라운드가 등록된 마지막 라운드고 해당 라운드의 마지막 시도까지 마친 경우 종목을 종료합니다
    */
