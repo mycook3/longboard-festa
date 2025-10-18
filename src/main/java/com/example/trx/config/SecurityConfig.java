@@ -41,6 +41,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/v1/contest/runs/**").hasRole("JUDGE")
                 .requestMatchers(HttpMethod.PUT, "/api/v1/contest/scores/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/v1/contest/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/v1/contest/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/v1/contest/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/v1/contest/**").permitAll()
                 .requestMatchers(HttpMethod.GET,
                     "/api/v1/notices/**",
@@ -55,7 +57,7 @@ public class SecurityConfig {
                     "/api/v3/api-docs",
                     "/api/v3/api-docs/**"
                 ).permitAll()
-                .requestMatchers("/api/v1/judges/**", "/api/v1/contest/scores/").hasRole("ADMIN")
+                .requestMatchers("/api/v1/judges/**").hasRole("ADMIN")
                 .anyRequest().authenticated())
             .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
