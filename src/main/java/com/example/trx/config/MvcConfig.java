@@ -6,7 +6,6 @@ import org.springframework.http.MediaType;
 import org.springframework.web.servlet.config.annotation.*;
 
 @Configuration
-@EnableWebMvc
 public class MvcConfig  implements WebMvcConfigurer {
 
     private LoggingInterceptor loggingInterceptor;
