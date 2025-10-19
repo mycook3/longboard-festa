@@ -3,5 +3,5 @@ package com.example.trx.domain.event;
 public enum DisciplineCode {
     FREESTYLE,
     SLALOM,
-    DANCING
+    LONGBOARD_DANCING
 }
