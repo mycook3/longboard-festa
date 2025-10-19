@@ -40,6 +40,7 @@ public class SecurityConfig {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .httpBasic(AbstractHttpConfigurer::disable)
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
                 .formLogin(formLogin -> formLogin.disable())
@@ -68,6 +69,7 @@ public class SecurityConfig {
                     "/api/v1/users/**"
                 ).permitAll()
                 .requestMatchers("/api/v1/judges/**").hasRole("ADMIN")
+                .requestMatchers("/api/v1/sse/**").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
                 .anyRequest().authenticated())
             .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
