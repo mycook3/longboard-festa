@@ -25,6 +25,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 @Slf4j
 @SpringBootTest
+@Deprecated
 class ApplicationServiceTest {
 
   @Autowired

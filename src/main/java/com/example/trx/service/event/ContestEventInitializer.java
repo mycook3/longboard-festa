@@ -125,8 +125,8 @@ public class ContestEventInitializer implements ApplicationRunner {
     }});
 
     for (Division division : Division.values()) {
-      ContestEvent cev = contestEventRepository.findContestEventByDivisionAndDisciplineCode(division, DisciplineCode.DANCING)
-          .orElseThrow(() -> new ContestEventNotFound(division, DisciplineCode.DANCING));
+      ContestEvent cev = contestEventRepository.findContestEventByDivisionAndDisciplineCode(division, DisciplineCode.LONGBOARD_DANCING)
+          .orElseThrow(() -> new ContestEventNotFound(division, DisciplineCode.LONGBOARD_DANCING));
 
       switch (division) {
         case BEGINNER -> addRounds(cev, beginner, 2);

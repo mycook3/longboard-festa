@@ -49,6 +49,7 @@ public class Run extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "match_id", nullable = true)
+    @Builder.Default
     private Match match = null;
 
     @Enumerated(EnumType.STRING)
