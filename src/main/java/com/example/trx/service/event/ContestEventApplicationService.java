@@ -38,7 +38,7 @@ public class ContestEventApplicationService {
 
   @Transactional //DTO 매핑을 위한 lazy fetch용 Transaction 유지(osiv off)
   public ContestEventResponse getContestEventByEventNameAndDivision(String eventName, String division, List<String> roundNames) {
-    ContestEvent contestEvent  = domainService.getContestEventByDivisionAndDisciplineCode(eventName, division);
+    ContestEvent contestEvent  = domainService.getContestEventByDivisionAndDisciplineCode(division, eventName);
     return makeContestEventResponse(contestEvent, roundNames);
   }
 
