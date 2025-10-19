@@ -109,7 +109,7 @@ public class ContestEventApplicationService {
 
     return rounds.stream()
         .filter(
-            round -> roundNames.isEmpty() ||
+            round -> roundNames == null || roundNames.isEmpty() ||
             roundNames.contains(round.getName())
         )
         .map( round ->
