@@ -15,9 +15,11 @@ import com.example.trx.domain.event.round.Round;
 import com.example.trx.domain.event.round.match.Match;
 import com.example.trx.domain.event.round.run.Run;
 import com.example.trx.domain.event.round.run.score.ScoreTotal;
+import com.example.trx.support.util.SseEvent;
 import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ContestEventApplicationService {
 
+  private final ApplicationEventPublisher eventPublisher;
   private final ContestEventDomainService domainService;
 
   @Transactional //DTO 매핑을 위한 lazy fetch용 Transaction 유지(osiv off)

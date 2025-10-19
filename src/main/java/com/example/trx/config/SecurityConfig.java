@@ -35,11 +35,26 @@ public class SecurityConfig {
         this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
     }
 
+    public CorsConfigurationSource corsConfigurationSource() {
+      CorsConfiguration configuration = new CorsConfiguration();
+
+      configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+      configuration.setAllowedMethods(List.of("*"));
+      configuration.setAllowedHeaders(List.of("*"));
+      configuration.setAllowCredentials(true);
+
+      UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+      source.registerCorsConfiguration("/**", configuration);
+
+      return source;
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .httpBasic(AbstractHttpConfigurer::disable)
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
                 .formLogin(formLogin -> formLogin.disable())
@@ -68,6 +83,7 @@ public class SecurityConfig {
                     "/api/v1/users/**"
                 ).permitAll()
                 .requestMatchers("/api/v1/judges/**").hasRole("ADMIN")
+                .requestMatchers("/api/v1/sse/**").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
                 .anyRequest().authenticated())
             .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
