@@ -5,9 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class AddRoundRequest {
-  private Long contestId;
+public class EditRoundRequest {
   private String roundName;
   private Integer limit;
-  private Integer runPerParticipant;
 }

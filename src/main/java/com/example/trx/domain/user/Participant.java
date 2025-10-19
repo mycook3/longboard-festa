@@ -2,7 +2,7 @@ package com.example.trx.domain.user;
 
 import com.example.trx.domain.event.ContestEvent;
 import com.example.trx.domain.event.Division;
-import com.example.trx.domain.run.Run;
+import com.example.trx.domain.event.round.run.Run;
 import com.example.trx.support.util.BaseTimeEntity;
 import jakarta.persistence.*;
 import java.time.LocalDate;
@@ -35,7 +35,7 @@ public class Participant extends BaseTimeEntity {
 
     // 생년월일
     @Column(name = "birth")
-    private LocalDate birth;
+    private String birth;
 
     // 연락처
     @Column(name = "phone", length = 32)

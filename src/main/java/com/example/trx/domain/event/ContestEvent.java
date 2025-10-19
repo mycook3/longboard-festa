@@ -1,10 +1,14 @@
 package com.example.trx.domain.event;
 
-import com.example.trx.domain.run.Run;
+import com.example.trx.domain.event.round.Round;
+import com.example.trx.domain.event.round.RoundStatus;
+import com.example.trx.domain.judge.Judge;
+import com.example.trx.domain.event.round.run.Run;
 import com.example.trx.domain.user.Participant;
 import com.example.trx.domain.user.Participation;
 import com.example.trx.domain.user.ParticipationStatus;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -38,15 +42,21 @@ public class ContestEvent {//Aggregate Root
 
   // 수준
   @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
   private Division division;
 
-  // 종목 정보
+  // 종목명
   @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
   private DisciplineCode disciplineCode;
 
   @Enumerated(EnumType.STRING)
   @Builder.Default
   private ContestEventStatus contestEventStatus = ContestEventStatus.READY;
+
+  @Enumerated(EnumType.STRING)
+  @Builder.Default
+  private RoundProgressionType progressionType = RoundProgressionType.SCORE_BASED;
 
   // 현재 진행 중인 라운드
   @OneToOne(fetch = FetchType.LAZY)
@@ -61,17 +71,23 @@ public class ContestEvent {//Aggregate Root
   @Builder.Default
   private List<Participation> participations = new ArrayList<>();
 
-  public void addRound(String roundName, Integer limit) {
+  public Round addRound(String roundName, Integer limit, Integer runPerParticipant) {
     Round round = Round.builder()
         .contestEvent(this)
         .name(roundName)
         .status(RoundStatus.BEFORE)
         .participantLimit(limit)
+        .runsPerParticipant(runPerParticipant)
         .build();
 
     rounds.add(round);
+    return round;
   }
 
+  /**
+   * 종목을 시작 상태로 변경하고, 현재 진행 라운드를 첫 번째 라운드로 설정합니다.
+   * 첫 번째 라운드에 초기 참가자들을 모두 추가합니다.
+   */
   public void init() {
     if (contestEventStatus != ContestEventStatus.READY) throw new IllegalStateException("이미 진행 중이거나 종료된 종목입니다");
     if (rounds.isEmpty()) throw new IllegalStateException("No round has been added");
@@ -88,8 +104,14 @@ public class ContestEvent {//Aggregate Root
     currentRound.addParticipants(activeParticipants);
   }
 
-  public void startFirstRound() {
-    currentRound.start();
+  /**
+   * 현재 진행 중인 라운드가 등록된 마지막 라운드고 해당 라운드의 마지막 시도까지 마친 경우 종목을 종료합니다
+   */
+  public void end() {
+    if (currentRound == rounds.get(rounds.size() - 1) && currentRound.canBeCompleted()) {
+      currentRound.markAsCompleted();
+      this.contestEventStatus = ContestEventStatus.COMPLETED;
+    }
   }
 
   public Run getCurrentRun() {
@@ -98,22 +120,40 @@ public class ContestEvent {//Aggregate Root
     throw new IllegalStateException("no currentRun set");
   }
 
+  /**
+   * 현재 시도를 다음으로 넘깁니다
+   * 현재 active 상태의 심사위원 전원이 점수를 제출한 경우에만 넘길 수 있습니다
+   * 라운드의 마지막 순서인 경우에는 예외를 던집니다
+   */
   public void proceedRun(int activeJudgesCount) {
     if (contestEventStatus != ContestEventStatus.IN_PROGRESS) throw new IllegalStateException("시작하지 않았거나 종료된 종목입니다.");
-    if (rounds.isEmpty()) throw new IllegalStateException("No round has been started");
+    if (rounds.isEmpty()) throw new IllegalStateException("No round has been set");
 
     Run currentRun = this.getCurrentRun();
 
     if (currentRun.canBeCompleted(activeJudgesCount)) {
       currentRun.markAsDone();
       Run nextRun = currentRound.findNextRun()
-          .orElseThrow(() -> new IllegalStateException("해당 라운드의 마지막 참가자입니다."));
+          .orElseThrow(() -> new IllegalStateException("해당 라운드의 마지막 시도입니다."));
 
       currentRound.moveToRun(nextRun);
     }
     else throw new IllegalStateException("일부 심사위원이 점수를 제출하지 않았습니다.");//TODO
   }
 
+   /**
+   * RoundStatus.BEFORE 상태인 가장 첫 라운드를 찾습니다.
+   */
+  public Optional<Round> findNextRound() {
+    return rounds.stream()
+          .filter(round -> round.getStatus().equals(RoundStatus.BEFORE))
+          .findFirst();
+  }
+
+  /**
+   * 다음 라운드로 진행할 수 있다면 진행합니다
+   * 만약 종목의 마지막 라운드라면 현재 라운드를 완료 상태로 전환하기만 합니다.
+   */
   public void proceedRound() {
     if (contestEventStatus != ContestEventStatus.IN_PROGRESS) throw new IllegalStateException("시작하지 않았거나 종료된 종목입니다.");
     if (rounds.isEmpty()) throw new IllegalStateException("No round has been started");
@@ -133,9 +173,12 @@ public class ContestEvent {//Aggregate Root
     }
   }
 
-  public Optional<Round> findNextRound() {
-    return rounds.stream()
-          .filter(round -> round.getStatus().equals(RoundStatus.BEFORE))
-          .findFirst();
+  /**
+   * 현재 라운드를 시작합니다.
+   * 현재 활성화된 심사위원 목록을 가져와 그 수 * 참가자 별 시도 횟수만큼의 Run 객체를 생성, 저장합니다
+   */
+  public void startCurrentRound(List<Judge> activeJudges) {
+    if (currentRound == null) throw new IllegalStateException("no currentRound set");
+    currentRound.start(activeJudges);
   }
 }

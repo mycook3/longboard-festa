@@ -6,9 +6,6 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class EditScoreRequest {
-  private BigDecimal scoreTotal;
-  private String breakdownJson;
-  private String editedBy;
-  private String editReason;
+public class ManualWinnerRequest {
+  private Long participantId;
 }

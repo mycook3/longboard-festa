@@ -1,9 +1,8 @@
 package com.example.trx.domain.judge;
 
-import com.example.trx.domain.event.ContestEvent;
-import com.example.trx.domain.event.DisciplineCode;
-import com.example.trx.domain.run.Run;
-import com.example.trx.domain.score.ScoreTotal;
+import com.example.trx.domain.event.round.run.Run;
+import com.example.trx.domain.event.round.run.score.ScoreStatus;
+import com.example.trx.domain.event.round.run.score.ScoreTotal;
 import com.example.trx.support.util.BaseTimeEntity;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
@@ -13,7 +12,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Getter
 @Setter
 @NoArgsConstructor
@@ -50,14 +51,21 @@ public class Judge extends BaseTimeEntity {
 
     // 채점
     public void submitScore(Run run, BigDecimal score, String breakDownJson) {
-      ScoreTotal submitted = ScoreTotal.builder()
-          .run(run)
-          .judge(this)
-          .total(score)
-          .breakdownJson(breakDownJson)
-          .build();
+      ScoreTotal notSubmitted = scores.stream()
+          .filter(scoreTotal -> scoreTotal.getRun().equals(run)
+                && scoreTotal.getStatus().equals(ScoreStatus.NOT_SUBMITTED))
+          .findFirst()
+          .orElse(null);
 
-      run.addScore(submitted);
-      scores.add(submitted);
+      if (notSubmitted != null && notSubmitted.getStatus() == ScoreStatus.NOT_SUBMITTED) {
+        notSubmitted.setStatus(ScoreStatus.SUBMITTED);
+        notSubmitted.setTotal(score);
+        notSubmitted.setBreakdownJson(breakDownJson);
+      }
+    }
+
+    public void addScore(ScoreTotal scoreTotal) {
+      scoreTotal.setJudge(this);
+      scores.add(scoreTotal);
     }
 }
