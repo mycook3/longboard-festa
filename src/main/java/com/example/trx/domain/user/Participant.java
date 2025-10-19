@@ -35,7 +35,7 @@ public class Participant extends BaseTimeEntity {
 
     // 생년월일
     @Column(name = "birth")
-    private LocalDate birth;
+    private String birth;
 
     // 연락처
     @Column(name = "phone", length = 32)
