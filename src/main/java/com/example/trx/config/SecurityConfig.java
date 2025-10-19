@@ -35,20 +35,6 @@ public class SecurityConfig {
         this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
     }
 
-    public CorsConfigurationSource corsConfigurationSource() {
-      CorsConfiguration configuration = new CorsConfiguration();
-
-      configuration.setAllowedOrigins(List.of("http://localhost:3000"));
-      configuration.setAllowedMethods(List.of("*"));
-      configuration.setAllowedHeaders(List.of("*"));
-      configuration.setAllowCredentials(true);
-
-      UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-      source.registerCorsConfiguration("/**", configuration);
-
-      return source;
-    }
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
