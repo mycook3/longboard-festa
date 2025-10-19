@@ -2,6 +2,9 @@ package com.example.trx.support.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -11,7 +14,10 @@ import java.io.IOException;
 @Slf4j
 public class JsonUtil {
 
-    private static final ObjectMapper mapper=new ObjectMapper();
+    private static final ObjectMapper mapper = JsonMapper.builder()
+            .addModule(new JavaTimeModule())
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .build();
     private static final JSONParser jsonParser =new JSONParser();
 
     public static Object parseString(String s) {

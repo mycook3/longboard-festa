@@ -8,6 +8,8 @@ import lombok.Getter;
 @Getter
 public class RunResponse {
   private Long id;
+  private Integer attemptNumber;
+  private Long participantId;
   private String participantName;
   private String status;
   private List<ScoreResponse> scores;
