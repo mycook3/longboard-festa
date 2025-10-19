@@ -1,5 +1,5 @@
 package com.example.trx.domain.user;
 
 public enum Gender {
-    MALE, FEMALE
+    남, 여
 }
