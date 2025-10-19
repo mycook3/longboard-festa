@@ -12,5 +12,6 @@ public class RoundResponse {
   private Integer participantLimit;
   private String status;
   private Long currentRunId;
-  private List<RunResponse> runs;
+  private List<MatchResponse> matches;//토너먼트인 경우
+  private List<RunResponse> runs;//점수 기반인 경우
 }

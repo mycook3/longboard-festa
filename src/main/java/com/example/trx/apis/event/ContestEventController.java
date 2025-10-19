@@ -3,6 +3,7 @@ package com.example.trx.apis.event;
 import com.example.trx.apis.dto.ApiResult;
 import com.example.trx.apis.event.dto.request.AddRoundRequest;
 import com.example.trx.apis.event.dto.request.EditRoundRequest;
+import com.example.trx.apis.event.dto.request.ManualWinnerRequest;
 import com.example.trx.apis.event.dto.response.ContestEventResponse;
 import com.example.trx.apis.event.dto.request.EditScoreRequest;
 import com.example.trx.apis.event.dto.request.SubmitScoreRequest;
@@ -37,7 +38,6 @@ public class ContestEventController {
   @PreAuthorize("hasRole('ADMIN')")
   @PostMapping("/{id}")
   public ApiResult<Void> startContestEvent(@PathVariable Long id) {
-    contestEventService.initContest(id);
     contestEventService.startContestEvent(id);
     return ApiResult.succeed(null);
   }
@@ -131,5 +131,27 @@ public class ContestEventController {
     contestEventService.deleteRound(id);
     return ApiResult.succeed(null);
   }
+
+  @Operation(summary = "토너먼트 매치 부전승 처리", description = "주어진 토너먼트 매치의 모든 참가자를 승리 처리합니다.")
+  @PreAuthorize("hasRole('ADMIN')")
+  @ResponseStatus(HttpStatus.OK)
+  @PostMapping("/match/{id}/bye")
+  public ApiResult<Void> makeMatchBye(@PathVariable Long id) {
+    contestEventService.makeMatchBye(id);
+    return ApiResult.succeed(null);
+  }
+
+  @Operation(summary = "토너먼트 매치 수동 승리 처리", description = "매치 참가자 중 한 명을 승자로 처리합니다(동점자 처리 시)")
+  @PreAuthorize("hasRole('ADMIN')")
+  @ResponseStatus(HttpStatus.OK)
+  @PostMapping("/match/{id}/winner")
+  public ApiResult<Void> makeManualWinner(
+      @PathVariable Long id,
+      @RequestBody ManualWinnerRequest request
+  ) {
+    contestEventService.makeManualParticipant(id, request.getParticipantId());
+    return ApiResult.succeed(null);
+  }
+
 }
 
