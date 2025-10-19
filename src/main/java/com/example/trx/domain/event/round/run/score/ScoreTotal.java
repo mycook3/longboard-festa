@@ -46,6 +46,7 @@ public class ScoreTotal extends BaseTimeEntity {
     private String breakdownJson;
 
     @Column(name = "is_locked", nullable = false)
+    @Builder.Default
     private boolean locked = false;
 
     @Column(name = "edited_by", length = 64)
