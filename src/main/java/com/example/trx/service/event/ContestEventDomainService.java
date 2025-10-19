@@ -3,23 +3,32 @@ package com.example.trx.service.event;
 import com.example.trx.domain.event.ContestEvent;
 import com.example.trx.domain.event.DisciplineCode;
 import com.example.trx.domain.event.Division;
-import com.example.trx.domain.event.Round;
+import com.example.trx.domain.event.round.Round;
 import com.example.trx.domain.event.exception.ContestEventNotFound;
+import com.example.trx.domain.event.round.RoundStatus;
+import com.example.trx.domain.event.round.match.Match;
+import com.example.trx.domain.event.round.match.MatchType;
 import com.example.trx.domain.judge.Judge;
 import com.example.trx.domain.judge.exception.JudgeNotFoundException;
-import com.example.trx.domain.run.Run;
-import com.example.trx.domain.run.exception.RunNotFoundException;
-import com.example.trx.domain.score.ScoreTotal;
+import com.example.trx.domain.event.round.run.Run;
+import com.example.trx.domain.event.round.run.exception.RunNotFoundException;
+import com.example.trx.domain.event.round.run.score.ScoreTotal;
+import com.example.trx.domain.user.Participant;
 import com.example.trx.repository.event.ContestEventRepository;
+import com.example.trx.repository.event.MatchRepository;
 import com.example.trx.repository.event.RoundRepository;
 import com.example.trx.repository.judge.JudgeRepository;
-import com.example.trx.repository.run.RunRepository;
-import com.example.trx.repository.score.ScoreTotalRepository;
+import com.example.trx.repository.event.RunRepository;
+import com.example.trx.repository.event.ScoreTotalRepository;
+import com.example.trx.repository.user.ParticipantRepository;
 import java.math.BigDecimal;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ContestEventDomainService {
@@ -28,7 +37,9 @@ public class ContestEventDomainService {
   private final JudgeRepository judgeRepository;
   private final RunRepository runRepository;
   private final RoundRepository roundRepository;
+  private final MatchRepository matchRepository;
   private final ScoreTotalRepository scoreTotalRepository;
+  private final ParticipantRepository participantRepository;
 
   public ContestEvent getContestEventByDivisionAndDisciplineCode(String divisionName, String eventName) {
     Division division = Division.valueOf(divisionName);
@@ -46,9 +57,9 @@ public class ContestEventDomainService {
   }
 
   @Transactional
-  public void addRound(Long eventId, String roundName, Integer limit) {
+  public Round addRound(Long eventId, String roundName, Integer limit, Integer runPerParticipant) {
     ContestEvent contestEvent = getContestEventById(eventId);
-    contestEvent.addRound(roundName, limit);
+    return contestEvent.addRound(roundName, limit, runPerParticipant);
   }
 
   @Transactional
@@ -70,9 +81,10 @@ public class ContestEventDomainService {
   }
 
   @Transactional
-  public void startContestEvent(Long eventId) {
+  public void startCurrentRound(Long eventId) {
     ContestEvent contestEvent = getContestEventById(eventId);
-    contestEvent.startFirstRound();
+    List<Judge> activeJudges = judgeRepository.findAllByDeletedFalse();
+    contestEvent.startCurrentRound(activeJudges);
   }
 
   @Transactional
@@ -92,6 +104,10 @@ public class ContestEventDomainService {
   public void proceedRound(Long eventId) {
     ContestEvent contestEvent = getContestEventById(eventId);
     contestEvent.proceedRound();
+
+    if (contestEvent.getCurrentRound().getStatus() == RoundStatus.IN_PROGRESS) {//다음 라운드로 넘긴 후 진행할 수 있다면
+      startCurrentRound(eventId);
+    }
   }
 
   @Transactional
@@ -108,5 +124,19 @@ public class ContestEventDomainService {
     scoreTotal.setBreakdownJson(newBreakdownJson);
     scoreTotal.setEditedBy(editedBy);
     scoreTotal.setEditReason(editReason);
+  }
+
+  @Transactional
+  public void makeMatchBye(Long matchId) {
+    Match match = matchRepository.findById(matchId).orElseThrow(IllegalArgumentException::new);
+    match.setMatchType(MatchType.BYE);
+  }
+
+  @Transactional
+  public void makeManualParticipant(Long matchId, Long participantId) {
+    Match match = matchRepository.findById(matchId).orElseThrow(IllegalArgumentException::new);
+    Participant participant = participantRepository.findById(participantId).orElseThrow(IllegalArgumentException::new);
+
+    match.setWinner(participant);
   }
 }

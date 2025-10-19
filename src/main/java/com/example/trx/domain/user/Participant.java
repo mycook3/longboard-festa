@@ -2,7 +2,7 @@ package com.example.trx.domain.user;
 
 import com.example.trx.domain.event.ContestEvent;
 import com.example.trx.domain.event.Division;
-import com.example.trx.domain.run.Run;
+import com.example.trx.domain.event.round.run.Run;
 import com.example.trx.support.util.BaseTimeEntity;
 import jakarta.persistence.*;
 import java.time.LocalDate;
