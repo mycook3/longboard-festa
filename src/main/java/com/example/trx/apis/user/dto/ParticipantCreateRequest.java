@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class ParticipantCreateRequest {
     private String nameKr;
-    private LocalDate birth;
+    private String birth;
     private String phone;
     private String emergencyContact;
     private String email;
