@@ -15,4 +15,6 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
     Page<Notice> findByPinnedIsFalseAndApplyAtLessThanEqualAndDeletedFalse(LocalDateTime applyAt, Pageable pageable);
 
     Optional<Notice> findByIdAndDeletedFalse(Long id);
+
+    List<Notice> findByDeletedFalse(Sort sort);
 }
