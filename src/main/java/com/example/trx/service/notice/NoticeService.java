@@ -95,6 +95,15 @@ public class NoticeService {
         return toResponse(notice);
     }
 
+    @Transactional(readOnly = true)
+    public List<NoticeSummaryResponse> getAllNoticesForAdmin() {
+        Sort sort = Sort.by(Sort.Order.desc("createdAt"));
+        return noticeRepository.findByDeletedFalse(sort)
+            .stream()
+            .map(this::toSummary)
+            .collect(Collectors.toList());
+    }
+
     @Transactional
     public NoticeResponse updateNotice(Long noticeId, NoticeUpdateRequest request) {
         Notice notice = noticeRepository.findByIdAndDeletedFalse(noticeId)
