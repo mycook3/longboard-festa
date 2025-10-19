@@ -10,5 +10,7 @@ public class ScoreResponse {
   private Long id;
   private Long judgeId;
   private String judgeName;
+  private String status;
   private BigDecimal score;
+  private String breakdownJson;
 }
