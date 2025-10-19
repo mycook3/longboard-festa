@@ -78,7 +78,7 @@ public class ContestEventController {
 
   @Operation(summary = "종목명, division, 라운드명 기반 종목 정보 반환", description = "선택된 종목의 정보를 반환합니다")
   @ResponseStatus(HttpStatus.OK)
-  @GetMapping("/")
+  @GetMapping("")
   public ApiResult<ContestEventResponse> getContestEventByTypeAndDivision(
       @RequestParam(required = true) String event,
       @RequestParam(required = true) String division,
