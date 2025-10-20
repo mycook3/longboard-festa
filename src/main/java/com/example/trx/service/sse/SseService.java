@@ -1,6 +1,7 @@
 package com.example.trx.service.sse;
 
 import com.example.trx.support.util.SseEvent;
+import com.example.trx.support.util.SseEventType;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,16 +16,16 @@ public class SseService {
 
   private final ConcurrentHashMap<String, SseEmitter> emitters = new ConcurrentHashMap<>();
 
+  @Scheduled(fixedRate = 15000) //15초
+  public void hearbeat() {
+    broadCast(SseEvent.of(SseEventType.PING, "keep-alive"));
+  }
+
   public SseEmitter subscribe(String sessionId) {
     SseEmitter emitter = createSseEmitter(sessionId);
     String at = Long.toHexString(System.currentTimeMillis());
-    sendMessage(sessionId, at, SseEvent.of("created", "sse emitter created"));
+    sendMessage(sessionId, at, SseEvent.of(SseEventType.EMITTER_CREATED, "sse emitter created"));
     return emitter;
-  }
-
-  @Scheduled(fixedRate = 15000) //15초
-  public void hearbeat() {
-    broadCast(SseEvent.of("ping", "keep-alive"));
   }
 
   private SseEmitter createSseEmitter(String sessionId) {
@@ -48,7 +49,7 @@ public class SseService {
   private void sendMessage(String sessionId, String sentTime, SseEvent event) {
     SseEmitter emitter = emitters.get(sessionId);
     String messageId = sessionId + "_" + sentTime;
-    String name = event.getType();
+    String name = event.getType().name();
     String message = event.getMessage();
 
     if (emitter != null) {
