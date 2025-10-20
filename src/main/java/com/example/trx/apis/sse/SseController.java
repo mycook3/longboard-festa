@@ -2,6 +2,7 @@ package com.example.trx.apis.sse;
 
 import com.example.trx.service.sse.SseService;
 import com.example.trx.support.util.SseEvent;
+import com.example.trx.support.util.SseEventType;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,6 @@ public class SseController {
 
   @GetMapping("/test")
   public void sseTest() {
-    sseService.broadCast(SseEvent.of("test", "hello"));
+    sseService.broadCast(SseEvent.of(SseEventType.TEST, "test succeed"));
   }
 }

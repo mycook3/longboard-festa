@@ -16,6 +16,7 @@ import com.example.trx.domain.event.round.match.Match;
 import com.example.trx.domain.event.round.run.Run;
 import com.example.trx.domain.event.round.run.score.ScoreTotal;
 import com.example.trx.support.util.SseEvent;
+import com.example.trx.support.util.SseEventType;
 import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -42,22 +43,35 @@ public class ContestEventApplicationService {
     return makeContestEventResponse(contestEvent, roundNames);
   }
 
+  @Transactional
+  public List<ContestEventResponse> getContestEventsInProgress() {
+    List<ContestEvent> contestEvents = domainService.getContestEventsInProgress();
+    return contestEvents.stream().map(contestEvent ->
+        makeContestEventResponse(contestEvent, List.of(contestEvent.getCurrentRound().getName()))
+    ).toList();
+  }
+
   //Transaction 동작 방식에 따라 Transactional을 붙이면 안됩니다
   public void startContestEvent(Long eventId) {
     domainService.initContest(eventId);
     domainService.startCurrentRound(eventId);
+
+    eventPublisher.publishEvent(SseEvent.of(SseEventType.CONTEST_EVENT_STARTED, eventId));
   }
 
   public void endContestEvent(Long eventId) {
     domainService.endContestEvent(eventId);
+    eventPublisher.publishEvent(SseEvent.of(SseEventType.CONTEST_EVENT_ENDED, eventId));
   }
 
   public void proceedRun(Long eventId) {
     domainService.proceedRun(eventId);
+    eventPublisher.publishEvent(SseEvent.of(SseEventType.RUN_PROCEEDED, eventId));
   }
 
   public void proceedRound(Long eventId) {
     domainService.proceedRound(eventId);
+    eventPublisher.publishEvent(SseEvent.of(SseEventType.ROUND_PROCEEDED, eventId));
   }
 
   public void addRound(Long contestId, AddRoundRequest request){
@@ -70,10 +84,12 @@ public class ContestEventApplicationService {
 
   public void makeMatchBye(Long matchId) {
     domainService.makeMatchBye(matchId);
+    eventPublisher.publishEvent(SseEvent.of(SseEventType.MADE_BYE, matchId));
   }
 
   public void makeManualParticipant(Long matchId, Long participantId) {
     domainService.makeManualParticipant(matchId, participantId);
+    eventPublisher.publishEvent(SseEvent.of(SseEventType.MADE_MANUAL_WINNER, matchId));
   }
 
   public void deleteRound(Long roundId) {
@@ -82,10 +98,12 @@ public class ContestEventApplicationService {
 
   public void submitScore(Long runId, SubmitScoreRequest request) {
     domainService.submitScore(runId, request.getJudgeId(), request.getScoreTotal(), request.getBreakdownJson());
+    eventPublisher.publishEvent(SseEvent.of(SseEventType.SCORE_SUBMITTED, runId));
   }
 
   public void editScore(Long scoreId, EditScoreRequest request) {
     domainService.editScore(scoreId, request.getScoreTotal(), request.getBreakdownJson(), request.getEditedBy(), request.getEditReason());
+    eventPublisher.publishEvent(SseEvent.of(SseEventType.SCORE_EDITED, scoreId));
   }
 
   private ContestEventResponse makeContestEventResponse(ContestEvent contestEvent, List<String> roundNames) {
