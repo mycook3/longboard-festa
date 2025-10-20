@@ -10,9 +10,11 @@ import com.example.trx.domain.user.Participant;
 import com.example.trx.domain.user.UserStatus;
 import com.example.trx.repository.event.ContestEventRepository;
 import com.example.trx.repository.user.ParticipantRepository;
+import java.io.File;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,8 +42,10 @@ public class ParticipantService {
         @Transactional
       public int readExcel() throws IOException {
           int count = 0;
+          ClassPathResource resource = new ClassPathResource("data.xlsx");
+          File file = resource.getFile();
           String filePath = "C:\\Users\\mycoo\\Documents\\카카오톡 받은 파일\\data.xlsx";
-          try (FileInputStream fis = new FileInputStream(filePath);
+          try (FileInputStream fis = new FileInputStream(file);
                Workbook workbook = new XSSFWorkbook(fis)) {
 
               SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd"); // 원하는 날짜 포맷 지정

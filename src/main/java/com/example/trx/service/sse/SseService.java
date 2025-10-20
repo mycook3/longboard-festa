@@ -2,8 +2,10 @@ package com.example.trx.service.sse;
 
 import com.example.trx.support.util.SseEvent;
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -20,8 +22,17 @@ public class SseService {
     return emitter;
   }
 
+  @Scheduled(fixedRate = 15000) //15초
+  public void hearbeat() {
+    broadCast(SseEvent.of("ping", "keep-alive"));
+  }
+
   private SseEmitter createSseEmitter(String sessionId) {
     SseEmitter emitter = new SseEmitter();
+
+    emitter.onCompletion(() -> emitters.remove(sessionId));
+    emitter.onTimeout(() -> emitters.remove(sessionId));
+    emitter.onError((e) -> emitters.remove(sessionId));
 
     emitters.put(sessionId, emitter);
     return emitter;
@@ -29,8 +40,8 @@ public class SseService {
 
   public void broadCast(SseEvent event) {
     String at = Long.toHexString(System.currentTimeMillis());
-    for (String sessionId : emitters.keySet()) {
-        sendMessage(sessionId, at, event);
+    for (Map.Entry<String, SseEmitter> entry : emitters.entrySet()) {
+        sendMessage(entry.getKey(), at, event);
     }
   }
 
