@@ -3,6 +3,7 @@ package com.example.trx.domain.event.round;
 import com.example.trx.domain.event.ContestEvent;
 import com.example.trx.domain.event.RoundProgressionType;
 import com.example.trx.domain.event.round.match.Match;
+import com.example.trx.domain.event.round.match.MatchStatus;
 import com.example.trx.domain.event.round.match.MatchType;
 import com.example.trx.domain.event.round.run.Run;
 import com.example.trx.domain.event.round.run.RunStatus;
@@ -58,6 +59,10 @@ public class Round {
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "current_run_id")
   private Run currentRun;
+
+  @OneToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "current_match_id")
+  private Match currentMatch;
 
   @Enumerated(EnumType.STRING)
   @Builder.Default
@@ -137,9 +142,57 @@ public class Round {
     }
   }
 
+    /**
+   * 현재 시도를 다음으로 넘깁니다
+   * 현재 active 상태의 심사위원 전원이 점수를 제출한 경우에만 넘길 수 있습니다
+   * 라운드의 마지막 순서인 경우에는 예외를 던집니다
+   */
+  public void proceedRunOrMatch(int activeJudgesCount) {
+    RoundProgressionType progressionType = contestEvent.getProgressionType();
+
+    switch (progressionType) {
+      case SCORE_BASED -> proceedScoreBasedRun(activeJudgesCount);
+      case TOURNAMENT -> proceedTournamentMatchAndRun(activeJudgesCount);
+    }
+  }
+
+  private void proceedScoreBasedRun(int activeJudgesCount) {
+    if (currentRun == null) throw new IllegalStateException("no currentRun set");
+
+    if (currentRun.canBeCompleted(activeJudgesCount)) {
+      currentRun.markAsDone();
+      Run nextRun = findNextRun()
+          .orElseThrow(() -> new IllegalStateException("해당 라운드의 마지막 시도입니다."));
+      moveToRun(nextRun);
+    }
+    else throw new IllegalStateException("일부 심사위원이 점수를 제출하지 않았습니다.");
+  }
+
+  private void proceedTournamentMatchAndRun(int activeJudgesCount) {
+    if (currentMatch == null) throw new IllegalStateException("no currentMatch set");
+
+    if (currentMatch.canBeCompleted()) {
+      currentMatch.markAsDone();
+
+      Match nextMatch = findNextMatch()
+          .orElseThrow(() -> new IllegalStateException("해당 라운드의 마지막 매치입니다."));
+
+      moveToMatch(nextMatch);
+    }
+    else {
+      currentMatch.proceedRun(activeJudgesCount);
+    }
+  }
+
   public Optional<Run> findNextRun() {
    return runs.stream()
         .filter(run -> run.getStatus().equals(RunStatus.WAITING))
+        .findFirst();
+  }
+
+  public Optional<Match> findNextMatch() {
+   return matches.stream()
+        .filter(match -> match.getStatus().equals(MatchStatus.WAITING))
         .findFirst();
   }
 
@@ -163,8 +216,14 @@ public class Round {
 
   public void moveToRun(Run run) {
     if (run == null) throw new IllegalArgumentException("Run is null");
-    run.markAsOngoing();
     currentRun = run;
+    run.markAsOngoing();
+  }
+
+  public void moveToMatch(Match match) {
+    if (match == null) throw new IllegalArgumentException("Run is null");
+    currentMatch = match;
+    match.markAsOngoing();
   }
 
   public void markAsInProgress() {
