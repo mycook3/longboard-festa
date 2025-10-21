@@ -72,7 +72,10 @@ public class Round {
   private List<Match> matches =  new ArrayList<>();
 
   public void addParticipants(List<Participant> participants) {
-    if (participants.size() > participantLimit) throw new IllegalArgumentException("참가자 제한 수 초과");
+    if (participants.size() > participantLimit) {
+      log.info("participants.size(): {}, limit: {}", participants.size(), participantLimit);
+      throw new IllegalArgumentException("참가자 제한 수 초과");
+    }
     RoundProgressionType progressionType = contestEvent.getProgressionType();
 
     switch (progressionType) {
