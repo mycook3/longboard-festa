@@ -4,20 +4,20 @@ import lombok.Getter;
 
 @Getter
 public class SseEvent {
-  String type;
+  SseEventType type;
   String message;
 
   private SseEvent() {
-    this.type = "";
+    this.type = SseEventType.NONE;
     this.message = "";
   }
 
-  private SseEvent(String type, String message) {
+  private SseEvent(SseEventType type, String message) {
     this.type = type;
     this.message = message;
   }
 
-  public static SseEvent of(String type, String message) {
-    return new SseEvent(type, message);
+  public static SseEvent of(SseEventType type, Object obj) {
+    return new SseEvent(type, obj.toString());
   }
 }
