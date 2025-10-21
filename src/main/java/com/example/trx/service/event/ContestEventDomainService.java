@@ -103,7 +103,7 @@ public class ContestEventDomainService {
   public void proceedRun(Long eventId) {
     ContestEvent contestEvent = getContestEventById(eventId);
     int activeJudgesCount = judgeRepository.findAllByDeletedFalse().size();
-    contestEvent.proceedRun(activeJudgesCount);
+    contestEvent.proceedRunOrMatch(activeJudgesCount);
   }
 
   @Transactional

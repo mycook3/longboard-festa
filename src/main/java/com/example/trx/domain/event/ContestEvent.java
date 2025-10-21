@@ -125,20 +125,11 @@ public class ContestEvent {//Aggregate Root
    * 현재 active 상태의 심사위원 전원이 점수를 제출한 경우에만 넘길 수 있습니다
    * 라운드의 마지막 순서인 경우에는 예외를 던집니다
    */
-  public void proceedRun(int activeJudgesCount) {
+  public void proceedRunOrMatch(int activeJudgesCount) {
     if (contestEventStatus != ContestEventStatus.IN_PROGRESS) throw new IllegalStateException("시작하지 않았거나 종료된 종목입니다.");
     if (rounds.isEmpty()) throw new IllegalStateException("No round has been set");
 
-    Run currentRun = this.getCurrentRun();
-
-    if (currentRun.canBeCompleted(activeJudgesCount)) {
-      currentRun.markAsDone();
-      Run nextRun = currentRound.findNextRun()
-          .orElseThrow(() -> new IllegalStateException("해당 라운드의 마지막 시도입니다."));
-
-      currentRound.moveToRun(nextRun);
-    }
-    else throw new IllegalStateException("일부 심사위원이 점수를 제출하지 않았습니다.");//TODO
+    currentRound.proceedRunOrMatch(activeJudgesCount);
   }
 
    /**
