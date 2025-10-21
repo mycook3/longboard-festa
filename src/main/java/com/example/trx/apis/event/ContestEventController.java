@@ -87,6 +87,14 @@ public class ContestEventController {
     return ApiResult.succeed(contestEventService.getContestEventByEventNameAndDivision(event, division, round));
   }
 
+  @Operation(summary = "현재 진행 중인 라운드 정보를 반환", description = "현재 진행 중인 모든 종목의 현재 라운드 정보를 반환")
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping("/current")
+  public ApiResult<List<ContestEventResponse>> getContestsInProgressFilteringCurrentRound() {
+    return ApiResult.succeed(contestEventService.getContestEventsInProgress());
+  }
+
+
   @Operation(summary = "채점 정보 제출", description = "특정 시도에 대한 채점 정보를 제출합니다")
   @ResponseStatus(HttpStatus.OK)
   @PreAuthorize("hasRole('JUDGE')")
