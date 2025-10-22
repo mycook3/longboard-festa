@@ -9,7 +9,6 @@ import com.example.trx.domain.event.round.Round;
 import com.example.trx.domain.event.exception.ContestEventNotFound;
 import com.example.trx.domain.event.round.RoundStatus;
 import com.example.trx.domain.event.round.match.Match;
-import com.example.trx.domain.event.round.match.MatchType;
 import com.example.trx.domain.judge.Judge;
 import com.example.trx.domain.judge.exception.JudgeNotFoundException;
 import com.example.trx.domain.event.round.run.Run;
@@ -135,7 +134,8 @@ public class ContestEventDomainService {
   @Transactional
   public void makeMatchBye(Long matchId) {
     Match match = matchRepository.findById(matchId).orElseThrow(IllegalArgumentException::new);
-    match.setMatchType(MatchType.BYE);
+    Round round = match.getRound();
+    round.makeMatchBye(match);
   }
 
   @Transactional
@@ -143,6 +143,13 @@ public class ContestEventDomainService {
     Match match = matchRepository.findById(matchId).orElseThrow(IllegalArgumentException::new);
     Participant participant = participantRepository.findById(participantId).orElseThrow(IllegalArgumentException::new);
 
-    match.setWinner(participant);
+    Round round = match.getRound();
+    round.setManualWinner(match, participant);
+  }
+
+  @Transactional
+  public void calculateMatchResult(Long matchId) {
+    Match match = matchRepository.findById(matchId).orElseThrow(IllegalArgumentException::new);
+    match.getWinner();
   }
 }

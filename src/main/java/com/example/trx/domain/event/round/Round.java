@@ -8,7 +8,6 @@ import com.example.trx.domain.event.round.match.MatchType;
 import com.example.trx.domain.event.round.run.Run;
 import com.example.trx.domain.event.round.run.RunStatus;
 import com.example.trx.domain.judge.Judge;
-import com.example.trx.domain.event.round.run.score.ScoreStatus;
 import com.example.trx.domain.event.round.run.score.ScoreTotal;
 import com.example.trx.domain.user.Participant;
 import jakarta.persistence.CascadeType;
@@ -184,6 +183,16 @@ public class Round {
     }
   }
 
+  public void makeMatchBye(Match match) {
+    if (!matches.contains(match)) throw new IllegalArgumentException("이 라운드에 해당하는 매치가 아닙니다");
+    match.markAsBye();
+  }
+
+  public void setManualWinner(Match match, Participant participant) {
+    if (!matches.contains(match)) throw new IllegalArgumentException("이 라운드에 해당하는 매치가 아닙니다");
+    match.setManualWinner(participant);
+  }
+
   public Optional<Run> findNextRun() {
    return runs.stream()
         .filter(run -> run.getStatus().equals(RunStatus.WAITING))
@@ -198,6 +207,32 @@ public class Round {
 
   public void start(List<Judge> judges) {
     if (runs.isEmpty()) throw new IllegalStateException("no runs added");
+    RoundProgressionType progressionType = contestEvent.getProgressionType();
+
+    switch (progressionType) {
+      case SCORE_BASED -> initScoreBasedRuns(judges);
+      case TOURNAMENT -> initTournamentMatches(judges);
+    }
+  }
+
+  private void initScoreBasedRuns(List<Judge> judges) {
+    for (Run run: runs) {
+        for (Judge judge: judges) {
+          ScoreTotal emptyScoreSheet = ScoreTotal.builder()
+              .judge(judge)
+              .breakdownJson("")
+              .total(BigDecimal.ZERO)
+              .build();
+
+          run.addScore(emptyScoreSheet);
+        }
+      }
+
+      currentRun = runs.get(0);
+      currentRun.markAsOngoing();
+  }
+
+  private void initTournamentMatches(List<Judge> judges) {
     for (Run run: runs) {
       for (Judge judge: judges) {
         ScoreTotal emptyScoreSheet = ScoreTotal.builder()
@@ -205,13 +240,13 @@ public class Round {
             .breakdownJson("")
             .total(BigDecimal.ZERO)
             .build();
-
         run.addScore(emptyScoreSheet);
       }
     }
 
-    currentRun = runs.get(0);
-    currentRun.markAsOngoing();
+    currentMatch = matches.get(0);
+    currentMatch.markAsOngoing();
+    currentMatch.start();
   }
 
   public void moveToRun(Run run) {
