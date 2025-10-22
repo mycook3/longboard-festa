@@ -65,6 +65,16 @@ public class Match {
   @Builder.Default
   private MatchType matchType = MatchType.NORMAL;
 
+  public void start() {
+     if (runs.isEmpty()) throw new IllegalStateException("no runs added");
+
+     currentRun = runs.get(0);
+
+
+
+
+  }
+
   public void addRun(Run run) {
     run.setMatch(this);
     runs.add(run);
@@ -140,5 +150,18 @@ public class Match {
     else throw new IllegalStateException("동점자 발생");
 
     return winners;
+  }
+
+  public void markAsBye() {
+    this.matchType = MatchType.BYE;
+    this.status = MatchStatus.DONE;
+  }
+
+  public void setManualWinner(Participant winner) {
+    if (!participant1.equals(winner) && !participant2.equals(winner)) {
+      throw new IllegalArgumentException("해당 매치의 참가자가 아닙니다");
+    }
+    this.winner = winner;
+    this.status = MatchStatus.DONE;
   }
 }
