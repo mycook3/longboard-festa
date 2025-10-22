@@ -59,9 +59,9 @@ public class ContestEventDomainService {
   }
 
   @Transactional
-  public ContestEvent getContestEventsRoundInProgress() {
-    Round round = roundRepository.findRoundByStatus(RoundStatus.IN_PROGRESS).orElse(null);
-    return round == null ? null : round.getContestEvent();
+  public List<ContestEvent> getContestEventsRoundInProgress() {
+    List<Round> rounds = roundRepository.findRoundsByStatus(RoundStatus.IN_PROGRESS);
+    return rounds.stream().map(Round::getContestEvent).toList();
   }
 
   @Transactional

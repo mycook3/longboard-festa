@@ -94,7 +94,6 @@ public class ContestEvent {//Aggregate Root
     contestEventStatus = ContestEventStatus.IN_PROGRESS;
 
     currentRound = rounds.get(0);
-    currentRound.markAsInProgress();
 
     List<Participant> activeParticipants = participations.stream()
         .filter(p -> p.getStatus() == ParticipationStatus.ACTIVE)
