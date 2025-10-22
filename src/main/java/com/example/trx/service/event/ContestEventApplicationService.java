@@ -134,8 +134,6 @@ public class ContestEventApplicationService {
   private List<RoundResponse> makeRoundResponseList(List<Round> rounds, List<String> roundNames) {
     if (rounds.isEmpty()) return Collections.emptyList();
 
-    boolean isTournament = rounds.get(0).getContestEvent().getProgressionType() == RoundProgressionType.TOURNAMENT;
-
     return rounds.stream()
         .filter(
             round -> roundNames == null || roundNames.isEmpty() ||

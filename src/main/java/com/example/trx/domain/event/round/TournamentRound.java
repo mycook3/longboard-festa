@@ -34,6 +34,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -41,37 +42,12 @@ import lombok.extern.slf4j.Slf4j;
 @DiscriminatorValue("TOURNAMENT")
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Data
 public class TournamentRound extends Round {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  private ContestEvent contestEvent;
-
-  private String name;
-  private Integer participantLimit;
-
-  @Builder.Default
-  private Integer runsPerParticipant = 1;
-
-  @OneToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "current_run_id")
-  private Run currentRun;
-
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "current_match_id")
   private Match currentMatch;
-
-  @Enumerated(EnumType.STRING)
-  @Builder.Default
-  private RoundStatus status = RoundStatus.BEFORE;
-
-  @OneToMany(mappedBy = "round", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-  @Builder.Default
-  private List<Run> runs =  new ArrayList<>();
 
   @OneToMany(mappedBy = "round", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   @Builder.Default
@@ -126,20 +102,30 @@ public class TournamentRound extends Round {
    */
   @Override
   public void proceed(int activeJudgesCount) {
-
     if (currentMatch == null) throw new IllegalStateException("no currentMatch set");
 
-    if (currentMatch.canBeCompleted()) {
-      currentMatch.markAsDone();
-
-      Match nextMatch = findNextMatch()
-          .orElseThrow(() -> new IllegalStateException("해당 라운드의 마지막 매치입니다."));
-
-      moveToMatch(nextMatch);
+    if (currentMatch.isCompleted()) {//현재 매치가 완료된 상태라면
+      Optional<Match> nextMatch = findNextMatch();
+      if (nextMatch.isPresent()) proceedMatch(nextMatch.get());
+      else markAsCompleted();
     }
     else {
-      currentMatch.proceedRun(activeJudgesCount);
+      proceedRun(activeJudgesCount);
     }
+  }
+
+  private void proceedRun(int activeJudgeCount) {
+    if (currentMatch == null) throw new IllegalStateException("현재 진행 중인 매치가 없습니다");
+
+    currentMatch.proceedRun(activeJudgeCount);
+  }
+
+  private void proceedMatch(Match nextMatch) {
+    if (nextMatch == null) throw new IllegalArgumentException("다음 매치가 null입니다");
+    if (!currentMatch.isCompleted()) throw new IllegalStateException("아직 시작하지 않았거나 진행 중인 매치입니다");
+
+    currentMatch = nextMatch;
+    moveToMatch(nextMatch);
   }
 
   public void makeMatchBye(Match match) {
@@ -152,16 +138,16 @@ public class TournamentRound extends Round {
     match.setManualWinner(participant);
   }
 
-  public Optional<Run> findNextRun() {
-   return runs.stream()
-        .filter(run -> run.getStatus().equals(RunStatus.WAITING))
-        .findFirst();
-  }
-
   public Optional<Match> findNextMatch() {
    return matches.stream()
         .filter(match -> match.getStatus().equals(MatchStatus.WAITING))
         .findFirst();
+  }
+
+  private void moveToMatch(Match match) {
+    if (match == null) throw new IllegalArgumentException("Run is null");
+    currentMatch = match;
+    match.markAsOngoing();
   }
 
   @Override
@@ -185,12 +171,6 @@ public class TournamentRound extends Round {
     currentMatch = matches.get(0);
     currentMatch.markAsOngoing();
     currentMatch.start();
-  }
-
-  private void moveToMatch(Match match) {
-    if (match == null) throw new IllegalArgumentException("Run is null");
-    currentMatch = match;
-    match.markAsOngoing();
   }
 
   @Override
