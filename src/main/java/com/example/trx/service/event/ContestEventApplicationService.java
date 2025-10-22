@@ -44,9 +44,14 @@ public class ContestEventApplicationService {
   }
 
   @Transactional
-  public ContestEventResponse getContestEventsRoundInProgress() {
-    ContestEvent contestEvents = domainService.getContestEventsRoundInProgress();
-    return makeContestEventResponse(contestEvents, List.of(contestEvents.getCurrentRound().getName()));
+  public List<ContestEventResponse> getContestEventsRoundInProgress() {
+    List<ContestEvent> currentEvents = domainService.getContestEventsRoundInProgress();
+    return currentEvents.stream().map(contestEvent ->
+        makeContestEventResponse(contestEvent,
+            contestEvent.getCurrentRound() == null
+                ? null
+                : List.of(contestEvent.getCurrentRound().getName())))
+        .toList();
   }
 
   //Transaction 동작 방식에 따라 Transactional을 붙이면 안됩니다
@@ -105,6 +110,7 @@ public class ContestEventApplicationService {
   }
 
   private ContestEventResponse makeContestEventResponse(ContestEvent contestEvent, List<String> roundNames) {
+    if (contestEvent == null) return null;
     return ContestEventResponse.builder()
         .id(contestEvent.getId())
         .eventName(contestEvent.getDisciplineCode().name())
@@ -146,6 +152,7 @@ public class ContestEventApplicationService {
   }
 
   private List<MatchResponse> makeMatchResponseList(List<Match> matches) {
+    if (matches == null) return Collections.emptyList();
     return matches.stream()
         .map( match ->
             MatchResponse.builder()
@@ -162,6 +169,8 @@ public class ContestEventApplicationService {
   }
 
   private List<RunResponse> makeRunResponseList(List<Run> runs) {
+    if (runs == null) return Collections.emptyList();
+
     return runs.stream()
         .map(run ->
             RunResponse.builder()
@@ -177,6 +186,7 @@ public class ContestEventApplicationService {
   }
 
   private List<ScoreResponse> makeScoreResponseList(List<ScoreTotal> scores) {
+    if (scores == null) return Collections.emptyList();
     return scores.stream()
         .map(score ->
             ScoreResponse.builder()
