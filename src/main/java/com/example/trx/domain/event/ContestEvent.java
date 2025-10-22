@@ -161,16 +161,17 @@ public class ContestEvent {//Aggregate Root
     Round nextRound = findNextRound().orElse(null);
     boolean isLast = nextRound == null;
 
-    if (isLast) currentRound.markAsCompleted();
-    else if (currentRound.canBeCompleted()) {
-      currentRound.markAsCompleted();
+    if (!currentRound.canBeCompleted()) return;
 
-      List<Participant> survivors = currentRound.getSurvivors(nextRound);
-      nextRound.addParticipants(survivors);
-      nextRound.markAsInProgress();
+    currentRound.markAsCompleted();
 
-      currentRound = nextRound;
-    }
+    if (isLast) return;
+
+    List<Participant> survivors = currentRound.getSurvivors(nextRound);
+    nextRound.addParticipants(survivors);
+    nextRound.markAsInProgress();
+
+    currentRound = nextRound;
   }
 
   /**
