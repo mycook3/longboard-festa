@@ -77,6 +77,11 @@ public class ContestEventApplicationService {
     eventPublisher.publishEvent(SseEvent.of(SseEventType.ROUND_PROCEEDED, eventId));
   }
 
+  public void startCurrentRound(Long eventId) {
+    domainService.startCurrentRound(eventId);
+    eventPublisher.publishEvent(SseEvent.of(SseEventType.ROUND_STARTED, eventId));
+  }
+
   public void addRound(Long contestId, AddRoundRequest request){
     domainService.addRound(contestId, request.getRoundName(), request.getLimit(), request.getRunPerParticipant());
   }
