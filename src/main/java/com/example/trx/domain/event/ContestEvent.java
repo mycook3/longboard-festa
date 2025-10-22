@@ -82,7 +82,6 @@ public class ContestEvent {//Aggregate Root
           .name(roundName)
           .status(RoundStatus.BEFORE)
           .runsPerParticipant(runPerParticipant)
-          .progressionType(this.progressionType)
           .participantLimit(limit)
           .build();
     } else {
@@ -91,7 +90,6 @@ public class ContestEvent {//Aggregate Root
           .name(roundName)
           .status(RoundStatus.BEFORE)
           .runsPerParticipant(runPerParticipant)
-          .progressionType(this.progressionType)
           .participantLimit(limit)
           .build();
     }

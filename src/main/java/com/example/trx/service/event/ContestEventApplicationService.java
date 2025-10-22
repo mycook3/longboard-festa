@@ -10,7 +10,6 @@ import com.example.trx.apis.event.dto.response.RunResponse;
 import com.example.trx.apis.event.dto.response.ScoreResponse;
 import com.example.trx.apis.event.dto.request.SubmitScoreRequest;
 import com.example.trx.domain.event.ContestEvent;
-import com.example.trx.domain.event.RoundProgressionType;
 import com.example.trx.domain.event.round.Round;
 import com.example.trx.domain.event.round.ScoreBasedRound;
 import com.example.trx.domain.event.round.TournamentRound;
@@ -23,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Hibernate;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -128,7 +128,7 @@ public class ContestEventApplicationService {
         .division(contestEvent.getDivision().name())
         .currentRound(contestEvent.getCurrentRound() != null
             ? contestEvent.getCurrentRound().getName()
-            : "")
+            : null)
         .rounds(makeRoundResponseList(contestEvent.getRounds(), roundNames))
         .build();
   }
@@ -141,10 +141,13 @@ public class ContestEventApplicationService {
             round -> roundNames == null || roundNames.isEmpty() ||
             roundNames.contains(round.getName())
         )
-        .map( round -> {//TODO
-          if (round instanceof TournamentRound tournamentRound) return toRoundResponse(tournamentRound);
-          if (round instanceof ScoreBasedRound scoreBasedRound) return toRoundResponse(scoreBasedRound);
-          log.warn("null round object {}", round.getId());
+        .map( round -> {//프록시 객체
+          Round actual = (Round) Hibernate.unproxy(round);//언프록시
+
+          if (actual instanceof TournamentRound tournamentRound) return toRoundResponse(tournamentRound);
+          if (actual instanceof ScoreBasedRound scoreBasedRound) return toRoundResponse(scoreBasedRound);
+          log.warn("null round object {}", actual.getId());
+
           return null;
         })
         .toList();

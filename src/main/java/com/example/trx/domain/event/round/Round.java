@@ -21,6 +21,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.Transient;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -32,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Entity
-@DiscriminatorColumn(name = "progressionType")
+@DiscriminatorColumn(name = "progression_type")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @NoArgsConstructor
 @AllArgsConstructor
@@ -45,11 +46,6 @@ public abstract class Round {
 
   @ManyToOne(fetch = FetchType.LAZY)
   protected ContestEvent contestEvent;
-
-  @Enumerated(value = EnumType.STRING)
-  @Column(updatable = false, insertable = false)
-  @Builder.Default
-  protected RoundProgressionType progressionType = RoundProgressionType.SCORE_BASED;
 
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "current_run_id")
