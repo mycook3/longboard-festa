@@ -72,7 +72,7 @@ public class ContestEventApplicationService {
   }
 
   public void proceedRun(Long eventId) {
-    domainService.proceedRun(eventId);
+    domainService.proceedRunOrMatch(eventId);
     eventPublisher.publishEvent(SseEvent.of(SseEventType.RUN_PROCEEDED, eventId));
   }
 

@@ -25,7 +25,6 @@ public class JudgeCreateRequest {
     @NotBlank
     private String password;
 
-    @NotNull
     private DisciplineCode disciplineCode;
 
     @NotNull
