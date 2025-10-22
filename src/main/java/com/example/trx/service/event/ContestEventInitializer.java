@@ -71,6 +71,8 @@ public class ContestEventInitializer implements ApplicationRunner {
       ContestEvent cev = contestEventRepository.findContestEventByDivisionAndDisciplineCode(division, DisciplineCode.FREESTYLE)
           .orElseThrow(() -> new ContestEventNotFound(division, DisciplineCode.FREESTYLE));
 
+      if (!cev.getRounds().isEmpty()) continue;
+
       switch (division) {
         case BEGINNER -> addRounds(cev, beginner, 1);
         case OPEN -> addRounds(cev, open, 1);
@@ -103,6 +105,8 @@ public class ContestEventInitializer implements ApplicationRunner {
       ContestEvent cev = contestEventRepository.findContestEventByDivisionAndDisciplineCode(division, DisciplineCode.SLALOM)
           .orElseThrow(() -> new ContestEventNotFound(division, DisciplineCode.SLALOM));
 
+      if (!cev.getRounds().isEmpty()) continue;
+
       cev.setProgressionType(RoundProgressionType.TOURNAMENT);
 
       switch (division) {
@@ -129,6 +133,8 @@ public class ContestEventInitializer implements ApplicationRunner {
     for (Division division : Division.values()) {
       ContestEvent cev = contestEventRepository.findContestEventByDivisionAndDisciplineCode(division, DisciplineCode.LONGBOARD_DANCING)
           .orElseThrow(() -> new ContestEventNotFound(division, DisciplineCode.LONGBOARD_DANCING));
+
+      if (!cev.getRounds().isEmpty()) continue;
 
       switch (division) {
         case BEGINNER -> addRounds(cev, beginner, 2);
