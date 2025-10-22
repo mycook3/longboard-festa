@@ -58,8 +58,10 @@ public class ContestEventDomainService {
         .orElseThrow(() -> new ContestEventNotFound(contestEventId));
   }
 
-  public List<ContestEvent> getContestEventsInProgress() {
-    return contestEventRepository.findContestEventByContestEventStatus(IN_PROGRESS);
+  @Transactional
+  public ContestEvent getContestEventsRoundInProgress() {
+    Round round = roundRepository.findRoundByStatus(RoundStatus.IN_PROGRESS).orElse(null);
+    return round == null ? null : round.getContestEvent();
   }
 
   @Transactional
