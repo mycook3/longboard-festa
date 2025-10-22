@@ -12,6 +12,8 @@ import com.example.trx.apis.event.dto.request.SubmitScoreRequest;
 import com.example.trx.domain.event.ContestEvent;
 import com.example.trx.domain.event.RoundProgressionType;
 import com.example.trx.domain.event.round.Round;
+import com.example.trx.domain.event.round.ScoreBasedRound;
+import com.example.trx.domain.event.round.TournamentRound;
 import com.example.trx.domain.event.round.match.Match;
 import com.example.trx.domain.event.round.run.Run;
 import com.example.trx.domain.event.round.run.score.ScoreTotal;
@@ -139,21 +141,10 @@ public class ContestEventApplicationService {
             round -> roundNames == null || roundNames.isEmpty() ||
             roundNames.contains(round.getName())
         )
-        .map( round ->
-            RoundResponse.builder()
-                .id(round.getId())
-                .name(round.getName())
-                .participantLimit(round.getParticipantLimit())
-                .status(round.getStatus().name())
-                .currentRunId(round.getCurrentRun() != null
-                    ? round.getCurrentRun().getId()
-                    : null
-                )
-                .currentMatchId( )
-                .matches(isTournament ? makeMatchResponseList(round.getMatches()) : null)
-                .runs(!isTournament ? makeRunResponseList(round.getRuns()) : null)
-                .build()
-        )
+        .map( round -> {//TODO
+          if (round instanceof TournamentRound) return toRoundResponse((TournamentRound) round);
+          return toRoundResponse((ScoreBasedRound) round);
+        })
         .toList();
   }
 
@@ -205,5 +196,41 @@ public class ContestEventApplicationService {
                 .build()
             )
         .toList();
+  }
+
+  private RoundResponse toRoundResponse(ScoreBasedRound round) {
+     return RoundResponse.builder()
+        .id(round.getId())
+        .name(round.getName())
+        .participantLimit(round.getParticipantLimit())
+        .status(round.getStatus().name())
+        .currentRunId(
+            round.getCurrentRun() != null
+                ? round.getCurrentRun().getId()
+                : null
+        )
+        .currentMatchId(null)
+        .runs(makeRunResponseList(round.getRuns()))
+        .build();
+  }
+
+  private RoundResponse toRoundResponse(TournamentRound round) {
+      return RoundResponse.builder()
+          .id(round.getId())
+          .name(round.getName())
+          .participantLimit(round.getParticipantLimit())
+          .status(round.getStatus().name())
+          .currentRunId(
+              round.getCurrentRun() != null
+                  ? round.getCurrentRun().getId()
+                  : null
+          )
+          .currentMatchId(
+              round.getCurrentMatch() != null
+                ? round.getCurrentMatch().getId()
+                : null
+          )
+          .matches(makeMatchResponseList(round.getMatches()))
+          .build();
   }
 }

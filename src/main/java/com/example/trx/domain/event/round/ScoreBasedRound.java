@@ -22,12 +22,14 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Entity
+@Data
 @DiscriminatorValue("SCORE_BASED")
 @NoArgsConstructor
 @AllArgsConstructor
