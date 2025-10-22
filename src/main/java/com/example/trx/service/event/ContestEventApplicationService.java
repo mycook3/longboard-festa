@@ -44,11 +44,14 @@ public class ContestEventApplicationService {
   }
 
   @Transactional
-  public List<ContestEventResponse> getContestEventsInProgress() {
-    List<ContestEvent> contestEvents = domainService.getContestEventsInProgress();
-    return contestEvents.stream().map(contestEvent ->
-        makeContestEventResponse(contestEvent, List.of(contestEvent.getCurrentRound().getName()))
-    ).toList();
+  public List<ContestEventResponse> getContestEventsRoundInProgress() {
+    List<ContestEvent> currentEvents = domainService.getContestEventsRoundInProgress();
+    return currentEvents.stream().map(contestEvent ->
+        makeContestEventResponse(contestEvent,
+            contestEvent.getCurrentRound() == null
+                ? null
+                : List.of(contestEvent.getCurrentRound().getName())))
+        .toList();
   }
 
   //Transaction 동작 방식에 따라 Transactional을 붙이면 안됩니다
@@ -72,6 +75,11 @@ public class ContestEventApplicationService {
   public void proceedRound(Long eventId) {
     domainService.proceedRound(eventId);
     eventPublisher.publishEvent(SseEvent.of(SseEventType.ROUND_PROCEEDED, eventId));
+  }
+
+  public void startCurrentRound(Long eventId) {
+    domainService.startCurrentRound(eventId);
+    eventPublisher.publishEvent(SseEvent.of(SseEventType.ROUND_STARTED, eventId));
   }
 
   public void addRound(Long contestId, AddRoundRequest request){
@@ -107,6 +115,7 @@ public class ContestEventApplicationService {
   }
 
   private ContestEventResponse makeContestEventResponse(ContestEvent contestEvent, List<String> roundNames) {
+    if (contestEvent == null) return null;
     return ContestEventResponse.builder()
         .id(contestEvent.getId())
         .eventName(contestEvent.getDisciplineCode().name())
@@ -140,6 +149,7 @@ public class ContestEventApplicationService {
                     ? round.getCurrentRun().getId()
                     : null
                 )
+                .currentMatchId( )
                 .matches(isTournament ? makeMatchResponseList(round.getMatches()) : null)
                 .runs(!isTournament ? makeRunResponseList(round.getRuns()) : null)
                 .build()
@@ -148,6 +158,7 @@ public class ContestEventApplicationService {
   }
 
   private List<MatchResponse> makeMatchResponseList(List<Match> matches) {
+    if (matches == null) return Collections.emptyList();
     return matches.stream()
         .map( match ->
             MatchResponse.builder()
@@ -164,6 +175,8 @@ public class ContestEventApplicationService {
   }
 
   private List<RunResponse> makeRunResponseList(List<Run> runs) {
+    if (runs == null) return Collections.emptyList();
+
     return runs.stream()
         .map(run ->
             RunResponse.builder()
@@ -179,6 +192,7 @@ public class ContestEventApplicationService {
   }
 
   private List<ScoreResponse> makeScoreResponseList(List<ScoreTotal> scores) {
+    if (scores == null) return Collections.emptyList();
     return scores.stream()
         .map(score ->
             ScoreResponse.builder()

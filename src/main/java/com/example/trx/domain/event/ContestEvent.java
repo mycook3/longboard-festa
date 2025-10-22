@@ -94,7 +94,6 @@ public class ContestEvent {//Aggregate Root
     contestEventStatus = ContestEventStatus.IN_PROGRESS;
 
     currentRound = rounds.get(0);
-    currentRound.markAsInProgress();
 
     List<Participant> activeParticipants = participations.stream()
         .filter(p -> p.getStatus() == ParticipationStatus.ACTIVE)
@@ -129,7 +128,7 @@ public class ContestEvent {//Aggregate Root
     if (contestEventStatus != ContestEventStatus.IN_PROGRESS) throw new IllegalStateException("시작하지 않았거나 종료된 종목입니다.");
     if (rounds.isEmpty()) throw new IllegalStateException("No round has been set");
 
-    currentRound.proceedRunOrMatch(activeJudgesCount);
+    currentRound.proceed(activeJudgesCount);
   }
 
    /**
@@ -152,16 +151,17 @@ public class ContestEvent {//Aggregate Root
     Round nextRound = findNextRound().orElse(null);
     boolean isLast = nextRound == null;
 
-    if (isLast) currentRound.markAsCompleted();
-    else if (currentRound.canBeCompleted()) {
-      currentRound.markAsCompleted();
+    if (!currentRound.canBeCompleted()) return;
 
-      List<Participant> survivors = currentRound.getSurvivors(nextRound);
-      nextRound.addParticipants(survivors);
-      nextRound.markAsInProgress();
+    currentRound.markAsCompleted();
 
-      currentRound = nextRound;
-    }
+    if (isLast) return;
+
+    List<Participant> survivors = currentRound.getSurvivors(nextRound);
+    nextRound.addParticipants(survivors);
+    nextRound.markAsInProgress();
+
+    currentRound = nextRound;
   }
 
   /**
@@ -169,7 +169,9 @@ public class ContestEvent {//Aggregate Root
    * 현재 활성화된 심사위원 목록을 가져와 그 수 * 참가자 별 시도 횟수만큼의 Run 객체를 생성, 저장합니다
    */
   public void startCurrentRound(List<Judge> activeJudges) {
+    if (contestEventStatus != ContestEventStatus.IN_PROGRESS) throw new IllegalStateException("아직 시작되지 않은 종목입니다");
     if (currentRound == null) throw new IllegalStateException("no currentRound set");
+    if (currentRound.getStatus() != RoundStatus.BEFORE) throw new IllegalStateException("이미 진행 중이거나 종료된 라운드입니다");
     currentRound.start(activeJudges);
   }
 }
