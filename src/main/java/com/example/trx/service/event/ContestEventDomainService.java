@@ -8,6 +8,7 @@ import com.example.trx.domain.event.Division;
 import com.example.trx.domain.event.round.Round;
 import com.example.trx.domain.event.exception.ContestEventNotFound;
 import com.example.trx.domain.event.round.RoundStatus;
+import com.example.trx.domain.event.round.TournamentRound;
 import com.example.trx.domain.event.round.match.Match;
 import com.example.trx.domain.judge.Judge;
 import com.example.trx.domain.judge.exception.JudgeNotFoundException;
@@ -137,7 +138,12 @@ public class ContestEventDomainService {
   public void makeMatchBye(Long matchId) {
     Match match = matchRepository.findById(matchId).orElseThrow(IllegalArgumentException::new);
     Round round = match.getRound();
-    round.makeMatchBye(match);
+    if (!(round instanceof TournamentRound tournamentRound)) {
+      throw new IllegalStateException("토너먼트 라운드가 아닙니다");
+    }
+    else {
+      tournamentRound.makeMatchBye(match);
+    }
   }
 
   @Transactional
@@ -146,7 +152,12 @@ public class ContestEventDomainService {
     Participant participant = participantRepository.findById(participantId).orElseThrow(IllegalArgumentException::new);
 
     Round round = match.getRound();
-    round.setManualWinner(match, participant);
+    if (!(round instanceof TournamentRound tournamentRound)) {
+      throw new IllegalStateException("토너먼트 라운드가 아닙니다");
+    }
+    else {
+      tournamentRound.setManualWinner(match, participant);
+    }
   }
 
   @Transactional
