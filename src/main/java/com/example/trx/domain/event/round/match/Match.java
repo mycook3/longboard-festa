@@ -89,8 +89,8 @@ public class Match {
     currentRun = run;
   }
 
-  public void proceedRun(int activeJudgesCount) {
-    if (currentRun.canBeCompleted(activeJudgesCount)) {
+  public void proceedRun() {
+    if (currentRun.canBeCompleted()) {
       currentRun.markAsDone();
       Optional<Run> nextRun = findNextRun();
 
@@ -116,18 +116,9 @@ public class Match {
     this.status = MatchStatus.DONE;
   }
 
-  public List<Participant> getWinners() {
-    List<Participant> winners = new ArrayList<>();
-
-    if (matchType == MatchType.BYE) {//부전승 처리된 경우 모두를 다음 라운드로 진행시킵니다
-      if (participant1 != null) winners.add(participant1);
-      if (participant2 != null) winners.add(participant2);
-      return winners;
-    }
-    else if (winner != null) {
-      winners.add(winner);
-      return winners;
-    }
+  public void determineWinner() {
+    if (winner != null) return;
+    if (matchType == MatchType.BYE) return;
 
     BigDecimal bestScore1 = runs.stream()
         .filter(run -> run.getParticipant().equals(participant1))
@@ -141,17 +132,24 @@ public class Match {
         .max(Comparator.naturalOrder())
         .orElse(BigDecimal.ZERO);
 
-    if (bestScore1.compareTo(bestScore2) > 0) {
-      winners.add(participant1);
-      this.winner = participant1;
-    }
-    else if (bestScore2.compareTo(bestScore1) > 0) {
-      winners.add(participant2);
-      this.winner = participant2;
-    }
-    else throw new IllegalStateException("동점자 발생");
+    int comparison = bestScore1.compareTo(bestScore2);
 
-    return winners;
+    if (comparison > 0) this.winner = participant1;
+    else if (comparison < 0) this.winner = participant2;
+    else throw new IllegalStateException("동점자 발생");
+  }
+
+  public List<Participant> getWinners() {
+    if (matchType == MatchType.BYE) {//부전승 처리된 경우 모두를 다음 라운드로 진행시킵니다
+      List<Participant> winners = new ArrayList<>();
+      if (participant1 != null) winners.add(participant1);
+      if (participant2 != null) winners.add(participant2);
+      return winners;
+    }
+
+    if (winner == null) throw new IllegalStateException("아직 매치의 승자가 결정되지 않았습니다.")
+
+    return List.of(winner);
   }
 
   public void markAsBye() {

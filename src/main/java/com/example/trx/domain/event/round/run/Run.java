@@ -78,7 +78,7 @@ public class Run extends BaseTimeEntity {
         this.status = RunStatus.ONGOING;
     }
 
-    public boolean canBeCompleted(int judgeCount) {
+    public boolean canBeCompleted() {
       return scores.stream().allMatch(scoreTotal -> scoreTotal.getStatus() == ScoreStatus.SUBMITTED);
     }
 

@@ -41,7 +41,6 @@ import lombok.extern.slf4j.Slf4j;
 @Entity
 @DiscriminatorValue("TOURNAMENT")
 @NoArgsConstructor
-@AllArgsConstructor
 @SuperBuilder
 @Data
 public class TournamentRound extends Round {
@@ -101,7 +100,7 @@ public class TournamentRound extends Round {
    * 라운드의 마지막 순서인 경우에는 예외를 던집니다
    */
   @Override
-  public void proceed(int activeJudgesCount) {
+  public void proceed() {
     if (currentMatch == null) throw new IllegalStateException("no currentMatch set");
 
     if (currentMatch.isCompleted()) {//현재 매치가 완료된 상태라면
@@ -110,14 +109,13 @@ public class TournamentRound extends Round {
       else markAsCompleted();
     }
     else {
-      proceedRun(activeJudgesCount);
+      proceedRun();
     }
   }
 
-  private void proceedRun(int activeJudgeCount) {
+  private void proceedRun() {
     if (currentMatch == null) throw new IllegalStateException("현재 진행 중인 매치가 없습니다");
-
-    currentMatch.proceedRun(activeJudgeCount);
+    currentMatch.proceedRun();
   }
 
   private void proceedMatch(Match nextMatch) {
@@ -183,6 +181,10 @@ public class TournamentRound extends Round {
    List<Participant> tournamentWinners = new ArrayList<>();
 
     for (Match match: matches) {
+      if (match.getMatchType() == MatchType.NORMAL && match.getWinner() == null) {
+        match.determineWinner();
+      }
+
       tournamentWinners.addAll(match.getWinners());
     }
 

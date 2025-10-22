@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Entity
-@DiscriminatorColumn(name = "progression_type")
+@DiscriminatorColumn(name = "progressionType")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @NoArgsConstructor
 @AllArgsConstructor
@@ -47,7 +47,7 @@ public abstract class Round {
   protected ContestEvent contestEvent;
 
   @Enumerated(value = EnumType.STRING)
-  @Column(name = "progression_type", updatable = false, insertable = false)
+  @Column(updatable = false, insertable = false)
   @Builder.Default
   protected RoundProgressionType progressionType = RoundProgressionType.SCORE_BASED;
 
@@ -78,6 +78,6 @@ public abstract class Round {
   public abstract void addParticipants(List<Participant> participants);
   public abstract void start(List<Judge> judges);
   public abstract boolean canBeCompleted();
-  public abstract void proceed(int activeJudgesCount);
+  public abstract void proceed();
   public abstract List<Participant> getSurvivors(Round nextRound);
 }
