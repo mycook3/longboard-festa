@@ -69,10 +69,7 @@ public class Match {
      if (runs.isEmpty()) throw new IllegalStateException("no runs added");
 
      currentRun = runs.get(0);
-
-
-
-
+     currentRun.markAsOngoing();
   }
 
   public void addRun(Run run) {
@@ -80,7 +77,7 @@ public class Match {
     runs.add(run);
   }
 
-  private Optional<Run> findNextRun() {
+   public Optional<Run> findNextRun() {
    return runs.stream()
         .filter(run -> run.getStatus().equals(RunStatus.WAITING))
         .findFirst();
@@ -95,15 +92,20 @@ public class Match {
   public void proceedRun(int activeJudgesCount) {
     if (currentRun.canBeCompleted(activeJudgesCount)) {
       currentRun.markAsDone();
-      Run nextRun = findNextRun()
-          .orElseThrow(() -> new IllegalStateException("해당 매치의 마지막 시도입니다."));
-      moveToRun(nextRun);
+      Optional<Run> nextRun = findNextRun();
+
+      if (nextRun.isPresent()) moveToRun(nextRun.get());
+      else markAsDone();
     }
     else throw new IllegalStateException("일부 심사위원이 점수를 제출하지 않았습니다.");
   }
 
   public boolean canBeCompleted() {
     return runs.stream().allMatch(run -> run.getStatus() == RunStatus.DONE);
+  }
+
+  public boolean isCompleted() {
+    return this.status == MatchStatus.DONE;
   }
 
   public void markAsOngoing() {

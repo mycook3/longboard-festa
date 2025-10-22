@@ -2,8 +2,10 @@ package com.example.trx.domain.event.round;
 
 import com.example.trx.domain.event.ContestEvent;
 import com.example.trx.domain.event.RoundProgressionType;
+import com.example.trx.domain.event.round.run.Run;
 import com.example.trx.domain.judge.Judge;
 import com.example.trx.domain.user.Participant;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.Entity;
@@ -15,9 +17,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -41,7 +48,16 @@ public abstract class Round {
 
   @Enumerated(value = EnumType.STRING)
   @Column(name = "progression_type", updatable = false, insertable = false)
-  protected RoundProgressionType progressionType;
+  @Builder.Default
+  protected RoundProgressionType progressionType = RoundProgressionType.SCORE_BASED;
+
+  @OneToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "current_run_id")
+  protected Run currentRun;
+
+  @OneToMany(mappedBy = "round", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @Builder.Default
+  protected List<Run> runs =  new ArrayList<>();
 
   protected String name;
   protected Integer participantLimit;

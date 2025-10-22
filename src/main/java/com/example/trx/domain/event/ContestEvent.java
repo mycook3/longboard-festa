@@ -2,6 +2,8 @@ package com.example.trx.domain.event;
 
 import com.example.trx.domain.event.round.Round;
 import com.example.trx.domain.event.round.RoundStatus;
+import com.example.trx.domain.event.round.ScoreBasedRound;
+import com.example.trx.domain.event.round.TournamentRound;
 import com.example.trx.domain.judge.Judge;
 import com.example.trx.domain.event.round.run.Run;
 import com.example.trx.domain.user.Participant;
@@ -72,13 +74,27 @@ public class ContestEvent {//Aggregate Root
   private List<Participation> participations = new ArrayList<>();
 
   public Round addRound(String roundName, Integer limit, Integer runPerParticipant) {
-    Round round = Round.builder()
-        .contestEvent(this)
-        .name(roundName)
-        .status(RoundStatus.BEFORE)
-        .participantLimit(limit)
-        .runsPerParticipant(runPerParticipant)
-        .build();
+      Round round;
+
+    if (this.progressionType == RoundProgressionType.TOURNAMENT) {
+      round = TournamentRound.builder()
+          .contestEvent(this)
+          .name(roundName)
+          .status(RoundStatus.BEFORE)
+          .runsPerParticipant(runPerParticipant)
+          .progressionType(this.progressionType)
+          .participantLimit(limit)
+          .build();
+    } else {
+      round = ScoreBasedRound.builder()
+          .contestEvent(this)
+          .name(roundName)
+          .status(RoundStatus.BEFORE)
+          .runsPerParticipant(runPerParticipant)
+          .progressionType(this.progressionType)
+          .participantLimit(limit)
+          .build();
+    }
 
     rounds.add(round);
     return round;
