@@ -153,7 +153,6 @@ public class TournamentRound extends Round {
     if (runs.isEmpty()) throw new IllegalStateException("no runs added");
 
     status = RoundStatus.IN_PROGRESS;
-    RoundProgressionType progressionType = contestEvent.getProgressionType();
 
     for (Run run: runs) {
       for (Judge judge: judges) {

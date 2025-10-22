@@ -140,8 +140,9 @@ public class ContestEventApplicationService {
             roundNames.contains(round.getName())
         )
         .map( round -> {//TODO
-          if (round instanceof TournamentRound) return toRoundResponse((TournamentRound) round);
-          return toRoundResponse((ScoreBasedRound) round);
+          if (round instanceof TournamentRound tournamentRound) return toRoundResponse(tournamentRound);
+          if (round instanceof ScoreBasedRound scoreBasedRound) return toRoundResponse(scoreBasedRound);
+          return null;
         })
         .toList();
   }

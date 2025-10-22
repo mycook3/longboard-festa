@@ -72,8 +72,10 @@ public class ScoreBasedRound extends Round {
         .findFirst();
   }
 
+  @Override
   public void start(List<Judge> judges) {
     if (runs.isEmpty()) throw new IllegalStateException("no runs added");
+    status = RoundStatus.IN_PROGRESS;
 
     for (Run run: runs) {
         for (Judge judge: judges) {

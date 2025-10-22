@@ -45,7 +45,7 @@ spring:
     context-propagation: auto
   jpa:
     hibernate:
-      ddl-auto: create # 개발 단계: create | update | none
+      ddl-auto: update # 개발 단계: create | update | none
     open-in-view: false       # API 프로젝트면 권장
     properties:
       hibernate:
