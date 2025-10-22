@@ -24,10 +24,10 @@ import lombok.extern.slf4j.Slf4j;
 @Entity
 @Data
 @DiscriminatorValue("SCORE_BASED")
-@NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
 public class ScoreBasedRound extends Round {
+
   @Override
   public void addParticipants(List<Participant> participants) {
     if (participants.size() > participantLimit) {
@@ -53,12 +53,12 @@ public class ScoreBasedRound extends Round {
    * 라운드의 마지막 순서인 경우에는 예외를 던집니다
    */
   @Override
-  public void proceed(int activeJudgesCount) {
+  public void proceed() {
     RoundProgressionType progressionType = contestEvent.getProgressionType();
 
     if (currentRun == null) throw new IllegalStateException("no currentRun set");
 
-    if (currentRun.canBeCompleted(activeJudgesCount)) {
+    if (currentRun.canBeCompleted()) {
       currentRun.markAsDone();
       Optional<Run> nextRun = findNextRun();
 
