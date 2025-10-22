@@ -83,6 +83,8 @@ public class Run extends BaseTimeEntity {
     }
 
     public BigDecimal getScore() {
+      if (scores.isEmpty()) return BigDecimal.ZERO; //테스트용
+
       List<BigDecimal> scores = this.scores
           .stream()
           .filter(score -> score.getStatus() == ScoreStatus.SUBMITTED)
