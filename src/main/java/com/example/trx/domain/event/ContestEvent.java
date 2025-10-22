@@ -180,6 +180,7 @@ public class ContestEvent {//Aggregate Root
   public void startCurrentRound(List<Judge> activeJudges) {
     if (contestEventStatus != ContestEventStatus.IN_PROGRESS) throw new IllegalStateException("아직 시작되지 않은 종목입니다");
     if (currentRound == null) throw new IllegalStateException("no currentRound set");
+    if (currentRound.getStatus() != RoundStatus.BEFORE) throw new IllegalStateException("이미 진행 중이거나 종료된 라운드입니다");
     currentRound.start(activeJudges);
   }
 }
