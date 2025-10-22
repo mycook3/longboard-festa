@@ -178,6 +178,7 @@ public class ContestEvent {//Aggregate Root
    * 현재 활성화된 심사위원 목록을 가져와 그 수 * 참가자 별 시도 횟수만큼의 Run 객체를 생성, 저장합니다
    */
   public void startCurrentRound(List<Judge> activeJudges) {
+    if (contestEventStatus != ContestEventStatus.IN_PROGRESS) throw new IllegalStateException("아직 시작되지 않은 종목입니다");
     if (currentRound == null) throw new IllegalStateException("no currentRound set");
     currentRound.start(activeJudges);
   }
