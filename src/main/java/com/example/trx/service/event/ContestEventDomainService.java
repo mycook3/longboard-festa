@@ -1,7 +1,5 @@
 package com.example.trx.service.event;
 
-import static com.example.trx.domain.event.ContestEventStatus.IN_PROGRESS;
-
 import com.example.trx.domain.event.ContestEvent;
 import com.example.trx.domain.event.DisciplineCode;
 import com.example.trx.domain.event.Division;
@@ -86,6 +84,17 @@ public class ContestEventDomainService {
   public void initContest(Long eventId) {
     ContestEvent contestEvent = getContestEventById(eventId);
     contestEvent.init();
+
+    log.info("called");
+    //의존성 문제로 인해 Match가 있다면 Match 저장 -> 이후 Run 저장을 강제해야 함
+    if (contestEvent.getCurrentRound() instanceof TournamentRound) {
+      setUpTournamentRound((TournamentRound) contestEvent.getCurrentRound());
+    }
+  }
+
+  private void setUpTournamentRound(TournamentRound round) {
+    matchRepository.saveAll(round.getMatches());
+    runRepository.saveAll(round.getRuns());
   }
 
   @Transactional
@@ -102,18 +111,22 @@ public class ContestEventDomainService {
   }
 
   @Transactional
-  public void proceedRun(Long eventId) {
+  public void proceedRunOrMatch(Long eventId) {
     ContestEvent contestEvent = getContestEventById(eventId);
     contestEvent.proceedRunOrMatch();
   }
 
   @Transactional
-  public void proceedRound(Long eventId) {
+  public void proceedRound(Long eventId) {//TODO 분리 했던 거 같은데 왜 있지? 다시 확인하기
     ContestEvent contestEvent = getContestEventById(eventId);
     contestEvent.proceedRound();
 
     if (contestEvent.getCurrentRound().getStatus() == RoundStatus.IN_PROGRESS) {//다음 라운드로 넘긴 후 진행할 수 있다면
       startCurrentRound(eventId);
+    }
+
+    if (contestEvent.getCurrentRound() instanceof TournamentRound) {
+      setUpTournamentRound((TournamentRound) contestEvent.getCurrentRound());
     }
   }
 

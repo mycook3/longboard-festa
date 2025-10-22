@@ -14,6 +14,5 @@ public class JudgeResponse {
     private final String name;
     private final String username;
     private final Integer judgeNumber;
-    private final DisciplineCode disciplineCode;
     private final JudgeStatus status;
 }
