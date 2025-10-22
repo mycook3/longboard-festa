@@ -53,8 +53,6 @@ public class ScoreBasedRound extends Round {
    */
   @Override
   public void proceed() {
-    RoundProgressionType progressionType = contestEvent.getProgressionType();
-
     if (currentRun == null) throw new IllegalStateException("no currentRun set");
 
     if (currentRun.canBeCompleted()) {
