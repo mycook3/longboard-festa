@@ -147,7 +147,7 @@ public class Match {
       return winners;
     }
 
-    if (winner == null) throw new IllegalStateException("아직 매치의 승자가 결정되지 않았습니다.")
+    if (winner == null) throw new IllegalStateException("아직 매치의 승자가 결정되지 않았습니다.");
 
     return List.of(winner);
   }
