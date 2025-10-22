@@ -90,8 +90,8 @@ public class ContestEventController {
   @Operation(summary = "현재 진행 중인 라운드 정보를 반환", description = "현재 진행 중인 모든 종목의 현재 라운드 정보를 반환")
   @ResponseStatus(HttpStatus.OK)
   @GetMapping("/current")
-  public ApiResult<List<ContestEventResponse>> getContestsInProgressFilteringCurrentRound() {
-    return ApiResult.succeed(contestEventService.getContestEventsInProgress());
+  public ApiResult<ContestEventResponse> getContestsInProgressFilteringCurrentRound() {
+    return ApiResult.succeed(contestEventService.getContestEventsRoundInProgress());
   }
 
 

@@ -44,11 +44,9 @@ public class ContestEventApplicationService {
   }
 
   @Transactional
-  public List<ContestEventResponse> getContestEventsInProgress() {
-    List<ContestEvent> contestEvents = domainService.getContestEventsInProgress();
-    return contestEvents.stream().map(contestEvent ->
-        makeContestEventResponse(contestEvent, List.of(contestEvent.getCurrentRound().getName()))
-    ).toList();
+  public ContestEventResponse getContestEventsRoundInProgress() {
+    ContestEvent contestEvents = domainService.getContestEventsRoundInProgress();
+    return makeContestEventResponse(contestEvents, List.of(contestEvents.getCurrentRound().getName()));
   }
 
   //Transaction 동작 방식에 따라 Transactional을 붙이면 안됩니다
