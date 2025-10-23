@@ -31,7 +31,7 @@ public class ScoreBasedRound extends Round {
   public void addParticipants(List<Participant> participants) {
     if (participants.size() > participantLimit) {
       log.info("participants.size(): {}, limit: {}", participants.size(), participantLimit);
-      throw new IllegalArgumentException("참가자 제한 수 초과");
+      throw new IllegalArgumentException("참가자 제한 수 초과. expected: " + participantLimit + "actual: " + participants.size());
     }
 
     for (Participant participant : participants) {

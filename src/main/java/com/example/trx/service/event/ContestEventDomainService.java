@@ -140,13 +140,9 @@ public class ContestEventDomainService {
   }
 
   @Transactional
-  public void proceedRound(Long eventId) {//TODO 분리 했던 거 같은데 왜 있지? 다시 확인하기
+  public void proceedRound(Long eventId) {
     ContestEvent contestEvent = getContestEventById(eventId);
     contestEvent.proceedRound();
-
-    if (contestEvent.getCurrentRound().getStatus() == RoundStatus.IN_PROGRESS) {//다음 라운드로 넘긴 후 진행할 수 있다면
-      startCurrentRound(eventId);
-    }
 
     if (contestEvent.getCurrentRound() instanceof TournamentRound) {
       setUpTournamentRound((TournamentRound) contestEvent.getCurrentRound());
