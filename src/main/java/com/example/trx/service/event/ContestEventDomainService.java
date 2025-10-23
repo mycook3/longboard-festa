@@ -1,5 +1,7 @@
 package com.example.trx.service.event;
 
+import static com.example.trx.domain.event.ContestEventStatus.IN_PROGRESS;
+
 import com.example.trx.domain.event.ContestEvent;
 import com.example.trx.domain.event.DisciplineCode;
 import com.example.trx.domain.event.Division;
@@ -54,6 +56,12 @@ public class ContestEventDomainService {
     return contestEventRepository
         .findById(contestEventId)
         .orElseThrow(() -> new ContestEventNotFound(contestEventId));
+  }
+
+  @Transactional
+  public List<ContestEvent> getContestEventsRoundInProgress() {
+    List<Round> rounds = roundRepository.findRoundsByStatus(RoundStatus.IN_PROGRESS);
+    return rounds.stream().map(Round::getContestEvent).toList();
   }
 
   @Transactional

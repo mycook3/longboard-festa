@@ -72,7 +72,10 @@ public class Round {
   private List<Match> matches =  new ArrayList<>();
 
   public void addParticipants(List<Participant> participants) {
-    if (participants.size() > participantLimit) throw new IllegalArgumentException("참가자 제한 수 초과");
+    if (participants.size() > participantLimit) {
+      log.info("participants.size(): {}, limit: {}", participants.size(), participantLimit);
+      throw new IllegalArgumentException("참가자 제한 수 초과");
+    }
     RoundProgressionType progressionType = contestEvent.getProgressionType();
 
     switch (progressionType) {
@@ -142,6 +145,9 @@ public class Round {
 
   public void start(List<Judge> judges) {
     if (runs.isEmpty()) throw new IllegalStateException("no runs added");
+
+    status = RoundStatus.IN_PROGRESS;
+
     for (Run run: runs) {
       for (Judge judge: judges) {
         ScoreTotal emptyScoreSheet = ScoreTotal.builder()

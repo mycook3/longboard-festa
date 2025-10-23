@@ -27,7 +27,7 @@ spring:
       path: /h2-console
   datasource:
     #### h2 설정
-    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=MySQL
+    url: jdbc:h2:file:~/testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     username: sa
     password:
     driver-class-name: org.h2.Driver
@@ -45,7 +45,7 @@ spring:
     context-propagation: auto
   jpa:
     hibernate:
-      ddl-auto: create        # 개발 단계: create | update | none
+      ddl-auto: update # 개발 단계: create | update | none
     open-in-view: false       # API 프로젝트면 권장
     properties:
       hibernate:

@@ -1,0 +1,22 @@
+package com.example.trx.support.util;
+
+public enum SseEventType {
+  NONE,
+  EMITTER_CREATED,
+
+  TEST,
+  PING,
+
+  CONTEST_EVENT_STARTED,
+  CONTEST_EVENT_ENDED,
+
+  ROUND_PROCEEDED,
+  ROUND_STARTED,
+  RUN_PROCEEDED,
+
+  SCORE_SUBMITTED,
+  SCORE_EDITED,
+
+  MADE_BYE,
+  MADE_MANUAL_WINNER
+}

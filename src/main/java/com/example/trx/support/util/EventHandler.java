@@ -1,7 +1,8 @@
-package com.example.trx.service.sse;
+package com.example.trx.support.util;
 
-import com.example.trx.support.util.SseEvent;
+import com.example.trx.service.sse.SseService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 
@@ -11,7 +12,7 @@ public class EventHandler {
 
   private final SseService sseService;
 
-  @TransactionalEventListener
+  @EventListener
   public void handle(SseEvent event) {
     sseService.broadCast(event);
   }

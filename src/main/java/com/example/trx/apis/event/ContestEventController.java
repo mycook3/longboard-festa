@@ -51,12 +51,21 @@ public class ContestEventController {
     return ApiResult.succeed(null);
   }
 
-  @Operation(summary = "라운드 넘기기", description = "선택된 종목의 라운드를 다음으로 넘깁니다")
+  @Operation(summary = "라운드 넘기기", description = "현재 라운드를 종료하고 다음 라운드를 찾아 설정합니다")
   @ResponseStatus(HttpStatus.OK)
   @PreAuthorize("hasRole('ADMIN')")
   @PostMapping("/{id}/rounds/next")
   public ApiResult<Void> proceedRound(@PathVariable Long id) {
     contestEventService.proceedRound(id);
+    return ApiResult.succeed(null);
+  }
+
+  @Operation(summary = "현재 라운드 시작", description = "현재 설정된 라운드를 시작합니다")
+  @ResponseStatus(HttpStatus.OK)
+  @PreAuthorize("hasRole('ADMIN')")
+  @PostMapping("/{id}/rounds/start")
+  public ApiResult<Void> startCurrentRound(@PathVariable Long id) {
+    contestEventService.startCurrentRound(id);
     return ApiResult.succeed(null);
   }
 
@@ -78,7 +87,7 @@ public class ContestEventController {
 
   @Operation(summary = "종목명, division, 라운드명 기반 종목 정보 반환", description = "선택된 종목의 정보를 반환합니다")
   @ResponseStatus(HttpStatus.OK)
-  @GetMapping("/")
+  @GetMapping("")
   public ApiResult<ContestEventResponse> getContestEventByTypeAndDivision(
       @RequestParam(required = true) String event,
       @RequestParam(required = true) String division,
@@ -86,6 +95,14 @@ public class ContestEventController {
   ) {
     return ApiResult.succeed(contestEventService.getContestEventByEventNameAndDivision(event, division, round));
   }
+
+  @Operation(summary = "현재 진행 중인 라운드 정보를 반환", description = "현재 진행 중인 모든 종목의 현재 라운드 정보를 반환")
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping("/current")
+  public ApiResult<List<ContestEventResponse>> getContestsInProgressFilteringCurrentRound() {
+    return ApiResult.succeed(contestEventService.getContestEventsRoundInProgress());
+  }
+
 
   @Operation(summary = "채점 정보 제출", description = "특정 시도에 대한 채점 정보를 제출합니다")
   @ResponseStatus(HttpStatus.OK)
