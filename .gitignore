@@ -36,6 +36,7 @@ build/
 
 ### data ###
 /src/main/resources/data.xlsx
+/src/main/resources/data.sql
 
 
 ### VS Code ###
