@@ -33,6 +33,24 @@ public class ContestEventController {
 
   private final ContestEventApplicationService contestEventService;
 
+  @Operation(summary = "대회 시작", description = "모든 종목을 초기화하고 참가자를 배정합니다")
+  @ResponseStatus(HttpStatus.OK)
+  @PreAuthorize("hasRole('ADMIN')")
+  @PostMapping("/init")
+  public ApiResult<Void> initContest() {
+    contestEventService.initAll();
+    return ApiResult.succeed(null);
+  }
+
+  @Operation(summary = "초기화 여부 반환", description = "모든 종목이 제대로 초기화되었는지 확인합니다")
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping("/init/status")
+  public ApiResult<Boolean> isAllContestInitialized() {
+    Boolean isAllContestInitialized = contestEventService.isContestInitialized();
+    return ApiResult.succeed(isAllContestInitialized);
+  }
+
+  @Deprecated
   @Operation(summary = "종목 시작", description = "선택된 종목을 시작합니다")
   @ResponseStatus(HttpStatus.OK)
   @PreAuthorize("hasRole('ADMIN')")
@@ -42,6 +60,7 @@ public class ContestEventController {
     return ApiResult.succeed(null);
   }
 
+  @Deprecated
   @Operation(summary = "종목 종료", description = "선택된 종목을 종료합니다")
   @ResponseStatus(HttpStatus.OK)
   @PreAuthorize("hasRole('ADMIN')")
@@ -122,6 +141,7 @@ public class ContestEventController {
     return ApiResult.succeed(null);
   }
 
+  @Deprecated
   @Operation(summary = "라운드 생성", description = "새 라운드를 생성합니다")
   @PreAuthorize("hasRole('ADMIN')")
   @ResponseStatus(HttpStatus.OK)
@@ -131,6 +151,7 @@ public class ContestEventController {
     return ApiResult.succeed(null);
   }
 
+  @Deprecated
   @Operation(summary = "라운드 정보 변경", description = "해당 라운드의 정보를 변경합니다")
   @PreAuthorize("hasRole('ADMIN')")
   @ResponseStatus(HttpStatus.OK)
@@ -140,6 +161,7 @@ public class ContestEventController {
     return ApiResult.succeed(null);
   }
 
+  @Deprecated
   @Operation(summary = "라운드 삭제", description = "라운드 정보를 삭제합니다.")
   @PreAuthorize("hasRole('ADMIN')")
   @ResponseStatus(HttpStatus.OK)

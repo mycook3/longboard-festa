@@ -14,7 +14,6 @@ import com.example.trx.repository.event.ContestEventRepository;
 import com.example.trx.service.judge.JudgeService;
 import com.example.trx.service.user.ParticipantService;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -155,7 +154,6 @@ class DomainServiceTest {
         .name("김심사")
         .username("judge_kim")
         .password("1234")
-        .disciplineCode(DisciplineCode.FREESTYLE)
         .build();
 
     judgeService.createJudge(judgeCreateReq);
@@ -197,14 +195,12 @@ class DomainServiceTest {
         .name("김심사")
         .username("judge_kim")
         .password("1234")
-        .disciplineCode(DisciplineCode.FREESTYLE)
         .build();
 
     JudgeCreateRequest judgeCreateReq2 = JudgeCreateRequest.builder()
         .name("박심사")
         .username("judge_park")
         .password("1234")
-        .disciplineCode(DisciplineCode.FREESTYLE)
         .build();
 
     judgeService.createJudge(judgeCreateReq1);
@@ -264,7 +260,6 @@ class DomainServiceTest {
         .name("김심사")
         .username("judge_kim")
         .password("1234")
-        .disciplineCode(DisciplineCode.FREESTYLE)
         .build();
 
     judgeService.createJudge(judgeCreateReq);
@@ -273,7 +268,7 @@ class DomainServiceTest {
     contestEventDomainService.startCurrentRound(1L);
     contestEventDomainService.submitScore(1L, 1L, BigDecimal.valueOf(100), "어쩌고저쩌고");
 
-    contestEventDomainService.proceedRun(1L);
+    contestEventDomainService.proceedRunOrMatch(1L);
 
     ContestEvent saved = transactionTemplate.execute(status -> {
       ContestEvent ev = contestEventRepository.findById(1L).orElse(null);

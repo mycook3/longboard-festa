@@ -10,8 +10,9 @@ import com.example.trx.apis.event.dto.response.RunResponse;
 import com.example.trx.apis.event.dto.response.ScoreResponse;
 import com.example.trx.apis.event.dto.request.SubmitScoreRequest;
 import com.example.trx.domain.event.ContestEvent;
-import com.example.trx.domain.event.RoundProgressionType;
 import com.example.trx.domain.event.round.Round;
+import com.example.trx.domain.event.round.ScoreBasedRound;
+import com.example.trx.domain.event.round.TournamentRound;
 import com.example.trx.domain.event.round.match.Match;
 import com.example.trx.domain.event.round.run.Run;
 import com.example.trx.domain.event.round.run.score.ScoreTotal;
@@ -20,10 +21,13 @@ import com.example.trx.support.util.SseEventType;
 import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Hibernate;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ContestEventApplicationService {
@@ -54,21 +58,30 @@ public class ContestEventApplicationService {
         .toList();
   }
 
+  public void initAll() {
+    domainService.initAll();
+    eventPublisher.publishEvent(SseEvent.of(SseEventType.CONTEST_STARTED, "started"));
+  }
+
+  public Boolean isContestInitialized() {
+    return domainService.isContestInitialized();
+  }
+
   //Transaction 동작 방식에 따라 Transactional을 붙이면 안됩니다
+  @Deprecated
   public void startContestEvent(Long eventId) {
     domainService.initContest(eventId);
-    domainService.startCurrentRound(eventId);
-
     eventPublisher.publishEvent(SseEvent.of(SseEventType.CONTEST_EVENT_STARTED, eventId));
   }
 
+  @Deprecated
   public void endContestEvent(Long eventId) {
     domainService.endContestEvent(eventId);
     eventPublisher.publishEvent(SseEvent.of(SseEventType.CONTEST_EVENT_ENDED, eventId));
   }
 
   public void proceedRun(Long eventId) {
-    domainService.proceedRun(eventId);
+    domainService.proceedRunOrMatch(eventId);
     eventPublisher.publishEvent(SseEvent.of(SseEventType.RUN_PROCEEDED, eventId));
   }
 
@@ -82,10 +95,12 @@ public class ContestEventApplicationService {
     eventPublisher.publishEvent(SseEvent.of(SseEventType.ROUND_STARTED, eventId));
   }
 
+  @Deprecated
   public void addRound(Long contestId, AddRoundRequest request){
     domainService.addRound(contestId, request.getRoundName(), request.getLimit(), request.getRunPerParticipant());
   }
 
+  @Deprecated
   public void editRound(Long roundId, EditRoundRequest request){
     domainService.editRound(roundId, request.getRoundName(), request.getLimit());
   }
@@ -124,7 +139,7 @@ public class ContestEventApplicationService {
         .division(contestEvent.getDivision().name())
         .currentRound(contestEvent.getCurrentRound() != null
             ? contestEvent.getCurrentRound().getName()
-            : "")
+            : null)
         .rounds(makeRoundResponseList(contestEvent.getRounds(), roundNames))
         .build();
   }
@@ -132,27 +147,20 @@ public class ContestEventApplicationService {
   private List<RoundResponse> makeRoundResponseList(List<Round> rounds, List<String> roundNames) {
     if (rounds.isEmpty()) return Collections.emptyList();
 
-    boolean isTournament = rounds.get(0).getContestEvent().getProgressionType() == RoundProgressionType.TOURNAMENT;
-
     return rounds.stream()
         .filter(
             round -> roundNames == null || roundNames.isEmpty() ||
             roundNames.contains(round.getName())
         )
-        .map( round ->
-            RoundResponse.builder()
-                .id(round.getId())
-                .name(round.getName())
-                .participantLimit(round.getParticipantLimit())
-                .status(round.getStatus().name())
-                .currentRunId(round.getCurrentRun() != null
-                    ? round.getCurrentRun().getId()
-                    : null
-                )
-                .matches(isTournament ? makeMatchResponseList(round.getMatches()) : null)
-                .runs(!isTournament ? makeRunResponseList(round.getRuns()) : null)
-                .build()
-        )
+        .map( round -> {//프록시 객체
+          Round actual = (Round) Hibernate.unproxy(round);//언프록시
+
+          if (actual instanceof TournamentRound tournamentRound) return toRoundResponse(tournamentRound);
+          if (actual instanceof ScoreBasedRound scoreBasedRound) return toRoundResponse(scoreBasedRound);
+          log.warn("null round object {}", actual.getId());
+
+          return null;
+        })
         .toList();
   }
 
@@ -204,5 +212,41 @@ public class ContestEventApplicationService {
                 .build()
             )
         .toList();
+  }
+
+  private RoundResponse toRoundResponse(ScoreBasedRound round) {
+     return RoundResponse.builder()
+        .id(round.getId())
+        .name(round.getName())
+        .participantLimit(round.getParticipantLimit())
+        .status(round.getStatus().name())
+        .currentRunId(
+            round.getCurrentRun() != null
+                ? round.getCurrentRun().getId()
+                : null
+        )
+        .currentMatchId(null)
+        .runs(makeRunResponseList(round.getRuns()))
+        .build();
+  }
+
+  private RoundResponse toRoundResponse(TournamentRound round) {
+      return RoundResponse.builder()
+          .id(round.getId())
+          .name(round.getName())
+          .participantLimit(round.getParticipantLimit())
+          .status(round.getStatus().name())
+          .currentRunId(
+              round.getCurrentRun() != null
+                  ? round.getCurrentRun().getId()
+                  : null
+          )
+          .currentMatchId(
+              round.getCurrentMatch() != null
+                ? round.getCurrentMatch().getId()
+                : null
+          )
+          .matches(makeMatchResponseList(round.getMatches()))
+          .build();
   }
 }
