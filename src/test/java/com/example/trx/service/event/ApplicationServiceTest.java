@@ -100,7 +100,6 @@ class ApplicationServiceTest {
     applicationService.startContestEvent(1L);
 
     JudgeCreateRequest judgeCreateReq = JudgeCreateRequest.builder()
-        .judgeNumber(1)
         .name("김심사")
         .username("judge_kim")
         .password("1234")
@@ -153,7 +152,6 @@ class ApplicationServiceTest {
     domainService.startContestEvent(1L);
 
     JudgeCreateRequest judgeCreateReq = JudgeCreateRequest.builder()
-        .judgeNumber(1)
         .name("김심사")
         .username("judge_kim")
         .password("1234")
@@ -208,7 +206,6 @@ class ApplicationServiceTest {
     applicationService.startContestEvent(1L);
 
     JudgeCreateRequest judgeCreateReq = JudgeCreateRequest.builder()
-        .judgeNumber(1)
         .name("김심사")
         .username("judge_kim")
         .password("1234")
