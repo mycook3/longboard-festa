@@ -151,7 +151,6 @@ class DomainServiceTest {
 
 
     JudgeCreateRequest judgeCreateReq = JudgeCreateRequest.builder()
-        .judgeNumber(1)
         .name("김심사")
         .username("judge_kim")
         .password("1234")
@@ -194,7 +193,6 @@ class DomainServiceTest {
     ///////////////////////////////////////////
 
     JudgeCreateRequest judgeCreateReq1 = JudgeCreateRequest.builder()
-        .judgeNumber(1)
         .name("김심사")
         .username("judge_kim")
         .password("1234")
@@ -202,7 +200,6 @@ class DomainServiceTest {
         .build();
 
     JudgeCreateRequest judgeCreateReq2 = JudgeCreateRequest.builder()
-        .judgeNumber(2)
         .name("박심사")
         .username("judge_park")
         .password("1234")
@@ -263,7 +260,6 @@ class DomainServiceTest {
     ///////////////////////////////////////////
 
     JudgeCreateRequest judgeCreateReq = JudgeCreateRequest.builder()
-        .judgeNumber(1)
         .name("김심사")
         .username("judge_kim")
         .password("1234")
@@ -325,7 +321,6 @@ class DomainServiceTest {
     ///////////////////////////////////////////
 
     JudgeCreateRequest judgeCreateReq = JudgeCreateRequest.builder()
-        .judgeNumber(1)
         .name("김심사")
         .username("judge_kim")
         .password("1234")
