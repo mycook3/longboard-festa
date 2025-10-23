@@ -63,6 +63,12 @@ public class ContestEventDomainService {
   }
 
   @Transactional
+  public List<ContestEvent> getContestEventsRoundInProgress() {
+    List<Round> rounds = roundRepository.findRoundsByStatus(RoundStatus.IN_PROGRESS);
+    return rounds.stream().map(Round::getContestEvent).toList();
+  }
+
+  @Transactional
   public Round addRound(Long eventId, String roundName, Integer limit, Integer runPerParticipant) {
     ContestEvent contestEvent = getContestEventById(eventId);
     return contestEvent.addRound(roundName, limit, runPerParticipant);

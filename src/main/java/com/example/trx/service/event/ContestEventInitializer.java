@@ -7,12 +7,14 @@ import com.example.trx.domain.event.RoundProgressionType;
 import com.example.trx.domain.event.exception.ContestEventNotFound;
 import com.example.trx.repository.event.ContestEventRepository;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,23 +49,23 @@ public class ContestEventInitializer implements ApplicationRunner {
   }
 
   private void initFreeStyleRounds() {
-      Map<String, Integer> beginner = Map.copyOf(new LinkedHashMap<>() {{
-        put("qualifier", 10);
-        put("semifinal", 5);
-        put("final", 3);
-      }});
+      List<Map.Entry<String, Integer>> beginner = List.of (
+        Map.entry("qualifier", 10),
+        Map.entry("semifinal", 5),
+        Map.entry("final", 3)
+      );
 
-      Map<String, Integer> open = Map.copyOf(new LinkedHashMap<>() {{
-        put("qualifier", 13);
-        put("semifinal", 7);
-        put("final", 4);
-      }});
+      List<Map.Entry<String, Integer>> open= List.of(
+        Map.entry("qualifier", 13),
+        Map.entry("semifinal", 7),
+        Map.entry("final", 4)
+      );
 
-      Map<String, Integer> pro = Map.copyOf(new LinkedHashMap<>() {{
-        put("qualifier", 21);
-        put("semifinal", 11);
-        put("final", 4);
-      }});
+    List<Map.Entry<String, Integer>> pro= List.of(
+        Map.entry("qualifier", 21),
+        Map.entry("semifinal", 11),
+        Map.entry("final", 4)
+      );
 
     for (Division division : Division.values()) {
       ContestEvent cev = contestEventRepository.findContestEventByDivisionAndDisciplineCode(division, DisciplineCode.FREESTYLE)
@@ -78,24 +80,24 @@ public class ContestEventInitializer implements ApplicationRunner {
   }
 
   private void initSlalomRounds() {
-    Map<String, Integer> beginner = Map.copyOf(new LinkedHashMap<>() {{
-      put("round16", 16);
-      put("round8", 8);
-      put("semifinal", 4);
-      put("final", 2);
-    }});
+    List<Map.Entry<String, Integer>> beginner = List.of(
+      Map.entry("round16", 16),
+      Map.entry("round8", 8),
+      Map.entry("semifinal", 4),
+      Map.entry("final", 2)
+    );
 
-    Map<String, Integer> open = Map.copyOf(new LinkedHashMap<>() {{
-      put("round8", 8);
-      put("semifinal", 4);
-      put("final", 2);
-    }});
+    List<Map.Entry<String, Integer>> open = List.of(
+      Map.entry("round8", 8),
+      Map.entry("semifinal", 4),
+      Map.entry("final", 2)
+    );
 
-    Map<String, Integer> pro = Map.copyOf(new LinkedHashMap<>() {{
-      put("round8", 8);
-      put("semifinal", 4);
-      put("final", 2);
-    }});
+    List<Map.Entry<String, Integer>> pro = List.of(
+      Map.entry("round8", 8),
+      Map.entry("semifinal", 4),
+      Map.entry("final", 2)
+    );
 
     for (Division division : Division.values()) {
       ContestEvent cev = contestEventRepository.findContestEventByDivisionAndDisciplineCode(division, DisciplineCode.SLALOM)
@@ -112,17 +114,17 @@ public class ContestEventInitializer implements ApplicationRunner {
   }
 
   private void initDancingRounds() {
-    Map<String, Integer> beginner = Map.copyOf(new LinkedHashMap<>() {{
-      put("final", 5);
-    }});
+    List<Map.Entry<String, Integer>> beginner = List.of(
+      Map.entry("final", 5)
+    );
 
-    Map<String, Integer> open = Map.copyOf(new LinkedHashMap<>() {{
-      put("final", 7);
-    }});
+    List<Map.Entry<String, Integer>> open = List.of(
+      Map.entry("final", 7)
+    );
 
-    Map<String, Integer> pro = Map.copyOf(new LinkedHashMap<>() {{
-      put("final", 12);
-    }});
+    List<Map.Entry<String, Integer>> pro = List.of(
+      Map.entry("final", 12)
+    );
 
     for (Division division : Division.values()) {
       ContestEvent cev = contestEventRepository.findContestEventByDivisionAndDisciplineCode(division, DisciplineCode.LONGBOARD_DANCING)
@@ -136,7 +138,11 @@ public class ContestEventInitializer implements ApplicationRunner {
     }
   }
 
-  private void addRounds(ContestEvent contestEvent, Map<String, Integer> rounds, Integer runPerParticipant) {
-    rounds.forEach((name, limit) -> domainService.addRound(contestEvent.getId(), name, limit, runPerParticipant));
+  private void addRounds(ContestEvent contestEvent, List<Map.Entry<String, Integer>> rounds, Integer runPerParticipant) {
+    rounds.forEach(round -> {
+      String name = round.getKey();
+      Integer limit = round.getValue();
+      domainService.addRound(contestEvent.getId(), name, limit, runPerParticipant);
+    });
   }
 }

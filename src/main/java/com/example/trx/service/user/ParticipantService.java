@@ -39,11 +39,14 @@ public class ParticipantService {
       private final ParticipantRepository participantRepository;
       private final ContestEventRepository contestEventRepository;
 
-        @Transactional
+      @Transactional
       public int readExcel() throws IOException {
           int count = 0;
+
           ClassPathResource resource = new ClassPathResource("data.xlsx");
-          File file = resource.getFile();
+
+          File file =  resource.getFile();
+
           String filePath = "C:\\Users\\mycoo\\Documents\\카카오톡 받은 파일\\data.xlsx";
           try (FileInputStream fis = new FileInputStream(file);
                Workbook workbook = new XSSFWorkbook(fis)) {
