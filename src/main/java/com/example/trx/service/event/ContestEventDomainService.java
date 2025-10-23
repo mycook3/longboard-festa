@@ -144,7 +144,7 @@ public class ContestEventDomainService {
     ContestEvent contestEvent = getContestEventById(eventId);
     contestEvent.proceedRound();
 
-    if (contestEvent.getCurrentRound() instanceof TournamentRound) {
+    if (contestEvent.getCurrentRound() instanceof TournamentRound && contestEvent.getContestEventStatus() == ContestEventStatus.READY) {
       setUpTournamentRound((TournamentRound) contestEvent.getCurrentRound());
     }
   }

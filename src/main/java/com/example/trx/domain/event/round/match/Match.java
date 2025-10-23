@@ -67,7 +67,7 @@ public class Match {
 
   public void start() {
      if (runs.isEmpty()) throw new IllegalStateException("no runs added");
-
+     markAsOngoing();
      currentRun = runs.get(0);
      currentRun.markAsOngoing();
   }
