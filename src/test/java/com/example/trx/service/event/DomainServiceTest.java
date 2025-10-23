@@ -154,7 +154,6 @@ class DomainServiceTest {
         .name("김심사")
         .username("judge_kim")
         .password("1234")
-        .disciplineCode(DisciplineCode.FREESTYLE)
         .build();
 
     judgeService.createJudge(judgeCreateReq);
@@ -196,14 +195,12 @@ class DomainServiceTest {
         .name("김심사")
         .username("judge_kim")
         .password("1234")
-        .disciplineCode(DisciplineCode.FREESTYLE)
         .build();
 
     JudgeCreateRequest judgeCreateReq2 = JudgeCreateRequest.builder()
         .name("박심사")
         .username("judge_park")
         .password("1234")
-        .disciplineCode(DisciplineCode.FREESTYLE)
         .build();
 
     judgeService.createJudge(judgeCreateReq1);
@@ -263,7 +260,6 @@ class DomainServiceTest {
         .name("김심사")
         .username("judge_kim")
         .password("1234")
-        .disciplineCode(DisciplineCode.FREESTYLE)
         .build();
 
     judgeService.createJudge(judgeCreateReq);
