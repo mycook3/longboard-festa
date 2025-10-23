@@ -8,6 +8,7 @@ import com.example.trx.domain.user.Participant;
 import com.example.trx.support.util.BaseTimeEntity;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -77,12 +78,13 @@ public class Run extends BaseTimeEntity {
         this.status = RunStatus.ONGOING;
     }
 
-    public boolean canBeCompleted(int judgeCount) {
-      long submittedCount = scores.stream().filter(score -> score.getStatus() == ScoreStatus.SUBMITTED).count();
-      return submittedCount == judgeCount;
+    public boolean canBeCompleted() {
+      return scores.stream().allMatch(scoreTotal -> scoreTotal.getStatus() == ScoreStatus.SUBMITTED);
     }
 
     public BigDecimal getScore() {
+      if (scores.isEmpty()) return BigDecimal.ZERO; //테스트용
+
       List<BigDecimal> scores = this.scores
           .stream()
           .filter(score -> score.getStatus() == ScoreStatus.SUBMITTED)
@@ -91,11 +93,12 @@ public class Run extends BaseTimeEntity {
           .toList();
 
       if (scores.size() > 2) {//3인 이상. 최고점/최저점을 제외
-        return scores.subList(1, scores.size() - 1)
-            .stream()
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        List<BigDecimal> middleScores = scores.subList(1, scores.size() - 1);
+        BigDecimal sum = middleScores.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+        return sum.divide(BigDecimal.valueOf(middleScores.size()), 2, RoundingMode.HALF_UP);
       }
 
-      return scores.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+      BigDecimal sum = scores.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+      return sum.divide(BigDecimal.valueOf(scores.size()), 2, RoundingMode.HALF_UP);
     }
 }

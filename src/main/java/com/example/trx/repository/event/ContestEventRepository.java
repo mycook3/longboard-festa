@@ -13,4 +13,5 @@ import org.springframework.stereotype.Repository;
 public interface ContestEventRepository extends JpaRepository<ContestEvent, Long> {
   Optional<ContestEvent> findContestEventByDivisionAndDisciplineCode( Division division, DisciplineCode disciplineCode);
   List<ContestEvent> findContestEventByContestEventStatus(ContestEventStatus contestEventStatus);
+  Long countContestEventByContestEventStatusIsNot(ContestEventStatus contestEventStatus);
 }
