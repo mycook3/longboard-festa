@@ -58,14 +58,23 @@ public class ContestEventApplicationService {
         .toList();
   }
 
+  public void initAll() {
+    domainService.initAll();
+    eventPublisher.publishEvent(SseEvent.of(SseEventType.CONTEST_STARTED, "started"));
+  }
+
+  public Boolean isContestInitialized() {
+    return domainService.isContestInitialized();
+  }
+
   //Transaction 동작 방식에 따라 Transactional을 붙이면 안됩니다
+  @Deprecated
   public void startContestEvent(Long eventId) {
     domainService.initContest(eventId);
-    domainService.startCurrentRound(eventId);
-
     eventPublisher.publishEvent(SseEvent.of(SseEventType.CONTEST_EVENT_STARTED, eventId));
   }
 
+  @Deprecated
   public void endContestEvent(Long eventId) {
     domainService.endContestEvent(eventId);
     eventPublisher.publishEvent(SseEvent.of(SseEventType.CONTEST_EVENT_ENDED, eventId));
@@ -86,10 +95,12 @@ public class ContestEventApplicationService {
     eventPublisher.publishEvent(SseEvent.of(SseEventType.ROUND_STARTED, eventId));
   }
 
+  @Deprecated
   public void addRound(Long contestId, AddRoundRequest request){
     domainService.addRound(contestId, request.getRoundName(), request.getLimit(), request.getRunPerParticipant());
   }
 
+  @Deprecated
   public void editRound(Long roundId, EditRoundRequest request){
     domainService.editRound(roundId, request.getRoundName(), request.getLimit());
   }

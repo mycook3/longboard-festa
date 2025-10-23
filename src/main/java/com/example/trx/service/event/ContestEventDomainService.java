@@ -1,8 +1,10 @@
 package com.example.trx.service.event;
 
 import com.example.trx.domain.event.ContestEvent;
+import com.example.trx.domain.event.ContestEventStatus;
 import com.example.trx.domain.event.DisciplineCode;
 import com.example.trx.domain.event.Division;
+import com.example.trx.domain.event.RoundProgressionType;
 import com.example.trx.domain.event.round.Round;
 import com.example.trx.domain.event.exception.ContestEventNotFound;
 import com.example.trx.domain.event.round.RoundStatus;
@@ -81,13 +83,34 @@ public class ContestEventDomainService {
   }
 
   @Transactional
+  public void initAll() {
+    List<ContestEvent> contestEvents = contestEventRepository.findAll();
+
+    for (ContestEvent contestEvent : contestEvents) {
+      if (contestEvent.getContestEventStatus() != ContestEventStatus.NOT_INITIALIZED) continue;
+
+      contestEvent.init();
+       if (contestEvent.getProgressionType() == RoundProgressionType.TOURNAMENT) {
+        setUpTournamentRound((TournamentRound) contestEvent.getCurrentRound());
+      }
+    }
+  }
+
+  public Boolean isContestInitialized() {
+    Long initializedCount = contestEventRepository.countContestEventByContestEventStatusIsNot(ContestEventStatus.NOT_INITIALIZED);
+    Long allCount = contestEventRepository.count();
+    return initializedCount.equals(allCount);
+  }
+
+
+  @Transactional
   public void initContest(Long eventId) {
     ContestEvent contestEvent = getContestEventById(eventId);
     contestEvent.init();
 
     log.info("called");
     //의존성 문제로 인해 Match가 있다면 Match 저장 -> 이후 Run 저장을 강제해야 함
-    if (contestEvent.getCurrentRound() instanceof TournamentRound) {
+    if (contestEvent.getProgressionType() == RoundProgressionType.TOURNAMENT) {
       setUpTournamentRound((TournamentRound) contestEvent.getCurrentRound());
     }
   }
