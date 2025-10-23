@@ -28,168 +28,181 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ContestEventApplicationService {
 
-  private final ApplicationEventPublisher eventPublisher;
-  private final ContestEventDomainService domainService;
+    private final ApplicationEventPublisher eventPublisher;
+    private final ContestEventDomainService domainService;
 
-  @Transactional //DTO 매핑을 위한 lazy fetch용 Transaction 유지(osiv off)
-  public ContestEventResponse getContestEventById(Long contestEventId) {
-    ContestEvent contestEvent  = domainService.getContestEventById(contestEventId);
-    return makeContestEventResponse(contestEvent, Collections.emptyList());
-  }
+    @Transactional //DTO 매핑을 위한 lazy fetch용 Transaction 유지(osiv off)
+    public ContestEventResponse getContestEventById(Long contestEventId) {
+        ContestEvent contestEvent  = domainService.getContestEventById(contestEventId);
+        return makeContestEventResponse(contestEvent, Collections.emptyList());
+    }
 
-  @Transactional //DTO 매핑을 위한 lazy fetch용 Transaction 유지(osiv off)
-  public ContestEventResponse getContestEventByEventNameAndDivision(String eventName, String division, List<String> roundNames) {
-    ContestEvent contestEvent  = domainService.getContestEventByDivisionAndDisciplineCode(division, eventName);
-    return makeContestEventResponse(contestEvent, roundNames);
-  }
+    @Transactional //DTO 매핑을 위한 lazy fetch용 Transaction 유지(osiv off)
+    public ContestEventResponse getContestEventByEventNameAndDivision(String eventName, String division, List<String> roundNames) {
+        ContestEvent contestEvent  = domainService.getContestEventByDivisionAndDisciplineCode(division, eventName);
+        return makeContestEventResponse(contestEvent, roundNames);
+    }
 
-  @Transactional
-  public List<ContestEventResponse> getContestEventsInProgress() {
-    List<ContestEvent> contestEvents = domainService.getContestEventsInProgress();
-    return contestEvents.stream().map(contestEvent ->
-        makeContestEventResponse(contestEvent, List.of(contestEvent.getCurrentRound().getName()))
-    ).toList();
-  }
+    @Transactional
+    public List<ContestEventResponse> getContestEventsRoundInProgress() {
+        List<ContestEvent> currentEvents = domainService.getContestEventsRoundInProgress();
+        return currentEvents.stream().map(contestEvent ->
+                        makeContestEventResponse(contestEvent,
+                                contestEvent.getCurrentRound() == null
+                                        ? null
+                                        : List.of(contestEvent.getCurrentRound().getName())))
+                .toList();
+    }
 
-  //Transaction 동작 방식에 따라 Transactional을 붙이면 안됩니다
-  public void startContestEvent(Long eventId) {
-    domainService.initContest(eventId);
-    domainService.startCurrentRound(eventId);
+    //Transaction 동작 방식에 따라 Transactional을 붙이면 안됩니다
+    public void startContestEvent(Long eventId) {
+        domainService.initContest(eventId);
+        domainService.startCurrentRound(eventId);
 
-    eventPublisher.publishEvent(SseEvent.of(SseEventType.CONTEST_EVENT_STARTED, eventId));
-  }
+        eventPublisher.publishEvent(SseEvent.of(SseEventType.CONTEST_EVENT_STARTED, eventId));
+    }
 
-  public void endContestEvent(Long eventId) {
-    domainService.endContestEvent(eventId);
-    eventPublisher.publishEvent(SseEvent.of(SseEventType.CONTEST_EVENT_ENDED, eventId));
-  }
+    public void endContestEvent(Long eventId) {
+        domainService.endContestEvent(eventId);
+        eventPublisher.publishEvent(SseEvent.of(SseEventType.CONTEST_EVENT_ENDED, eventId));
+    }
 
-  public void proceedRun(Long eventId) {
-    domainService.proceedRun(eventId);
-    eventPublisher.publishEvent(SseEvent.of(SseEventType.RUN_PROCEEDED, eventId));
-  }
+    public void proceedRun(Long eventId) {
+        domainService.proceedRun(eventId);
+        eventPublisher.publishEvent(SseEvent.of(SseEventType.RUN_PROCEEDED, eventId));
+    }
 
-  public void proceedRound(Long eventId) {
-    domainService.proceedRound(eventId);
-    eventPublisher.publishEvent(SseEvent.of(SseEventType.ROUND_PROCEEDED, eventId));
-  }
+    public void proceedRound(Long eventId) {
+        domainService.proceedRound(eventId);
+        eventPublisher.publishEvent(SseEvent.of(SseEventType.ROUND_PROCEEDED, eventId));
+    }
 
-  public void addRound(Long contestId, AddRoundRequest request){
-    domainService.addRound(contestId, request.getRoundName(), request.getLimit(), request.getRunPerParticipant());
-  }
+    public void startCurrentRound(Long eventId) {
+        domainService.startCurrentRound(eventId);
+        eventPublisher.publishEvent(SseEvent.of(SseEventType.ROUND_STARTED, eventId));
+    }
 
-  public void editRound(Long roundId, EditRoundRequest request){
-    domainService.editRound(roundId, request.getRoundName(), request.getLimit());
-  }
+    public void addRound(Long contestId, AddRoundRequest request){
+        domainService.addRound(contestId, request.getRoundName(), request.getLimit(), request.getRunPerParticipant());
+    }
 
-  public void makeMatchBye(Long matchId) {
-    domainService.makeMatchBye(matchId);
-    eventPublisher.publishEvent(SseEvent.of(SseEventType.MADE_BYE, matchId));
-  }
+    public void editRound(Long roundId, EditRoundRequest request){
+        domainService.editRound(roundId, request.getRoundName(), request.getLimit());
+    }
 
-  public void makeManualParticipant(Long matchId, Long participantId) {
-    domainService.makeManualParticipant(matchId, participantId);
-    eventPublisher.publishEvent(SseEvent.of(SseEventType.MADE_MANUAL_WINNER, matchId));
-  }
+    public void makeMatchBye(Long matchId) {
+        domainService.makeMatchBye(matchId);
+        eventPublisher.publishEvent(SseEvent.of(SseEventType.MADE_BYE, matchId));
+    }
 
-  public void deleteRound(Long roundId) {
-    domainService.deleteRound(roundId);
-  }
+    public void makeManualParticipant(Long matchId, Long participantId) {
+        domainService.makeManualParticipant(matchId, participantId);
+        eventPublisher.publishEvent(SseEvent.of(SseEventType.MADE_MANUAL_WINNER, matchId));
+    }
 
-  public void submitScore(Long runId, SubmitScoreRequest request) {
-    domainService.submitScore(runId, request.getJudgeId(), request.getScoreTotal(), request.getBreakdownJson());
-    eventPublisher.publishEvent(SseEvent.of(SseEventType.SCORE_SUBMITTED, runId));
-  }
+    public void deleteRound(Long roundId) {
+        domainService.deleteRound(roundId);
+    }
 
-  public void editScore(Long scoreId, EditScoreRequest request) {
-    domainService.editScore(scoreId, request.getScoreTotal(), request.getBreakdownJson(), request.getEditedBy(), request.getEditReason());
-    eventPublisher.publishEvent(SseEvent.of(SseEventType.SCORE_EDITED, scoreId));
-  }
+    public void submitScore(Long runId, SubmitScoreRequest request) {
+        domainService.submitScore(runId, request.getJudgeId(), request.getScoreTotal(), request.getBreakdownJson());
+        eventPublisher.publishEvent(SseEvent.of(SseEventType.SCORE_SUBMITTED, runId));
+    }
 
-  private ContestEventResponse makeContestEventResponse(ContestEvent contestEvent, List<String> roundNames) {
-    return ContestEventResponse.builder()
-        .id(contestEvent.getId())
-        .eventName(contestEvent.getDisciplineCode().name())
-        .status(contestEvent.getContestEventStatus().name())
-        .roundProgressionType(contestEvent.getProgressionType().name())
-        .division(contestEvent.getDivision().name())
-        .currentRound(contestEvent.getCurrentRound() != null
-            ? contestEvent.getCurrentRound().getName()
-            : "")
-        .rounds(makeRoundResponseList(contestEvent.getRounds(), roundNames))
-        .build();
-  }
+    public void editScore(Long scoreId, EditScoreRequest request) {
+        domainService.editScore(scoreId, request.getScoreTotal(), request.getBreakdownJson(), request.getEditedBy(), request.getEditReason());
+        eventPublisher.publishEvent(SseEvent.of(SseEventType.SCORE_EDITED, scoreId));
+    }
 
-  private List<RoundResponse> makeRoundResponseList(List<Round> rounds, List<String> roundNames) {
-    if (rounds.isEmpty()) return Collections.emptyList();
+    private ContestEventResponse makeContestEventResponse(ContestEvent contestEvent, List<String> roundNames) {
+        if (contestEvent == null) return null;
+        return ContestEventResponse.builder()
+                .id(contestEvent.getId())
+                .eventName(contestEvent.getDisciplineCode().name())
+                .status(contestEvent.getContestEventStatus().name())
+                .roundProgressionType(contestEvent.getProgressionType().name())
+                .division(contestEvent.getDivision().name())
+                .currentRound(contestEvent.getCurrentRound() != null
+                        ? contestEvent.getCurrentRound().getName()
+                        : "")
+                .rounds(makeRoundResponseList(contestEvent.getRounds(), roundNames))
+                .build();
+    }
 
-    boolean isTournament = rounds.get(0).getContestEvent().getProgressionType() == RoundProgressionType.TOURNAMENT;
+    private List<RoundResponse> makeRoundResponseList(List<Round> rounds, List<String> roundNames) {
+        if (rounds.isEmpty()) return Collections.emptyList();
 
-    return rounds.stream()
-        .filter(
-            round -> roundNames == null || roundNames.isEmpty() ||
-            roundNames.contains(round.getName())
-        )
-        .map( round ->
-            RoundResponse.builder()
-                .id(round.getId())
-                .name(round.getName())
-                .participantLimit(round.getParticipantLimit())
-                .status(round.getStatus().name())
-                .currentRunId(round.getCurrentRun() != null
-                    ? round.getCurrentRun().getId()
-                    : null
+        boolean isTournament = rounds.get(0).getContestEvent().getProgressionType() == RoundProgressionType.TOURNAMENT;
+
+        return rounds.stream()
+                .filter(
+                        round -> roundNames == null || roundNames.isEmpty() ||
+                                roundNames.contains(round.getName())
                 )
-                .matches(isTournament ? makeMatchResponseList(round.getMatches()) : null)
-                .runs(!isTournament ? makeRunResponseList(round.getRuns()) : null)
-                .build()
-        )
-        .toList();
-  }
+                .map( round ->
+                        RoundResponse.builder()
+                                .id(round.getId())
+                                .name(round.getName())
+                                .participantLimit(round.getParticipantLimit())
+                                .status(round.getStatus().name())
+                                .currentRunId(round.getCurrentRun() != null
+                                        ? round.getCurrentRun().getId()
+                                        : null
+                                )
+                                .matches(isTournament ? makeMatchResponseList(round.getMatches()) : null)
+                                .runs(!isTournament ? makeRunResponseList(round.getRuns()) : null)
+                                .build()
+                )
+                .toList();
+    }
 
-  private List<MatchResponse> makeMatchResponseList(List<Match> matches) {
-    return matches.stream()
-        .map( match ->
-            MatchResponse.builder()
-                .id(match.getId())
-                .type(match.getMatchType().name())
-                .participant1Id(match.getParticipant1().getId())
-                .participant1Name(match.getParticipant1().getNameKr())
-                .participant2Id(match.getParticipant2() == null? null : match.getParticipant2().getId())
-                .participant2Name(match.getParticipant2() == null? null : match.getParticipant2().getNameKr())
-                .runs(makeRunResponseList(match.getRuns()))
-                .build()
-        )
-        .toList();
-  }
+    private List<MatchResponse> makeMatchResponseList(List<Match> matches) {
+        if (matches == null) return Collections.emptyList();
+        return matches.stream()
+                .map( match ->
+                        MatchResponse.builder()
+                                .id(match.getId())
+                                .type(match.getMatchType().name())
+                                .participant1Id(match.getParticipant1().getId())
+                                .participant1Name(match.getParticipant1().getNameKr())
+                                .participant2Id(match.getParticipant2() == null? null : match.getParticipant2().getId())
+                                .participant2Name(match.getParticipant2() == null? null : match.getParticipant2().getNameKr())
+                                .runs(makeRunResponseList(match.getRuns()))
+                                .build()
+                )
+                .toList();
+    }
 
-  private List<RunResponse> makeRunResponseList(List<Run> runs) {
-    return runs.stream()
-        .map(run ->
-            RunResponse.builder()
-                .id(run.getId())
-                .attemptNumber(run.getAttemptNumber())
-                .participantId(run.getParticipant().getId())
-                .participantName(run.getParticipant().getNameKr())
-                .status(run.getStatus().name())
-                .scores(makeScoreResponseList(run.getScores()))
-                .build()
-        )
-        .toList();
-  }
+    private List<RunResponse> makeRunResponseList(List<Run> runs) {
+        if (runs == null) return Collections.emptyList();
 
-  private List<ScoreResponse> makeScoreResponseList(List<ScoreTotal> scores) {
-    return scores.stream()
-        .map(score ->
-            ScoreResponse.builder()
-                .id(score.getId())
-                .score(score.getTotal())
-                .status(score.getStatus().name())
-                .judgeId(score.getJudge().getId())
-                .judgeName(score.getJudge().getName())
-                .breakdownJson(score.getBreakdownJson())
-                .build()
-            )
-        .toList();
-  }
+        return runs.stream()
+                .map(run ->
+                        RunResponse.builder()
+                                .id(run.getId())
+                                .attemptNumber(run.getAttemptNumber())
+                                .participantId(run.getParticipant().getId())
+                                .participantName(run.getParticipant().getNameKr())
+                                .status(run.getStatus().name())
+                                .scores(makeScoreResponseList(run.getScores()))
+                                .build()
+                )
+                .toList();
+    }
+
+    private List<ScoreResponse> makeScoreResponseList(List<ScoreTotal> scores) {
+        if (scores == null) return Collections.emptyList();
+        return scores.stream()
+                .map(score ->
+                        ScoreResponse.builder()
+                                .id(score.getId())
+                                .score(score.getTotal())
+                                .status(score.getStatus().name())
+                                .judgeId(score.getJudge().getId())
+                                .judgeName(score.getJudge().getName())
+                                .breakdownJson(score.getBreakdownJson())
+                                .build()
+                )
+                .toList();
+    }
 }

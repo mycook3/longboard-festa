@@ -36,7 +36,7 @@ public class JudgeService {
             .name(request.getName())
             .username(request.getUsername())
             .password(passwordEncoder.encode(request.getPassword()))
-            .judgeNumber(request.getJudgeNumber())
+            .judgeNumber(0)
             .status(JudgeStatus.ACTIVE)
             .build();
 
@@ -46,7 +46,6 @@ public class JudgeService {
             .id(saved.getId())
             .name(saved.getName())
             .username(saved.getUsername())
-            .judgeNumber(saved.getJudgeNumber())
             .status(saved.getStatus())
             .build();
     }
@@ -58,7 +57,6 @@ public class JudgeService {
                 .id(judge.getId())
                 .name(judge.getName())
                 .username(judge.getUsername())
-                .judgeNumber(judge.getJudgeNumber())
                 .status(judge.getStatus())
                 .build())
             .collect(Collectors.toList());
@@ -76,7 +74,6 @@ public class JudgeService {
             .id(judge.getId())
             .name(judge.getName())
             .username(judge.getUsername())
-            .judgeNumber(judge.getJudgeNumber())
             .status(judge.getStatus())
             .build();
     }
