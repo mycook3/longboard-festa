@@ -27,8 +27,9 @@ public class Judge extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Builder.Default
     @Column(name = "judge_number", nullable = false)
-    private Integer judgeNumber;
+    private Integer judgeNumber = 0;
 
     @Column(name = "name", nullable = false, length = 64)
     private String name;
