@@ -145,7 +145,7 @@ public class TournamentRound extends Round {
   private void moveToMatch(Match match) {
     if (match == null) throw new IllegalArgumentException("Run is null");
     currentMatch = match;
-    match.markAsOngoing();
+    currentMatch.start();
   }
 
   @Override
@@ -166,7 +166,6 @@ public class TournamentRound extends Round {
     }
 
     currentMatch = matches.get(0);
-    currentMatch.markAsOngoing();
     currentMatch.start();
   }
 
