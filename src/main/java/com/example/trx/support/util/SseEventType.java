@@ -7,9 +7,10 @@ public enum SseEventType {
     TEST,
     PING,
 
+    CONTEST_STARTED,
     CONTEST_EVENT_STARTED,
     CONTEST_EVENT_ENDED,
-
+    
     ROUND_PROCEEDED,
     ROUND_STARTED,
     RUN_PROCEEDED,

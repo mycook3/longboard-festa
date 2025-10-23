@@ -1,15 +1,15 @@
 package com.example.trx.service.event;
 
-import static com.example.trx.domain.event.ContestEventStatus.IN_PROGRESS;
-
 import com.example.trx.domain.event.ContestEvent;
+import com.example.trx.domain.event.ContestEventStatus;
 import com.example.trx.domain.event.DisciplineCode;
 import com.example.trx.domain.event.Division;
+import com.example.trx.domain.event.RoundProgressionType;
 import com.example.trx.domain.event.round.Round;
 import com.example.trx.domain.event.exception.ContestEventNotFound;
 import com.example.trx.domain.event.round.RoundStatus;
+import com.example.trx.domain.event.round.TournamentRound;
 import com.example.trx.domain.event.round.match.Match;
-import com.example.trx.domain.event.round.match.MatchType;
 import com.example.trx.domain.judge.Judge;
 import com.example.trx.domain.judge.exception.JudgeNotFoundException;
 import com.example.trx.domain.event.round.run.Run;
@@ -87,9 +87,41 @@ public class ContestEventDomainService {
   }
 
   @Transactional
+  public void initAll() {
+    List<ContestEvent> contestEvents = contestEventRepository.findAll();
+
+    for (ContestEvent contestEvent : contestEvents) {
+      if (contestEvent.getContestEventStatus() != ContestEventStatus.NOT_INITIALIZED) continue;
+
+      contestEvent.init();
+       if (contestEvent.getProgressionType() == RoundProgressionType.TOURNAMENT) {
+        setUpTournamentRound((TournamentRound) contestEvent.getCurrentRound());
+      }
+    }
+  }
+
+  public Boolean isContestInitialized() {
+    Long initializedCount = contestEventRepository.countContestEventByContestEventStatusIsNot(ContestEventStatus.NOT_INITIALIZED);
+    Long allCount = contestEventRepository.count();
+    return initializedCount.equals(allCount);
+  }
+
+
+  @Transactional
   public void initContest(Long eventId) {
     ContestEvent contestEvent = getContestEventById(eventId);
     contestEvent.init();
+
+    log.info("called");
+    //의존성 문제로 인해 Match가 있다면 Match 저장 -> 이후 Run 저장을 강제해야 함
+    if (contestEvent.getProgressionType() == RoundProgressionType.TOURNAMENT) {
+      setUpTournamentRound((TournamentRound) contestEvent.getCurrentRound());
+    }
+  }
+
+  private void setUpTournamentRound(TournamentRound round) {
+    matchRepository.saveAll(round.getMatches());
+    runRepository.saveAll(round.getRuns());
   }
 
   @Transactional
@@ -106,10 +138,9 @@ public class ContestEventDomainService {
   }
 
   @Transactional
-  public void proceedRun(Long eventId) {
+  public void proceedRunOrMatch(Long eventId) {
     ContestEvent contestEvent = getContestEventById(eventId);
-    int activeJudgesCount = judgeRepository.findAllByDeletedFalse().size();
-    contestEvent.proceedRun(activeJudgesCount);
+    contestEvent.proceedRunOrMatch();
   }
 
   @Transactional
@@ -117,8 +148,8 @@ public class ContestEventDomainService {
     ContestEvent contestEvent = getContestEventById(eventId);
     contestEvent.proceedRound();
 
-    if (contestEvent.getCurrentRound().getStatus() == RoundStatus.IN_PROGRESS) {//다음 라운드로 넘긴 후 진행할 수 있다면
-      startCurrentRound(eventId);
+    if (contestEvent.getCurrentRound() instanceof TournamentRound && contestEvent.getContestEventStatus() == ContestEventStatus.READY) {
+      setUpTournamentRound((TournamentRound) contestEvent.getCurrentRound());
     }
   }
 
@@ -141,7 +172,13 @@ public class ContestEventDomainService {
   @Transactional
   public void makeMatchBye(Long matchId) {
     Match match = matchRepository.findById(matchId).orElseThrow(IllegalArgumentException::new);
-    match.setMatchType(MatchType.BYE);
+    Round round = match.getRound();
+    if (!(round instanceof TournamentRound tournamentRound)) {
+      throw new IllegalStateException("토너먼트 라운드가 아닙니다");
+    }
+    else {
+      tournamentRound.makeMatchBye(match);
+    }
   }
 
   @Transactional
@@ -149,6 +186,18 @@ public class ContestEventDomainService {
     Match match = matchRepository.findById(matchId).orElseThrow(IllegalArgumentException::new);
     Participant participant = participantRepository.findById(participantId).orElseThrow(IllegalArgumentException::new);
 
-    match.setWinner(participant);
+    Round round = match.getRound();
+    if (!(round instanceof TournamentRound tournamentRound)) {
+      throw new IllegalStateException("토너먼트 라운드가 아닙니다");
+    }
+    else {
+      tournamentRound.setManualWinner(match, participant);
+    }
+  }
+
+  @Transactional
+  public void calculateMatchResult(Long matchId) {
+    Match match = matchRepository.findById(matchId).orElseThrow(IllegalArgumentException::new);
+    match.getWinner();
   }
 }
