@@ -110,6 +110,7 @@ public class JudgeService {
         return AdminTokenResponse.builder()
             .token(token)
             .tokenType(AdminTokenResponse.TokenType.BEARER)
+            .judgeId(judge.getId())
             .build();
     }
 
