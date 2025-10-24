@@ -36,7 +36,7 @@ public class JwtTokenProvider {
 
     public JwtTokenProvider(
         @Value("${SECURITY_JWT_SECRET:}") String secret,
-        @Value("${SECURITY_JWT_TOKEN_VALIDITY_IN_SECONDS:3600}") long validityInSeconds
+        @Value("${SECURITY_JWT_TOKEN_VALIDITY_IN_SECONDS:36000}") long validityInSeconds
     ) {
         String resolvedSecret = StringUtils.hasText(secret) ? secret : DEFAULT_SECRET;
         byte[] keyBytes = resolveKeyBytes(resolvedSecret);
