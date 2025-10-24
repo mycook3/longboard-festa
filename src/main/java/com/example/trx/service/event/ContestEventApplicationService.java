@@ -193,6 +193,8 @@ public class ContestEventApplicationService {
                 .participantName(run.getParticipant().getNameKr())
                 .status(run.getStatus().name())
                 .scores(makeScoreResponseList(run.getScores()))
+                .touch(run.getTouch())
+                .record(run.getRecord())
                 .build()
         )
         .toList();
