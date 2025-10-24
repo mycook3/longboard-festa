@@ -43,23 +43,13 @@ public class JudgeService {
 
         Judge saved = judgeRepository.save(judge);
 
-        return JudgeResponse.builder()
-            .id(saved.getId())
-            .name(saved.getName())
-            .username(saved.getUsername())
-            .status(saved.getStatus())
-            .build();
+        return toResponse(saved);
     }
 
     @Transactional(readOnly = true)
     public List<JudgeResponse> getJudges() {
         return judgeRepository.findAllByDeletedFalse().stream()
-            .map(judge -> JudgeResponse.builder()
-                .id(judge.getId())
-                .name(judge.getName())
-                .username(judge.getUsername())
-                .status(judge.getStatus())
-                .build())
+            .map(this::toResponse)
             .collect(Collectors.toList());
     }
 
@@ -71,12 +61,7 @@ public class JudgeService {
         judge.setName(request.getName());
         judge.setStatus(request.getStatus());
 
-        return JudgeResponse.builder()
-            .id(judge.getId())
-            .name(judge.getName())
-            .username(judge.getUsername())
-            .status(judge.getStatus())
-            .build();
+        return toResponse(judge);
     }
 
     @Transactional
@@ -111,6 +96,22 @@ public class JudgeService {
             .token(token)
             .tokenType(AdminTokenResponse.TokenType.BEARER)
             .judgeId(judge.getId())
+            .build();
+    }
+
+    @Transactional(readOnly = true)
+    public JudgeResponse getJudgeProfile(Long judgeId) {
+        Judge judge = judgeRepository.findByIdAndDeletedFalse(judgeId)
+            .orElseThrow(() -> new JudgeNotFoundException(judgeId));
+        return toResponse(judge);
+    }
+
+    private JudgeResponse toResponse(Judge judge) {
+        return JudgeResponse.builder()
+            .id(judge.getId())
+            .name(judge.getName())
+            .username(judge.getUsername())
+            .status(judge.getStatus())
             .build();
     }
 

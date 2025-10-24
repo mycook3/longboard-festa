@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -47,6 +48,13 @@ public class JudgeController {
         @Valid @RequestBody JudgeLoginRequest request
     ) {
         return ApiResult.succeed(judgeService.loginJudge(request.getUsername(), request.getPassword()));
+    }
+
+    @Operation(summary = "심사위원 본인 정보 조회", description = "judgeId로 심사위원 정보를 조회합니다.")
+    @GetMapping("/me")
+    @PreAuthorize("hasAnyRole('ADMIN','JUDGE')")
+    public ApiResult<JudgeResponse> getMe(@RequestParam Long judgeId) {
+        return ApiResult.succeed(judgeService.getJudgeProfile(judgeId));
     }
 
     @Operation(summary = "심사위원 목록 조회", description = "심사위원의 기본 정보를 조회합니다.")

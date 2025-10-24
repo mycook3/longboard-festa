@@ -66,6 +66,7 @@ public class SecurityConfig {
                     "/api/v3/api-docs/**",
                     "/api/v1/users/**"
                 ).permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/judges/me").hasAnyRole("JUDGE", "ADMIN")
                 .requestMatchers("/api/v1/judges/**").hasRole("ADMIN")
                 .requestMatchers("/error", "/error/**").permitAll()
                 .requestMatchers("/api/v1/sse/**").permitAll()
