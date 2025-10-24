@@ -95,10 +95,6 @@ spring:
         show_sql: false
         dialect: org.hibernate.dialect.PostgreSQLDialect
         # naming 전략 (스프링 기본은 camelCasesnake_case)
-
-# Secret Manager 활성화 (Spring Cloud GCP를 사용하면 기본값으로 true일 수 있지만 명시하는 것이 좋습니다.)
-spring.cloud.gcp.secretmanager.enabled: true
-
 logging:
   level:
     org.hibernate.SQL: off          # 쿼리 로그
