@@ -25,6 +25,7 @@ public class JudgeService {
     private final JudgeRepository judgeRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private static final int USERNAME_MAX_LENGTH = 50;
 
     @Transactional
     public JudgeResponse createJudge(JudgeCreateRequest request) {
@@ -82,6 +83,15 @@ public class JudgeService {
     public void deactivateJudge(Long judgeId) {
         Judge judge = judgeRepository.findByIdAndDeletedFalse(judgeId)
             .orElseThrow(() -> new JudgeNotFoundException(judgeId));
+        String suffix = "-deleted-" + System.currentTimeMillis();
+        int maxBaseLength = Math.max(0, USERNAME_MAX_LENGTH - suffix.length());
+        String base = judge.getUsername();
+        if (maxBaseLength == 0) {
+            base = Long.toString(System.currentTimeMillis());
+        } else if (base.length() > maxBaseLength) {
+            base = base.substring(0, maxBaseLength);
+        }
+        judge.setUsername((base != null ? base : "") + suffix);
         judge.setStatus(JudgeStatus.INACTIVE);
         judge.markDeleted();
     }
