@@ -123,11 +123,13 @@ public class ContestEventInitializer implements ApplicationRunner {
     );
 
     List<Map.Entry<String, Integer>> open = List.of(
-      Map.entry("final", 7)
+      Map.entry("qualifier", 7),
+      Map.entry("final", 4)
     );
 
     List<Map.Entry<String, Integer>> pro = List.of(
-      Map.entry("final", 12)
+      Map.entry("qualifier", 12),
+      Map.entry("final", 6)
     );
 
     for (Division division : Division.values()) {
