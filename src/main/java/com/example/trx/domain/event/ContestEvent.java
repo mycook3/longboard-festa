@@ -176,7 +176,6 @@ public class ContestEvent {//Aggregate Root
 
     List<Participant> survivors = currentRound.getSurvivors(nextRound);
     nextRound.addParticipants(survivors);
-    nextRound.markAsInProgress();
 
     currentRound = nextRound;
   }
