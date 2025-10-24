@@ -12,7 +12,7 @@ import lombok.Setter;
 public class Participation {//초기 등록 현황을 기록
 
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @GeneratedValue
   private Long id;
 
   @Enumerated(EnumType.STRING)
