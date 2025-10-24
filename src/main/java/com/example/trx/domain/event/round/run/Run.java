@@ -79,6 +79,9 @@ public class Run extends BaseTimeEntity {
     }
 
     public boolean canBeCompleted() {
+      log.info("submit count: {}", scores.stream().filter(scoreTotal -> scoreTotal.getStatus() == ScoreStatus.SUBMITTED).count());
+      log.info("scores count: {}", (long) scores.size());
+      if (!scores.isEmpty()) { log.info(scores.get(0).getId().toString()) ;}
       return scores.stream().allMatch(scoreTotal -> scoreTotal.getStatus() == ScoreStatus.SUBMITTED);
     }
 
