@@ -10,6 +10,7 @@ import com.example.trx.domain.event.exception.ContestEventNotFound;
 import com.example.trx.domain.event.round.RoundStatus;
 import com.example.trx.domain.event.round.TournamentRound;
 import com.example.trx.domain.event.round.match.Match;
+import com.example.trx.domain.event.round.run.RunStatus;
 import com.example.trx.domain.judge.Judge;
 import com.example.trx.domain.judge.exception.JudgeNotFoundException;
 import com.example.trx.domain.event.round.run.Run;
@@ -152,6 +153,7 @@ public class ContestEventDomainService {
   @Transactional
   public void submitScore(Long runId, Long judgeId, BigDecimal score, String breakdownJson) {
     Run run = runRepository.findById(runId).orElseThrow(() -> new RunNotFoundException(runId));
+    if (run.getStatus() != RunStatus.ONGOING) throw new IllegalStateException("진행 중에 있는 run이 아닙니다");
     Judge judge = judgeRepository.findById(judgeId).orElseThrow(() -> new JudgeNotFoundException(judgeId));
     judge.submitScore(run, score, breakdownJson);
   }

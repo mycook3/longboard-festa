@@ -207,7 +207,7 @@ public class ContestEventApplicationService {
                 .score(score.getTotal())
                 .status(score.getStatus().name())
                 .judgeId(score.getJudge().getId())
-                .judgeName(score.getJudge().getName())
+                .judgeName(score.getJudge().getUsername())
                 .breakdownJson(score.getBreakdownJson())
                 .build()
             )
