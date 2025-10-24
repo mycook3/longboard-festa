@@ -71,9 +71,9 @@ tomcat:
     enabled: true
 spring:
   datasource:
-    url: ${sm://postgres-db-url}
-    username: ${sm://postgres-db-username}
-    password: ${sm://postgres-db-password}
+    url: ${postgres-db-url}
+    username: ${postgres-db-username}
+    password: ${postgres-db-password}
     driver-class-name: org.postgresql.Driver
     hikari:                   # (선택) 풀 사이즈 튜닝
       maximum-pool-size: 10   # 동시 커넥션 최대치
