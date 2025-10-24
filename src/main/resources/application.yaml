@@ -25,10 +25,8 @@ spring:
     console:
       enabled: true
       path: /h2-console
-  sql:
-    init:
-      mode: always
-      platform: h2
+  # sql.init.mode: always
+  # sql.init.platform: h2
 
   datasource:
     #### h2 설정
@@ -50,7 +48,7 @@ spring:
     context-propagation: auto
   jpa:
     hibernate:
-      ddl-auto: create # 개발 단계: create | update | none
+      ddl-auto: update # 개발 단계: create | update | none
     open-in-view: false       # API 프로젝트면 권장
     properties:
       hibernate:
@@ -60,7 +58,7 @@ spring:
         dialect: org.hibernate.dialect.H2Dialect
         jdbc:
           use_get_generated_keys: false
-    defer-datasource-initialization: true
+    # defer-datasource-initialization: true
 
 logging:
   level:
