@@ -65,6 +65,7 @@ public class Run extends BaseTimeEntity {
     private List<ScoreTotal> scores = new ArrayList<>();
 
     private BigDecimal record;
+
     private Integer touch;
 
     // 편의 메서드

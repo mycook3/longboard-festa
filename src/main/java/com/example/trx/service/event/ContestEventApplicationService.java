@@ -2,6 +2,7 @@ package com.example.trx.service.event;
 
 import com.example.trx.apis.event.dto.request.AddRoundRequest;
 import com.example.trx.apis.event.dto.request.EditRoundRequest;
+import com.example.trx.apis.event.dto.request.SlalomRequest;
 import com.example.trx.apis.event.dto.response.ContestEventResponse;
 import com.example.trx.apis.event.dto.request.EditScoreRequest;
 import com.example.trx.apis.event.dto.response.MatchResponse;
@@ -127,6 +128,10 @@ public class ContestEventApplicationService {
   public void editScore(Long scoreId, EditScoreRequest request) {
     domainService.editScore(scoreId, request.getScoreTotal(), request.getBreakdownJson(), request.getEditedBy(), request.getEditReason());
     eventPublisher.publishEvent(SseEvent.of(SseEventType.SCORE_EDITED, scoreId));
+  }
+
+  public void setSlalom(Long id, SlalomRequest request) {
+    domainService.setSlalom(id, request.getCount(), request.getRecord());
   }
 
   private ContestEventResponse makeContestEventResponse(ContestEvent contestEvent, List<String> roundNames) {

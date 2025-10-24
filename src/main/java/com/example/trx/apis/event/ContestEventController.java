@@ -4,6 +4,7 @@ import com.example.trx.apis.dto.ApiResult;
 import com.example.trx.apis.event.dto.request.AddRoundRequest;
 import com.example.trx.apis.event.dto.request.EditRoundRequest;
 import com.example.trx.apis.event.dto.request.ManualWinnerRequest;
+import com.example.trx.apis.event.dto.request.SlalomRequest;
 import com.example.trx.apis.event.dto.response.ContestEventResponse;
 import com.example.trx.apis.event.dto.request.EditScoreRequest;
 import com.example.trx.apis.event.dto.request.SubmitScoreRequest;
@@ -124,7 +125,6 @@ public class ContestEventController {
     return ApiResult.succeed(contestEventService.getContestEventsRoundInProgress());
   }
 
-
   @Operation(summary = "채점 정보 제출", description = "특정 시도에 대한 채점 정보를 제출합니다")
   @ResponseStatus(HttpStatus.OK)
   @PreAuthorize("hasRole('JUDGE')")
@@ -193,6 +193,20 @@ public class ContestEventController {
     contestEventService.makeManualParticipant(id, request.getParticipantId());
     return ApiResult.succeed(null);
   }
+
+  @Operation(summary = "런의 추가 점수 설정", description = "슬라럼용 전역 기록 API")
+  @PreAuthorize("hasRole('ADMIN')")
+  @ResponseStatus(HttpStatus.OK)
+  @PostMapping("/runs/{id}/slalom")
+  public ApiResult<Void> submitSlalomRecord(
+      @PathVariable Long id,
+      @RequestBody SlalomRequest request
+  ) {
+    contestEventService.setSlalom(id, request);
+    return ApiResult.succeed(null);
+  }
+
+
 
 }
 

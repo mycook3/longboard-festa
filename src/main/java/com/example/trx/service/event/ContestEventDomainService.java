@@ -198,4 +198,11 @@ public class ContestEventDomainService {
     Match match = matchRepository.findById(matchId).orElseThrow(IllegalArgumentException::new);
     match.getWinner();
   }
+
+  @Transactional
+  public void setSlalom(Long id, Integer count, BigDecimal record) {
+    Run run = runRepository.findById(id).orElseThrow(IllegalArgumentException::new);
+    run.setTouch(count);
+    run.setRecord(record);
+  }
 }
