@@ -8,6 +8,7 @@ import com.example.trx.domain.user.Participant;
 import com.example.trx.support.util.BaseTimeEntity;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.*;
 import lombok.AllArgsConstructor;
@@ -63,6 +64,10 @@ public class Run extends BaseTimeEntity {
     @Builder.Default
     private List<ScoreTotal> scores = new ArrayList<>();
 
+    private BigDecimal record;
+
+    private Integer touch;
+
     // 편의 메서드
     public void addScore(ScoreTotal score) {
       score.setRun(this);
@@ -98,10 +103,10 @@ public class Run extends BaseTimeEntity {
       if (scores.size() > 2) {//3인 이상. 최고점/최저점을 제외
         List<BigDecimal> middleScores = scores.subList(1, scores.size() - 1);
         BigDecimal sum = middleScores.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
-        return sum.divide(BigDecimal.valueOf(middleScores.size()), 2, RoundingMode.HALF_UP);
+        return sum.divide(BigDecimal.valueOf(middleScores.size()), 2, RoundingMode.HALF_UP).add(record).subtract(BigDecimal.valueOf(0.5 * touch));
       }
 
       BigDecimal sum = scores.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
-      return sum.divide(BigDecimal.valueOf(scores.size()), 2, RoundingMode.HALF_UP);
+      return sum.divide(BigDecimal.valueOf(scores.size()), 2, RoundingMode.HALF_UP).add(record).subtract(BigDecimal.valueOf(0.5 * touch));
     }
 }

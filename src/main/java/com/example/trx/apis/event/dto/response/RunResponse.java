@@ -1,5 +1,6 @@
 package com.example.trx.apis.event.dto.response;
 
+import java.math.BigDecimal;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,5 +13,7 @@ public class RunResponse {
   private Long participantId;
   private String participantName;
   private String status;
+  private BigDecimal record;
+  private Integer touch;
   private List<ScoreResponse> scores;
 }
