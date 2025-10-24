@@ -19,6 +19,7 @@ WORKDIR /app
 # build stage에서 생성된 jar 복사 (Maven은 target/)
 COPY --from=build /app/target/*.jar app.jar
 
+ENV PORT=8080
 EXPOSE 8080
 
 # 실행
