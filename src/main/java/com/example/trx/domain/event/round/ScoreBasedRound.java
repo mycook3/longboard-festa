@@ -58,7 +58,6 @@ public class ScoreBasedRound extends Round {
     if (currentRun.canBeCompleted()) {
       currentRun.markAsDone();
       Optional<Run> nextRun = findNextRun();
-
       nextRun.ifPresent(this::moveToRun);
     }
     else throw new IllegalStateException("일부 심사위원이 점수를 제출하지 않았습니다.");
