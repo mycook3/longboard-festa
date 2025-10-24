@@ -64,6 +64,10 @@ logging:
 
 ---
 ####### prod
+server:
+  port: ${PORT:8080} # Cloud Run이 설정하는 PORT 환경 변수를 사용하거나, 기본값 8080을 사용
+  address: 0.0.0.0   # 0.0.0.0에서 리스닝해야 함
+
 tomcat:
   ajp:
     protocol: AJP/1.3
