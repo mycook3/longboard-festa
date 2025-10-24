@@ -1,11 +1,13 @@
 package com.example.trx.domain.judge.exception;
 
+import com.example.trx.domain.exception.BusinessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.UNAUTHORIZED)
-public class JudgeInvalidCredentialsException extends RuntimeException {
+public class JudgeInvalidCredentialsException extends BusinessException {
+
     public JudgeInvalidCredentialsException() {
-        super("잘못된 심사위원 인증 정보입니다.");
+        super(JudgeErrorCode.JUDGE_INVALID_CREDENTIALS);
     }
 }

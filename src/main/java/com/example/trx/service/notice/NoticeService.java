@@ -38,7 +38,7 @@ public class NoticeService {
             : now;
 
         if (applyAt.isBefore(now)) {
-            throw new InvalidNoticeScheduleException("적용 시각은 현재 시각보다 과거일 수 없습니다.");
+            throw new InvalidNoticeScheduleException();
         }
 
         Notice notice = Notice.builder()

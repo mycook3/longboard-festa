@@ -1,7 +1,10 @@
 package com.example.trx.domain.notice.exception;
 
-public class NoticeNotFoundException extends RuntimeException {
+import com.example.trx.domain.exception.BusinessException;
+
+public class NoticeNotFoundException extends BusinessException {
+
     public NoticeNotFoundException(Long id) {
-        super("공지(" + id + ")를 찾을 수 없습니다.");
+        super(NoticeErrorCode.NOTICE_NOT_FOUND, id);
     }
 }

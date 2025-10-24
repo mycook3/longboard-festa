@@ -1,6 +1,8 @@
 package com.example.trx.apis.advice;
 
 import com.example.trx.apis.dto.ErrorResponse;
+import com.example.trx.domain.exception.BusinessException;
+import com.example.trx.domain.exception.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.http.HttpStatus;
@@ -15,6 +17,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Throwable.class)
     public ResponseEntity<ErrorResponse> handle(Throwable throwable) {
+        if (throwable instanceof BusinessException businessException) {
+            return handleBusinessException(businessException);
+        }
+
         HttpStatus status = resolveStatus(throwable);
         String message = resolveMessage(throwable, status);
 
@@ -24,6 +30,16 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(status)
             .body(ErrorResponse.of(status.value(), message));
+    }
+
+    private ResponseEntity<ErrorResponse> handleBusinessException(BusinessException exception) {
+        ErrorCode errorCode = exception.getErrorCode();
+        HttpStatus status = errorCode.getStatus();
+        if (status.is5xxServerError()) {
+            log.error("Business exception", exception);
+        }
+        return ResponseEntity.status(status)
+            .body(ErrorResponse.of(errorCode, exception.getMessage()));
     }
 
     private HttpStatus resolveStatus(Throwable throwable) {
