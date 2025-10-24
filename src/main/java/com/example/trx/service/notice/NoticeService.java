@@ -109,15 +109,6 @@ public class NoticeService {
         Notice notice = noticeRepository.findByIdAndDeletedFalse(noticeId)
             .orElseThrow(() -> new NoticeNotFoundException(noticeId));
 
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime applyAt = request.getApplyAt() != null
-            ? request.getApplyAt()
-            : notice.getApplyAt();
-
-        if (applyAt.isBefore(now)) {
-            throw new InvalidNoticeScheduleException("적용 시각은 현재 시각보다 과거일 수 없습니다.");
-        }
-
         NoticeImportance importance = request.getImportance() != null
             ? request.getImportance()
             : notice.getImportance();
@@ -126,7 +117,6 @@ public class NoticeService {
         notice.setContent(request.getContent());
         notice.setPinned(request.isPinned());
         notice.setImportance(importance);
-        notice.setApplyAt(applyAt);
 
         return toResponse(notice);
     }
