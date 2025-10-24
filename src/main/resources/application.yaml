@@ -71,9 +71,9 @@ tomcat:
     enabled: true
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: ${sm://postgres-db-url}
+    username: ${sm://postgres-db-username}
+    password: ${sm://postgres-db-password}
     driver-class-name: org.postgresql.Driver
     hikari:                   # (선택) 풀 사이즈 튜닝
       maximum-pool-size: 10   # 동시 커넥션 최대치
@@ -95,6 +95,10 @@ spring:
         show_sql: false
         dialect: org.hibernate.dialect.PostgreSQLDialect
         # naming 전략 (스프링 기본은 camelCasesnake_case)
+
+# Secret Manager 활성화 (Spring Cloud GCP를 사용하면 기본값으로 true일 수 있지만 명시하는 것이 좋습니다.)
+spring.cloud.gcp.secretmanager.enabled: true
+
 logging:
   level:
     org.hibernate.SQL: off          # 쿼리 로그
